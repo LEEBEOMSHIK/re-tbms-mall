@@ -1,0 +1,3 @@
+# Preserve original asset and generated-mesh hashes across Windows checkouts.
+scripts/garment-assets/source/*.obj -text
+apps/web/src/features/garment-designer/garment-mesh-data.json -text

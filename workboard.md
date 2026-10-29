@@ -28,7 +28,7 @@
 - 내용: 검토한 3D 원단·핏·후드 둘레 나염을 관리자 인증 및 서버 버전 저장에 연결
 - 완료 기준: 기존 관리자 보존, v1 문서 호환, v2 저장·자산권한·충돌·실기검증, 통합 후 안전한 정리
 - 선행 조건: WB83 및 독립 샘플 검토 수용
-- 검증: 기능 통합·독립 검증 통과(API505/최종47, 웹159, 렌더러7, lint/build, 실제 생성·저장·복원). archive_worktree가 현재 채팅 기본 checkout 제거를 거부하여 폴더 정리 보류. 백업 .local/integration-WB93/preserved-worktree, 통합 커밋 없음. docs/reviews/studio-integration.md / docs/superpowers/plans/2026-10-29-studio-integration.md
+- 검증: 기능 통합·독립 검증 통과(API505/최종47, 웹159, 렌더러7, lint/build, 실제 생성·저장·복원). archive_worktree가 현재 채팅 기본 checkout 제거를 거부하여 폴더 정리 보류. 백업 .local/integration-WB93/preserved-worktree, 통합 커밋 33d5073(main fast-forward). 두 worktree는 primary/다른 채팅 소유 보호로 정리 보류, 공장 복구자료도 .local/integration-WB93/preserved-factory-worktree 보존. docs/reviews/studio-integration.md / docs/superpowers/plans/2026-10-29-studio-integration.md
 
 
 ### WB92 | 판매 가격 명시와 할인 관리·고객 표시
