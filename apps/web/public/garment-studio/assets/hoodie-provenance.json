@@ -1,0 +1,12 @@
+{
+  "author": "Elvaerwyn",
+  "source": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html",
+  "asset": "elvs_hooded_sweat_jacket1 / ladieshoodiedown1.obj",
+  "license": "CC-BY (version not specified by source)",
+  "sourceSha256": "e53204f19be28c005c920748322fc2aa42e7ebdb84a4ab72f48e7a244b71aa64",
+  "changes": [
+    "Scale, subdivision, decimation, smooth alternative",
+    "Front/back print UV and separate cuff/hem rib material regions"
+  ],
+  "limitation": "Local evaluation. Confirm unspecified license version before external redistribution."
+}

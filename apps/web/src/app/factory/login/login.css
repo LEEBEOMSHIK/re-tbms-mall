@@ -1,0 +1,3 @@
+.factory-test-login { display:grid; gap:var(--space-4); padding:var(--space-6); border-radius:var(--radius-panel); background:var(--color-subtle); }
+.factory-test-login h2 { font-size:var(--text-lg); font-weight:700; }
+.factory-test-login p { color:var(--color-secondary); line-height:1.7; }

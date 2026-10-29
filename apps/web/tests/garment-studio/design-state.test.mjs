@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {createDesignState} from '../../public/garment-studio/design-state.js';
+const store=createDesignState({});const s=store.state,first=store.active();
+s.horizontal=35;s.angle=17;
+const second=store.add('graphic');s.size=25;s.horizontal=64;
+assert.equal(first.horizontal,35);assert.equal(first.angle,17);assert.equal(first.size,43);
+store.side('back');assert.equal(store.active(),null);assert.equal(s.art,'none');
+const back=store.add('graphic');s.angle=-24;assert.equal(back.side,'back');
+store.side('front');assert.equal(store.active().id,first.id);assert.equal(s.angle,17);
+store.select(second.id);store.remove();assert.equal(store.active().id,first.id);assert.equal(back.angle,-24);
+let closed=0;store.add('upload','back',{width:400,height:300,close(){closed++;}},'test');store.remove();assert.equal(closed,1);
+assert.equal(s.designs.length,2);store.reset();assert.equal(s.designs.length,1);assert.equal(s.side,'front');assert.equal(s.horizontal,50);
+console.log('PASS: independent transforms, front/back preservation, delete, image cleanup, reset');

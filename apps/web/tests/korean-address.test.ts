@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {parseKoreanAddress} from '../src/lib/korean-address.ts';
+test('search takes only the explicitly selected road or parcel address',()=>{assert.deepEqual(parseKoreanAddress({zonecode:'12345',userSelectedType:'R',roadAddress:' 테스트 도로 ',jibunAddress:'지번'}),{postal_code:'12345',address:'테스트 도로'});assert.equal(parseKoreanAddress({zonecode:'12345',userSelectedType:'J',roadAddress:'도로',jibunAddress:'지번'}).address,'지번');});
+test('invalid or oversized external response is rejected',()=>{for(const data of [null,{}, {zonecode:'1234',userSelectedType:'R',roadAddress:'도로'},{zonecode:'12345',userSelectedType:'X',roadAddress:'도로'},{zonecode:'12345',userSelectedType:'R',roadAddress:'x'.repeat(241)}])assert.throws(()=>parseKoreanAddress(data));});

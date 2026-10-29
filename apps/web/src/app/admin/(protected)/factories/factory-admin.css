@@ -1,0 +1,24 @@
+.factory-admin .catalog-panel { display: grid; gap: var(--space-4); }
+.factory-filter { display:grid; grid-template-columns:2fr 1fr; gap:var(--space-4); }
+.factory-admin h3,.factory-product-summary h3 { font-size:var(--text-lg);font-weight:600; }
+.factory-admin .catalog-link-button,.factory-product-summary .catalog-link-button {border-radius:var(--radius-control);text-decoration:none;}
+.factory-share-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-4);}
+.factory-share-grid img {width:100%;height:180px;object-fit:contain;background:var(--color-subtle);}
+.factory-note {white-space:pre-wrap;}
+.factory-product-summary {display:grid;gap:var(--space-4);margin-block:var(--space-6);padding:var(--space-4);border:1px solid var(--color-line);border-radius:var(--radius-panel);}
+.factory-admin input,.factory-admin textarea {min-width:0;max-width:100%;}
+@media(max-width:767px){.factory-filter,.factory-share-grid{grid-template-columns:1fr;}}
+.factory-admin .factory-key-number{font-size:var(--text-lg);font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap}
+.factory-admin .factory-secondary{font-size:var(--text-sm);color:var(--color-secondary)}
+.factory-admin .factory-identity{font-weight:650}
+.factory-detail-identity{color:var(--color-secondary);font-size:var(--text-sm)}
+.factory-detail-identity strong{color:var(--color-text);font-size:var(--text-lg);margin-left:var(--space-2)}
+.factory-admin .ds-key-fact-value .status-badge{font-size:var(--text-lg)}
+.factory-admin .catalog-panel{gap:var(--space-6)}
+.factory-admin form>fieldset{gap:var(--space-4)}
+.factory-admin .factory-note,.factory-admin .factory-history{font-size:var(--text-sm);color:var(--color-secondary);line-height:1.8;overflow-wrap:anywhere}
+.factory-history{display:grid;gap:var(--space-3);padding-left:var(--space-6);margin:0}
+.factory-production-badge[data-status="submitted"],.factory-production-badge[data-status="accepted"]{color:var(--status-info-text);background:var(--status-info-surface);border-color:var(--status-info-border)}
+.factory-production-badge[data-status="in_production"]{color:var(--status-warning-text);background:var(--status-warning-surface);border-color:var(--status-warning-border)}
+.factory-production-badge[data-status="ready"]{color:var(--status-ready-text);background:var(--status-ready-surface);border-color:var(--status-ready-border)}
+.factory-admin .factory-account-login{display:block;font-size:var(--text-sm);font-weight:400;color:var(--color-secondary);margin-top:var(--space-1);overflow-wrap:anywhere}

@@ -1,0 +1,10 @@
+import {parsePublicReviews} from '@/lib/reviews';
+import {adminApiBase} from '@/lib/admin-session';
+import {parsePublicCatalog,parsePublicProduct,parseStorefront} from '@/lib/storefront';
+export const dynamic='force-dynamic';
+export async function GET(_request:Request,{params}:{params:Promise<{path:string[]}>}){
+ const {path}=await params;const valid=(path.length===1&&['storefront','products'].includes(path[0]))||(path[0]==='products'&&/^[a-zA-Z0-9_-]+$/.test(path[1]||'')&&(path.length===2||(path.length===3&&path[2]==='reviews')||(path.length===4&&path[2]==='images'&&/^[a-zA-Z0-9_-]+$/.test(path[3]))));
+ if(!valid)return Response.json({error:'찾을 수 없습니다.'},{status:404});
+ const query=path.length===3?new URL(_request.url).searchParams:new URLSearchParams();const forwarded=new URLSearchParams();for(const key of ['page','page_size']){const values=query.getAll(key);if(values.length>1||values.some(v=>!/^\d+$/.test(v)))return Response.json({error:'조회 조건을 확인해 주세요.'},{status:422});if(values.length)forwarded.set(key,values[0]);}
+ try{const upstream=await fetch(`${adminApiBase()}/api/v1/${path.join('/')}${forwarded.size?'?'+forwarded.toString():''}`,{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!upstream.ok)return Response.json({error:'상품을 불러오지 못했습니다.'},{status:[404,422].includes(upstream.status)?upstream.status:503,headers:{'Cache-Control':'no-store'}});if(path.length===4){const type=upstream.headers.get('content-type')||'';if(!['image/png','image/jpeg','image/webp'].includes(type))throw Error('Invalid image');return new Response(await upstream.arrayBuffer(),{headers:{'Content-Type':type,'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});}const data=await upstream.json();return Response.json(path.length===3?parsePublicReviews(data):path[0]==='storefront'?parseStorefront(data):path.length===2?parsePublicProduct(data):parsePublicCatalog(data),{headers:{'Cache-Control':'no-store'}});}catch{return Response.json({error:'잠시 후 다시 확인해 주세요.'},{status:503,headers:{'Cache-Control':'no-store'}});}
+}

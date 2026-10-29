@@ -1,0 +1,34 @@
+{
+  "purpose": "Authored garment meshes for local ghost-mannequin preview; no claim of production-CAD or physical cloth fidelity.",
+  "retrieved_on": "2026-10-28",
+  "sources": [
+    {
+      "template": "tshirt",
+      "asset": "toigo_basic_tucked_t-shirt",
+      "author": "Margaret Toigo (source OBJ header: MRT)",
+      "license": "CC0 (exact source header and official pack listing)",
+      "page": "https://static.makehumancommunity.org/assets/assetpacks/shirts01.html",
+      "download": "https://files.makehumancommunity.org/asset_packs/shirts01/shirts01_cc0.zip",
+      "archive_entry": "clothes/toigo_basic_tucked_t-shirt/t_shirt_basic_tucked.obj",
+      "source_file": "t_shirt_basic_tucked.obj",
+      "sha256": "22159cf14d1f6831f931b49625f8f7692910bac22499c43466c0b5a2159b4d03",
+      "modifications": "Two Catmull-Clark subdivision passes, cubic open boundaries, uniform scale 0.34, Y/Z translation, smooth area-weighted normals, triangulation, front/back material partition, torso-projected print UVs. No source texture reused."
+    },
+    {
+      "template": "hoodie",
+      "asset": "elvs_hooded_sweat_jacket1",
+      "author": "Elvaerwyn",
+      "license": "CC-BY (official listing); CC_by (exact source OBJ header). License version is unspecified in available source metadata; no version inferred.",
+      "page": "https://static.makehumancommunity.org/assets/assetpacks/shirts02.html",
+      "download": "https://files.makehumancommunity.org/asset_packs/shirts02/shirts02_ccby.zip",
+      "archive_entry": "clothes/elvs_hooded_sweat_jacket1/ladieshoodiedown1.obj",
+      "source_file": "ladieshoodiedown1.obj",
+      "sha256": "e53204f19be28c005c920748322fc2aa42e7ebdb84a4ab72f48e7a244b71aa64",
+      "modifications": "One Catmull-Clark subdivision pass, cubic open boundaries, uniform scale 0.30, Y/Z translation, smooth area-weighted normals, triangulation, front/back material partition, torso-projected print UVs. Original fitted hood-down silhouette retained. No source texture reused.",
+      "attribution": "Hooded sweatshirt by Elvaerwyn, MakeHuman Community, CC-BY (version unspecified); modified for subdivision, scale, triangulation and print mapping."
+    }
+  ],
+  "regenerate": "python scripts/garment-assets/convert.py",
+  "output": "apps/web/src/features/garment-designer/garment-mesh-data.json",
+  "notes": "Only original OBJ sources are distributed with this source tree. Download archive and thumbnails remain ignored .local research material. The legacy individual-asset repository is offline; the official static pack listings provide author/license evidence. Resolve unspecified CC-BY version before any external redistribution policy decision."
+}

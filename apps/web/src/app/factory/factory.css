@@ -1,0 +1,39 @@
+.factory-page { display: grid; gap: var(--space-6); padding-block: var(--space-8); min-width: 0; }
+.factory-header { width: min(calc(100% - var(--space-12)*2),var(--content-width)); margin-inline: auto; padding-block: var(--space-4); display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); border-bottom: 1px solid var(--color-line); }
+.factory-header > a { font-weight: 700; min-height: 44px; display: inline-flex; align-items: center; }
+.factory-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.factory-heading h1 { margin-block: var(--space-2); }
+.factory-heading p, .factory-note { color: var(--color-secondary); line-height: 1.7; }
+.factory-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); }
+.factory-button, .factory-page button:not(.site-settings-trigger):not(.site-settings-close), .factory-header button:not(.site-settings-trigger):not(.site-settings-close) { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-border); border-radius:var(--radius-control); background: var(--color-surface); color: var(--color-text); text-decoration: none; }
+.factory-page .factory-primary { background: var(--color-action); color: var(--color-on-action); border-color: var(--color-action); }
+.factory-panel { display: grid; gap: var(--space-4); min-width: 0; border: 1px solid var(--color-line); border-radius:var(--radius-panel); padding: var(--space-6); }
+.factory-panel h2 { margin: 0; }
+.factory-panel h3 { font-size: var(--text-lg); font-weight: 600; margin-top: var(--space-4); }
+.factory-field { display: grid; gap: var(--space-2); min-width: 0; }
+.factory-field .ds-form-label { margin: 0; }
+.factory-filters { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: var(--space-4); }
+.factory-form fieldset { display: grid; gap: var(--space-6); border: 0; padding: 0; margin: var(--space-4) 0 0; min-width: 0; }
+.factory-login { max-width: 560px; }
+.factory-error { color: var(--color-error); display: grid; gap: var(--space-3); }
+.factory-table { overflow-x: auto; max-width: 100%; min-width: 0; }
+.factory-table table { width: 100%; min-width: 580px; border-collapse: collapse; text-align: left; }
+.factory-table th, .factory-table td { vertical-align: middle; padding: var(--space-3); border-bottom: 1px solid var(--color-line); overflow-wrap: anywhere; max-width: 340px; }
+.factory-table th { background: var(--color-subtle); }
+.factory-table small { display: block; color: var(--color-secondary); }
+.factory-detail-link { display: inline-flex; gap: var(--space-2); align-items: center; min-height: 44px; border-radius:var(--radius-md); font-weight: 600; text-decoration: none; }
+.factory-detail-link:hover { background: var(--color-subtle); text-decoration: none; }
+.factory-empty { padding: var(--space-6); border-radius:var(--radius-panel); background: var(--color-subtle); }
+.factory-status { display: inline-flex; padding: var(--space-1) var(--space-3); border: 1px solid var(--color-border); border-radius:var(--radius-pill); font-weight: 600; white-space: nowrap; }
+.factory-details { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: var(--space-4); margin: 0; }
+.factory-details dt { color: var(--color-secondary); margin-bottom: var(--space-2); }
+.factory-details dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.factory-details-wide { grid-column: 1/-1; }
+.factory-image-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: var(--space-4); margin: 0; padding: 0; list-style: none; }
+.factory-image-grid figure { margin: 0; }
+.factory-image-grid img { width: 100%; height: 260px; object-fit: contain; border-radius:var(--radius-control); background: var(--color-subtle); }
+.factory-image-grid figcaption { display: grid; gap: var(--space-2); margin-top: var(--space-3); overflow-wrap: anywhere; }
+@media(max-width:767px){.factory-heading,.factory-header { align-items: stretch; flex-direction: column; }.factory-header { width: calc(100% - var(--space-4)*2); }.factory-panel { padding: var(--space-4); }.factory-filters,.factory-details,.factory-image-grid { grid-template-columns: minmax(0,1fr); }.factory-actions > * { width: 100%; }}
+
+.factory-key-value { font-size: var(--text-lg); font-weight: 750; font-variant-numeric: tabular-nums; }
+.factory-table small { margin-top: var(--space-2); }

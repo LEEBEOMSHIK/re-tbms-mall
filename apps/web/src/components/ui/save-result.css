@@ -1,0 +1,9 @@
+.ds-save-result { min-width: 0; overflow-wrap: anywhere; }
+.ds-save-result-status { color: var(--color-success); font-size: var(--text-sm); margin-bottom: var(--space-3); }
+.ds-save-result h2 { line-height: 1.5; scroll-margin-top: var(--space-6); }
+.ds-save-result-content { margin-block: var(--space-6); }
+.ds-save-result-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-3); }
+.ds-save-result-actions button, .ds-save-result-actions a { min-height: 44px; border-radius:var(--radius-control); }
+@media (max-width: 480px) {
+  .ds-save-result-actions > button, .ds-save-result-actions > a { width: 100%; }
+}

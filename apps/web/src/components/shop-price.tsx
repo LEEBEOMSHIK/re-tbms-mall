@@ -1,0 +1,3 @@
+import {type Pricing} from '@/lib/pricing';
+import './shop-price.css';
+export function ShopPrice({pricing}:{pricing:Pricing}){if(pricing.effective_price===null)return null;return <div className="shop-selling-price">{pricing.discount_price!==null&&<div className="shop-original-price"><span className="sr-only">기본 판매 가격 </span><del>{pricing.price!.toLocaleString('ko-KR')}원</del>{pricing.discount_rate!==null&&pricing.discount_rate>0&&<span className="shop-discount-rate">{pricing.discount_rate}% 할인</span>}</div>}<div className="shop-final-price"><span>판매 가격</span><strong>{pricing.effective_price.toLocaleString('ko-KR')}원</strong></div></div>}

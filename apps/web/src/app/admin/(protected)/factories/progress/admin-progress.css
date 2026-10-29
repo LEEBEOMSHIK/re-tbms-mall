@@ -1,0 +1,28 @@
+.admin-progress-page {display:flex;flex-direction:column;gap:var(--space-6)}
+.admin-progress-page .catalog-heading {margin-bottom:0}
+.admin-progress-page>.catalog-panel,.admin-progress-page>.product-progress {margin-block:0}
+.admin-progress-intro {color:var(--color-secondary);line-height:1.8;max-width:70ch}
+.admin-progress-page .catalog-link-button {border-radius:var(--radius-control);text-decoration:none;width:auto;max-width:100%}
+.admin-progress-page .catalog-link-button:hover {text-decoration:none;background:var(--color-subtle)}
+.admin-progress-actions {display:flex;align-items:center;flex-wrap:wrap;gap:var(--space-3)}
+.admin-progress-actions button {border-radius:var(--radius-control);min-height:44px}
+.admin-progress-error {display:grid;gap:var(--space-4)}
+.admin-progress-filters {display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr));align-items:end;gap:var(--space-4)}
+.admin-progress-filters>div {display:grid;gap:var(--space-2);min-width:0}
+.admin-progress-filters .ds-form-label {margin:0}
+.admin-progress-list .catalog-table-scroll {margin-top:var(--space-4)}
+.admin-progress-list th,.admin-progress-list td {vertical-align:middle}
+.admin-progress-product-link {display:inline-flex;align-items:center;gap:var(--space-2);min-height:44px;padding:var(--space-2);margin-inline:calc(-1 * var(--space-2));border-radius:var(--radius-md);font-weight:600;text-decoration:none}
+.admin-progress-product-link:hover {text-decoration:none;background:var(--color-subtle)}
+.admin-progress-product-link:focus-visible {outline:2px solid var(--color-focus);outline-offset:2px}
+.admin-progress-unassigned {color:var(--color-secondary);font-size:var(--text-sm)}
+.admin-progress-product {display:grid;gap:var(--space-4)}
+.admin-progress-product h2 {font-size:var(--text-lg);font-weight:600;overflow-wrap:anywhere}
+.admin-progress-product>div:first-child {display:grid;gap:var(--space-2)}
+.admin-progress-page .admin-progress-product h2 {margin:0}
+.admin-progress-product dl {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4);margin:0;padding:0;border:0}
+.admin-progress-product dt {font-size:var(--text-sm);color:var(--color-secondary);margin-bottom:var(--space-2)}
+.admin-progress-product dd {margin:0;overflow-wrap:anywhere}
+@media(max-width:767px){.admin-progress-filters,.admin-progress-product dl{grid-template-columns:minmax(0,1fr)}.admin-progress-page{gap:var(--space-4)}.admin-progress-actions{align-items:flex-start}}
+.admin-progress-code{font-size:var(--text-sm);color:var(--color-secondary)}
+.admin-progress-list-code{display:block;font-size:var(--text-sm);font-weight:400;color:var(--color-secondary);margin-top:var(--space-1);overflow-wrap:anywhere}

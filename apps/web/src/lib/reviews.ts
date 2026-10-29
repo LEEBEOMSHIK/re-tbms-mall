@@ -1,0 +1,17 @@
+export type ReviewSummary={average_rating:number|null;review_count:number};
+export type PublicReview={id:string;rating:number;body:string;author_label:string;created_at:string;updated_at:string;reply:string};
+export type PublicReviews={reviews:PublicReview[];total:number;page:number;page_size:number;summary:ReviewSummary;can_write:false;write_unavailable_reason:string};
+export type AdminReview=PublicReview&{product_id:string;product_name:string;hidden:boolean;deleted:boolean;version:number;history:Array<{action:string;reason:string;created_at:string}>};
+const object=(v:unknown):Record<string,unknown>=>{if(!v||typeof v!=='object'||Array.isArray(v))throw Error('Invalid review');return v as Record<string,unknown>};
+const text=(v:unknown)=>{if(typeof v!=='string')throw Error('Invalid text');return v};
+const number=(v:unknown,min=0)=>{if(!Number.isSafeInteger(v)||Number(v)<min)throw Error('Invalid count');return Number(v)};
+const date=(v:unknown)=>{const s=text(v);if(!Number.isFinite(Date.parse(s)))throw Error('Invalid date');return s};
+export function parseReviewSummary(value:unknown):ReviewSummary{const r=object(value),count=number(r.review_count),average=r.average_rating;if(count===0?average!==null:typeof average!=='number'||!Number.isFinite(average)||average<1||average>5)throw Error('Invalid average');return{review_count:count,average_rating:average as number|null};}
+export function reviewLabel(summary:ReviewSummary){return summary.review_count===0?'리뷰 0건':`★ ${summary.average_rating!.toFixed(1)} · 리뷰 ${summary.review_count.toLocaleString('ko-KR')}건`}
+function parseReview(value:unknown):PublicReview{const r=object(value),rating=number(r.rating,1);if(rating>5)throw Error('Invalid rating');return{id:text(r.id),rating,body:text(r.body),author_label:text(r.author_label),created_at:date(r.created_at),updated_at:date(r.updated_at),reply:text(r.reply)}}
+export function parsePublicReviews(value:unknown):PublicReviews{const r=object(value);if(!Array.isArray(r.reviews)||r.can_write!==false)throw Error('Invalid reviews');const reviews=r.reviews.map(parseReview),total=number(r.total),page=number(r.page,1),page_size=number(r.page_size,1),summary=parseReviewSummary(r.summary);if(![10,20,50].includes(page_size)||reviews.length>page_size||total!==summary.review_count||new Set(reviews.map(x=>x.id)).size!==reviews.length)throw Error('Invalid paging');return{reviews,total,page,page_size,summary,can_write:false,write_unavailable_reason:text(r.write_unavailable_reason)}}
+export function parseAdminReview(value:unknown):AdminReview{const r=object(value);if(typeof r.hidden!=='boolean'||typeof r.deleted!=='boolean'||!Array.isArray(r.history))throw Error('Invalid review status');return{...parseReview(value),product_id:text(r.product_id),product_name:text(r.product_name),hidden:r.hidden,deleted:r.deleted,version:number(r.version),history:r.history.map(v=>{const h=object(v);return{action:text(h.action),reason:text(h.reason),created_at:date(h.created_at)}})}}
+export function parseAdminReviews(value:unknown){const r=object(value);if(!Array.isArray(r.reviews))throw Error('Invalid reviews');const reviews=r.reviews.map(parseAdminReview);if(new Set(reviews.map(x=>x.id)).size!==reviews.length)throw Error('Duplicate review');return{reviews}}
+const saved=new Map<string,string>();
+export function rememberReviewSave(id:string,message:string){saved.set(id,message)}
+export function consumeReviewSave(id:string){const message=saved.get(id);saved.delete(id);return message}

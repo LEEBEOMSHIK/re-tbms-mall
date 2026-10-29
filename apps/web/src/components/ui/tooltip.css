@@ -1,0 +1,16 @@
+.detail-tooltip-trigger {
+  display: inline-flex; align-items: center; min-height: 44px; max-width: 100%;
+  padding: 0; border: 0; border-radius: var(--radius-md); background: transparent; color: inherit; font: inherit; text-align: left;
+}
+.detail-tooltip-trigger:hover { background: transparent; }
+.detail-tooltip-trigger:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.detail-tooltip {
+  position: fixed; z-index: 100; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain;
+  padding: var(--space-4); border: 1px solid var(--color-border); border-radius:var(--radius-control);
+  background: var(--color-surface); color: var(--color-text); box-shadow: 0 6px 24px #0002;
+  font-size: var(--text-sm); line-height: 1.7; overflow-wrap: anywhere;
+}
+.detail-tooltip-above { transform: translateY(-100%); }
+.detail-tooltip p + p { margin-top: var(--space-3); }
+.detail-tooltip strong { display: block; margin-bottom: var(--space-2); }
+@media (forced-colors: active) { .detail-tooltip { border-color: CanvasText; box-shadow: none; } }

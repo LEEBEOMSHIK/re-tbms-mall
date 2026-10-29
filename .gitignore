@@ -1,0 +1,27 @@
+# Local dependencies and generated build outputs
+**/node_modules/
+**/.next/
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/*.py[cod]
+**/*.tsbuildinfo
+**/coverage/
+**/htmlcov/
+**/.coverage
+**/*.egg-info/
+
+# Local configuration; examples stay versioned
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Local runtime files
+.local/
+*.log
+.DS_Store
+Thumbs.db

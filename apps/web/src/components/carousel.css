@@ -1,0 +1,10 @@
+.product-carousel{min-width:0}
+.product-carousel .carousel-track{display:grid;grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:calc((100% - 3 * var(--space-6))/4);gap:var(--space-6);overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:3px;scrollbar-width:thin;padding:6px 3px 12px;margin:-6px -3px 0}
+.carousel-track .product-card{scroll-snap-align:start;align-self:start}
+.carousel-controls{display:flex;justify-content:flex-end;align-items:center;gap:var(--space-2);margin-bottom:var(--space-3);flex-wrap:wrap}
+.carousel-controls button{min-width:44px;font-size:var(--text-xs);border-color:var(--color-line);padding-inline:var(--space-3)}
+.carousel-state{font-size:var(--text-xs);color:var(--color-secondary);margin-right:auto}
+@media(max-width:1023px){.product-carousel .carousel-track{grid-auto-columns:calc((100% - 3 * var(--space-4))/4);gap:var(--space-4)}}
+@media(max-width:639px){.product-carousel .carousel-track{grid-auto-columns:calc((100% - var(--space-3))/2);gap:var(--space-3)}}
+@media(prefers-reduced-motion:reduce){.product-carousel .carousel-track{scroll-behavior:auto;scroll-snap-type:none}}
+

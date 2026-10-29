@@ -1,0 +1,8 @@
+.ds-list-pagination-summary {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-4);margin-block:var(--space-4);min-width:0}
+.ds-list-pagination-summary>p {scroll-margin-block:var(--space-6)}
+.ds-list-page-size {display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,140px);gap:var(--space-2);align-items:center;min-width:0}
+.ds-list-page-size .ds-form-label {margin:0}
+.ds-list-pagination {display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-6)}
+.ds-list-pagination button {min-width:44px;min-height:44px;border-radius:var(--radius-control)}
+.ds-list-pagination button[aria-current=page] {background:var(--color-action);color:var(--color-on-action);border-color:var(--color-action);font-weight:600}
+@media(max-width:767px){.ds-list-pagination-summary {flex-direction:column;align-items:stretch}.ds-list-page-size {grid-template-columns:minmax(0,1fr)}}

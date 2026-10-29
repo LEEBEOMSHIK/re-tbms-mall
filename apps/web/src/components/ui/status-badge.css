@@ -1,0 +1,23 @@
+:root {
+  --status-danger-text: #b91c1c; --status-danger-surface: #fef2f2; --status-danger-border: #fca5a5;
+  --status-info-text: #1e40af; --status-info-surface: #eff6ff; --status-info-border: #bfdbfe;
+  --status-pending-text: #9a3412; --status-pending-surface: #fff7ed; --status-pending-border: #fed7aa;
+  --status-warning-text: #854d0e; --status-warning-surface: #fefce8; --status-warning-border: #fde68a;
+  --status-ready-text: #166534; --status-ready-surface: #f0fdf4; --status-ready-border: #bbf7d0;
+}
+.status-badge {
+  display: inline-flex; align-items: center; gap: var(--space-2); max-width: 100%;
+  min-height: 32px; padding: 5px 10px; border: 1px solid var(--color-line); border-radius:var(--radius-pill);
+  font-size: var(--text-xs); font-weight: 600; line-height: 1.45;
+  background: var(--color-subtle); color: var(--color-secondary); vertical-align: middle;
+}
+.status-badge svg { width: 18px; height: 18px; flex-shrink: 0; }
+.status-badge--no_options { color: var(--status-info-text); background: var(--status-info-surface); border-color: var(--status-info-border); }
+.status-badge--no_stock { color: var(--status-pending-text); background: var(--status-pending-surface); border-color: var(--status-pending-border); }
+.status-badge--partial_stock { color: var(--status-warning-text); background: var(--status-warning-surface); border-color: var(--status-warning-border); }
+.status-badge--low_stock { color: var(--status-danger-text); background: var(--status-danger-surface); border-color: var(--status-danger-border); }
+.status-badge--in_stock, .status-badge--stock_healthy { color: var(--status-ready-text); background: var(--status-ready-surface); border-color: var(--status-ready-border); }
+.status-badge--unpublished { font-weight: 400; }
+@media (forced-colors: active) {
+  .status-badge { color: CanvasText; background: Canvas; border-color: CanvasText; }
+}

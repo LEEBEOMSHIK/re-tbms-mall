@@ -1,0 +1,107 @@
+{
+  "fetched": "2026-10-28",
+  "description": "Original unmodified 1K scanned PBR normal, roughness and diffuse maps. All files verified against official API MD5. Renderer neutralizes diffuse dye to apply small luminance variations before artwork. No runtime remote requests.",
+  "files": [
+    {
+      "file": "cotton_jersey_nor_gl_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cotton_jersey/cotton_jersey_nor_gl_1k.jpg",
+      "asset_page": "https://polyhaven.com/a/cotton_jersey",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "9b79709806511b62567fb007ff61009c3b194bb0d0821fbaee3faf1b2bff0318",
+      "md5": "2dcc9dda3b726477f607c808e52f1833",
+      "bytes": 678670
+    },
+    {
+      "file": "cotton_jersey_rough_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cotton_jersey/cotton_jersey_rough_1k.jpg",
+      "asset_page": "https://polyhaven.com/a/cotton_jersey",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "89bed18f5c3f03fc7b4c2382446891629716278e521e06e8b7f6c8f02dd22590",
+      "md5": "ac691d215d3aca34dcd6ea2d03937286",
+      "bytes": 865264
+    },
+    {
+      "file": "wool_boucle_nor_gl_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wool_boucle/wool_boucle_nor_gl_1k.jpg",
+      "asset_page": "https://polyhaven.com/a/wool_boucle",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "2cc13a2be4d0bb942a59a86d613665c0d24ff201560daa4d841cee597af0c752",
+      "md5": "6a413f9a1aa70ab3bb4fede917cf8a64",
+      "bytes": 1266355
+    },
+    {
+      "file": "wool_boucle_rough_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wool_boucle/wool_boucle_rough_1k.jpg",
+      "asset_page": "https://polyhaven.com/a/wool_boucle",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "f09f24bd26378b03bb798d4b75010ac8cc0fd1e4b858959e97e6d8d74fa3f6d8",
+      "md5": "48bfe3aac53735ada81add2f1054a3f5",
+      "bytes": 1272361
+    },
+    {
+      "file": "cotton_jersey_diff_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/cotton_jersey/cotton_jersey_diff_1k.jpg",
+      "asset_page": "https://polyhaven.com/a/cotton_jersey",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "0f1b790e4087223275aaa6fdffdd46a556a26d2af72cd811acf72ba9c21ec1f6",
+      "md5": "d2f4493fdd48634b50d40f810ce9deb7",
+      "bytes": 581360
+    },
+    {
+      "file": "wool_boucle_diff_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/wool_boucle/wool_boucle_diff_1k.jpg",
+      "asset_page": "https://polyhaven.com/a/wool_boucle",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "fee39653b3c78efe89636508f2c10ceb38ecb10c0d735ae8dd4e9935cf26540e",
+      "md5": "e3d4b30b5f36d4763f9bd2f2e8d92f8e",
+      "bytes": 1284379
+    },
+    {
+      "file": "knitted_fleece_nor_gl_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/knitted_fleece/knitted_fleece_nor_gl_1k.jpg",
+      "asset_page": "https://polyhaven.com/a/knitted_fleece",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "ca1f965fee9957665a78a54bfa09e2c44f4e626d38fff6238a9a214cad5bab99",
+      "md5": "c76c323dc9249aaea3150f1770090c05",
+      "bytes": 1128139
+    },
+    {
+      "file": "knitted_fleece_rough_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/knitted_fleece/knitted_fleece_rough_1k.jpg",
+      "asset_page": "https://polyhaven.com/a/knitted_fleece",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "0f82adaf29135b0d0a799d7dfcb2f64e76a9836bbf43d5745fb66330077e2042",
+      "md5": "9122b74fc45c09b132bc6bacb95d3d11",
+      "bytes": 959605
+    },
+    {
+      "file": "knitted_fleece_diff_1k.jpg",
+      "source": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/knitted_fleece/knitted_fleece_diff_1k.jpg",
+      "asset_page": "https://polyhaven.com/a/knitted_fleece",
+      "license": "CC0-1.0",
+      "license_url": "https://polyhaven.com/license",
+      "sha256": "57d7e416b698d02171a260da1a47109fc0f85b232f565d2a42d6d1be416c32e0",
+      "md5": "712475d9e6358c001260f6555a7821be",
+      "bytes": 887569
+    }
+  ],
+  "generated_materials": [
+    {
+      "id": "polyester_interlock",
+      "implementation": "apps/web/src/features/garment-designer/sports-knit.ts",
+      "method": "Deterministic intermeshing V-loop height field, central-difference normals, neutral diffuse and low-variance roughness. Original project code; no reused cotton texture. Not a scan or measured fabric.",
+      "reference": "https://catalogs.asbsports.com/vendors/pdfs/Wilson-Baseball_Fastpitch-2024.pdf",
+      "reference_use": "Manufacturer describes polyester interlock sports jersey; no reference images copied.",
+      "nominal_tile_meters": 0.048,
+      "nominal_stitches_per_tile": 32
+    }
+  ]
+}
