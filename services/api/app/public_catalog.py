@@ -5,6 +5,7 @@ from typing import Literal
 from fastapi import HTTPException, Response, Depends
 from pydantic import BaseModel, ConfigDict, Field
 from app.reviews import review_summary
+from app.product_details import ProductDetails
 
 class PublicationUpdate(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True)
@@ -84,6 +85,7 @@ class PublicCatalog:
         if public and (state['status']!='published' or reasons): raise HTTPException(404,'Product not found.')
         for image in images: image['url']=f"/api/v1/products/{product_id}/images/{image['id']}"
         result={'id':p['id'],'name':p['name'],'category_id':p['category_id'],'description':p['description'],
+            'details':ProductDetails.model_validate_json(p['details']).model_dump(),
             **pricing(state['price'],state['discount_price']),'image':images[0]['url'] if images else '',
             'color':' · '.join(dict.fromkeys(o['color'] for o in options)),
             'review_summary':review_summary(db,product_id),

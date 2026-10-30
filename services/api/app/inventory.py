@@ -16,6 +16,7 @@ from app.factory import migrate_factory, migrate_factory_progress
 from app.shipments import migrate_shipments
 from app.public_catalog import migrate_publication, migrate_discount, PublicCatalog
 from app.reviews import migrate_reviews
+from app.product_details import ProductDetails
 
 DEFAULT_CATALOG_PATH = Path(__file__).resolve().parents[3] / '.local' / 'catalog.sqlite3'
 MAX_STOCK = 1_000_000
@@ -30,6 +31,7 @@ class ProductCreate(Input):
     category_id: str = Field(min_length=1, max_length=80)
     description: str = Field(default='', max_length=2000)
     seasons: list[str] = Field(max_length=4)
+    details: ProductDetails = Field(default_factory=ProductDetails)
 
     @field_validator('seasons')
     @classmethod
@@ -230,7 +232,7 @@ SUPPLIER_ALL_DETAILS = SUPPLIER_DETAILS + SUPPLIER_ADDRESS_FIELDS
 SUPPLIER_COLUMNS = 'id,name,is_active,version,' + ','.join(SUPPLIER_ALL_DETAILS)
 
 
-PRODUCT_COLUMNS = 'id,name,category,description,version,internal_name,category_id,seasons'
+PRODUCT_COLUMNS = 'id,name,category,description,version,internal_name,category_id,seasons,details'
 SKU_COLUMNS = 'id,product_id,code,color,size,reorder_point,on_hand,version,color_id,size_id,is_active'
 OPTION_COLUMNS = 'id,kind,name,code,is_active,sort_order,version'
 MOVEMENT_COLUMNS = 'id,sku_id,delta,reason,actor,created_at,balance_after,request_id,reason_code,supplier_id,supplier_name'
@@ -294,7 +296,8 @@ def migrate_v2_to_v3(db: sqlite3.Connection) -> None:
 
 
 def product_response(row) -> dict:
-    return {**dict(row), 'seasons': json.loads(row['seasons'])}
+    return {**dict(row), 'seasons': json.loads(row['seasons']),
+            'details': ProductDetails.model_validate_json(row['details']).model_dump()}
 
 
 def category_response(row) -> dict:
@@ -401,6 +404,10 @@ class CatalogStore:
                 backup_path = self.path.with_name(self.path.name + '.pre-v16-' + str(uuid4()) + '.bak')
                 with sqlite3.connect(backup_path) as backup:
                     connection.backup(backup)
+            if connection.execute('PRAGMA user_version').fetchone()[0] == 16:
+                backup_path = self.path.with_name(self.path.name + '.pre-v17-' + str(uuid4()) + '.bak')
+                with sqlite3.connect(backup_path) as backup:
+                    connection.backup(backup)
             connection.execute('BEGIN IMMEDIATE')
             version = connection.execute('PRAGMA user_version').fetchone()[0]
             if version == 0:
@@ -473,7 +480,11 @@ class CatalogStore:
             if version == 15:
                 migrate_discount(connection)
                 version = 16
-            if version != 16:
+            if version == 16:
+                connection.execute("ALTER TABLE products ADD COLUMN details TEXT NOT NULL DEFAULT '{}'")
+                connection.execute('PRAGMA user_version=17')
+                version = 17
+            if version != 17:
                 raise HTTPException(503, 'Unsupported catalogue storage version.')
             yield connection
             connection.commit()
@@ -547,8 +558,9 @@ class CatalogStore:
             db.execute('UPDATE product_name_sequences SET last_value=last_value+1 WHERE category_id=? AND season_code=?', (body.category_id, season_code))
             number = db.execute('SELECT last_value FROM product_name_sequences WHERE category_id=? AND season_code=?', (body.category_id, season_code)).fetchone()[0]
             row.update(category=category['name'], internal_name=f"{parent['code']}-{category['code']}-{season_code}-{number:06d}")
-            db.execute('''INSERT INTO products(id,name,category,description,version,category_id,internal_name,seasons)
-                VALUES(:id,:name,:category,:description,:version,:category_id,:internal_name,:seasons)''', {**row, 'seasons': json.dumps(body.seasons)})
+            db.execute('''INSERT INTO products(id,name,category,description,version,category_id,internal_name,seasons,details)
+                VALUES(:id,:name,:category,:description,:version,:category_id,:internal_name,:seasons,:details)''',
+                {**row, 'seasons': json.dumps(body.seasons), 'details': json.dumps(row['details'])})
         return row
 
     @staticmethod
@@ -601,7 +613,7 @@ class CatalogStore:
 
     def update_product(self, product_id: str, body: ProductUpdate) -> dict:
         with self.transaction() as db:
-            current = db.execute('SELECT version,internal_name,category_id,seasons FROM products WHERE id=?', (product_id,)).fetchone()
+            current = db.execute('SELECT version,internal_name,category_id,seasons,details FROM products WHERE id=?', (product_id,)).fetchone()
             if current is None:
                 raise HTTPException(404, 'Product not found.')
             if current['version'] != body.version:
@@ -611,8 +623,11 @@ class CatalogStore:
                 self.require_classification(db, body.category_id, body.seasons)
             row = {'id': product_id, **body.model_dump(), 'version': body.version + 1,
                    'category': category['name'], 'internal_name': current['internal_name']}
+            if 'details' not in body.model_fields_set:
+                row['details'] = ProductDetails.model_validate_json(current['details']).model_dump()
             db.execute('''UPDATE products SET name=:name,category=:category,category_id=:category_id,
-                description=:description,version=:version,seasons=:seasons WHERE id=:id''', {**row, 'seasons': json.dumps(body.seasons)})
+                description=:description,version=:version,seasons=:seasons,details=:details WHERE id=:id''',
+                {**row, 'seasons': json.dumps(body.seasons), 'details': json.dumps(row['details'])})
         return row
 
     def delete_product(self, product_id: str, body: ProductDelete) -> dict:

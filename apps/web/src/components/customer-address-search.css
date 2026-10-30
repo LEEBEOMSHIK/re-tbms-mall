@@ -1,0 +1,21 @@
+.customer-postcode-field{display:grid;gap:var(--space-2);min-width:0}
+.customer-postcode-row{display:flex;align-items:stretch;gap:var(--space-2);min-width:0}
+.customer-postcode-row input{flex:1;min-width:0}
+.customer-postcode-row button{flex:none;white-space:nowrap;margin:0}
+.customer-address-dialog{box-sizing:border-box;width:min(560px,calc(100vw - 48px));height:min(680px,calc(100dvh - 64px));max-width:none;max-height:none;margin:auto;padding:0;border:1px solid var(--color-line);border-radius:var(--radius-panel);background:var(--color-surface);color:var(--color-text);box-shadow:0 24px 80px rgb(0 0 0 / .22);overflow:hidden}
+.customer-address-dialog[open]{display:flex;flex-direction:column}
+.customer-address-dialog::backdrop{background:rgb(0 0 0 / .48)}
+.customer-address-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:24px;border-bottom:1px solid var(--color-line);flex:none}
+.customer-address-dialog .customer-address-heading h2{font-size:1.25rem;line-height:1.4;margin:0;font-weight:600}
+.customer-address-heading p{font-size:.875rem;color:var(--color-secondary);margin:8px 0 0;line-height:1.5}
+.customer-address-dialog .customer-address-heading button{display:grid;place-items:center;flex:none;width:44px;height:44px;min-height:44px;padding:10px;border:0;background:transparent;color:inherit}
+.customer-address-heading svg{width:24px;height:24px}
+.customer-address-body{position:relative;flex:1;min-height:0;background:#fff;overflow:auto}
+.customer-address-host{height:100%;min-height:240px}
+.customer-address-message{position:absolute;inset:0;z-index:1;display:grid;align-content:center;justify-items:center;gap:16px;margin:0;padding:24px;text-align:center;background:var(--color-surface);color:var(--color-text);font-size:.875rem}
+.customer-address-message p{margin:0}
+.customer-address-footer{flex:none;border-top:1px solid var(--color-line);padding:16px 24px;font-size:.75rem;color:var(--color-secondary);line-height:1.5}
+@media(max-width:640px){.customer-address-dialog{width:100%;height:100dvh;border:0;border-radius:0}.customer-address-heading{padding:calc(16px + env(safe-area-inset-top)) 16px 16px}.customer-address-dialog .customer-address-heading h2{font-size:1.125rem}.customer-address-footer{padding:12px 16px calc(12px + env(safe-area-inset-bottom))}}
+.customer-field-error{font-size:.8125rem;line-height:1.5;color:var(--color-error)}
+.customer-shipping-field{display:grid;gap:var(--space-2);min-width:0}
+.checkout-fields .ds-form-label{flex-direction:row}

@@ -1,4 +1,5 @@
 'use client';
+import {ColorChip} from '@/components/ui/color-chip';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import Link from 'next/link';
 import {catalogRequest,parseCatalog,parseSku,type CatalogSku,type ProductDraft} from '@/lib/catalog';
@@ -23,7 +24,7 @@ export function ReorderPointEditor({skuId}:{skuId:string}){
  {label:'저장 당시 실제 재고',value:`${saved.sku.on_hand.toLocaleString('ko-KR')}개`,note:'변경 없음 · 기존 재고 변경 이력 유지'}
  ]}/>{latest&&<p role="status">최신 조회 완료 · 옵션 {latest.is_active?'사용 중':'사용 안 함'} · 현재 부족 표시 기준 {latest.reorder_point.toLocaleString('ko-KR')}개 · 현재 실제 재고 {latest.on_hand.toLocaleString('ko-KR')}개</p>}</SaveResult>:<>
    {(error||uncertain)&&<div className="catalog-actions"><button type="button" disabled={busy||loading} onClick={()=>void reload()}>{loading?'조회 중…':'최신 옵션 조회'}</button></div>}
-   {sku&&product&&<section className="catalog-panel catalog-form-panel catalog-form-wide"><div className="catalog-option-identity"><h2>{product.name}</h2><p className="catalog-option-label">{sku.color} / {sku.size}</p><p className="catalog-note">내부 관리명: {product.internal_name}<br/>옵션 관리 코드: {sku.code}</p></div><KeyFacts label="현재 저장된 옵션 정보" items={[
+   {sku&&product&&<section className="catalog-panel catalog-form-panel catalog-form-wide"><div className="catalog-option-identity"><h2>{product.name}</h2><p className="catalog-option-label"><ColorChip name={sku.color} showName/> / {sku.size}</p><p className="catalog-note">내부 관리명: {product.internal_name}<br/>옵션 관리 코드: {sku.code}</p></div><KeyFacts label="현재 저장된 옵션 정보" items={[
  {label:'현재 실제 재고',value:`${sku.on_hand.toLocaleString('ko-KR')}개`,note:'입고·출고·조정에서 변경'},
  {label:'현재 사용 상태',value:<span className={`sku-usage-badge ${sku.is_active?'is-active':'is-inactive'}`}>{sku.is_active?'사용 중':'사용 안 함'}</span>},
  {label:'현재 부족 표시 기준',value:`${sku.reorder_point.toLocaleString('ko-KR')}개`,note:'이 수량 이하이면 부족 표시'}

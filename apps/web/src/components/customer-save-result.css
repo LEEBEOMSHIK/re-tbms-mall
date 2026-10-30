@@ -1,0 +1,22 @@
+.live-checkout .customer-action{box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 18px;border:1px solid var(--color-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit;font-size:.875rem;line-height:1.5;text-decoration:none;cursor:pointer}
+.live-checkout .customer-action:hover:not(:disabled){background:var(--color-subtle)}
+.live-checkout .customer-action-primary{background:var(--color-action);border-color:var(--color-action);color:var(--color-on-action)}
+.live-checkout .customer-action-primary:hover:not(:disabled){background:var(--color-action);opacity:.9}
+.live-checkout .customer-action-danger{border-color:var(--color-error);color:var(--color-error)}
+.live-checkout .customer-action:disabled{opacity:.55;cursor:not-allowed}
+
+.live-checkout .customer-save-result{padding:var(--space-6);border:1px solid var(--color-line);border-radius:var(--radius-panel);background:var(--color-surface)}
+.customer-save-result .ds-save-result-status{display:flex;align-items:center;gap:var(--space-2);margin:0 0 var(--space-3);font-size:.8125rem}
+.customer-save-result .ds-save-result-status::before{content:'✓';display:grid;place-items:center;width:24px;height:24px;border:1px solid currentColor;border-radius:50%;font-weight:600}
+.live-checkout .customer-save-result h2{font-size:1.25rem;margin:0}
+.customer-save-result .ds-save-result-content{margin:var(--space-6) 0}
+.customer-save-count,.customer-save-note{font-size:.8125rem;color:var(--color-secondary)}
+.customer-save-count{margin:0 0 var(--space-3)}
+.customer-saved-summary{padding:var(--space-4);background:var(--color-subtle);border-radius:var(--radius-control);margin-bottom:var(--space-4)}
+.customer-saved-summary h3{font-size:1rem;margin:0 0 var(--space-4)}
+.customer-saved-summary dl{display:grid;gap:var(--space-3);margin:0;font-size:.875rem}
+.customer-saved-summary dl>div{display:grid;grid-template-columns:64px minmax(0,1fr);gap:var(--space-3)}
+.customer-saved-summary dt{color:var(--color-secondary)}
+.customer-saved-summary dd{margin:0;line-height:1.6;overflow-wrap:anywhere}
+.customer-save-note{margin:0}
+@media(max-width:640px){.live-checkout .customer-save-result{padding:var(--space-4)}.customer-saved-summary dl>div{grid-template-columns:56px minmax(0,1fr);gap:var(--space-2)}}

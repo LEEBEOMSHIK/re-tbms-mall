@@ -200,10 +200,11 @@ def test_v9_migration_preserves_images_catalog_and_rollback(setup):
         db.execute('ALTER TABLE skus DROP COLUMN is_active')
         for table in ('review_history','product_reviews','publication_history','product_publications','shipment_stock_links','shipment_history','shipments'):
             db.execute(f'DROP TABLE IF EXISTS {table}')
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('PRAGMA user_version=9')
     assert store.get()==before
     with sqlite3.connect(store.path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0]==16
+        assert db.execute('PRAGMA user_version').fetchone()[0]==17
         assert db.execute('SELECT id FROM product_images').fetchone()[0]==image['id']
         assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
         for table in FACTORY_TABLES:db.execute(f'DROP TABLE {table}')
@@ -211,6 +212,7 @@ def test_v9_migration_preserves_images_catalog_and_rollback(setup):
         db.execute('ALTER TABLE skus DROP COLUMN is_active')
         for table in ('review_history','product_reviews','publication_history','product_publications','shipment_stock_links','shipment_history','shipments'):
             db.execute(f'DROP TABLE IF EXISTS {table}')
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('PRAGMA user_version=9')
     from fastapi import HTTPException
     with pytest.raises(HTTPException) as error:store.get()

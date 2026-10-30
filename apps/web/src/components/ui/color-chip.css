@@ -1,0 +1,11 @@
+.color-chip-label{display:inline-flex;align-items:center;gap:6px;vertical-align:middle;max-width:100%}
+.color-chip-label>span:last-child{overflow-wrap:anywhere}
+.color-chip{display:inline-block;box-sizing:border-box;flex:0 0 26px;width:26px;height:26px;border-radius:50%;border:2px solid var(--color-surface);outline:1px solid color-mix(in srgb,var(--color-text) 22%,transparent);box-shadow:0 1px 3px #0000001a}
+.color-chip-unknown{border-color:var(--color-border)}
+.color-chip-unknown{background:linear-gradient(135deg,transparent 45%,var(--color-secondary) 46%,var(--color-secondary) 54%,transparent 55%)}
+.product-option-preview{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin:12px 0;color:var(--color-secondary);font-size:.75rem;line-height:1.4}
+.product-option-colors{display:flex;flex-wrap:wrap;align-items:flex-start;gap:10px}
+.product-color-sample{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:32px;max-width:100%}
+.product-color-name{font-size:.75rem;line-height:1.2;text-align:center;overflow-wrap:anywhere}
+.product-option-sizes{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.product-size-badge{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:30px;min-height:30px;max-width:100%;padding:4px 6px;border:1px solid var(--color-line);border-radius:3px;background:var(--color-surface);color:var(--color-text);font-weight:500;overflow-wrap:anywhere}

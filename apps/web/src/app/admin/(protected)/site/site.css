@@ -1,0 +1,1 @@
+.admin-page>section:has(#brand-content),.admin-page>section:has(#home-content){padding:var(--space-6);border:1px solid var(--color-line);border-radius:var(--radius-panel);margin-top:var(--space-6);display:grid;gap:var(--space-4)}.admin-page>section:has(#brand-content)>a,.admin-page>section:has(#home-content)>a{justify-self:start}

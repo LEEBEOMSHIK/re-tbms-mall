@@ -4,8 +4,9 @@ export function adminSection(path: string): string {
   if (within('/admin/catalog')) return '/admin/catalog';
   if (within('/admin/designs')) return '/admin/designs';
   if (within('/admin/factories')) return '/admin/factories';
-  if (within('/admin/merchandising')) return '/admin/merchandising';
+  if (within('/admin/site') || within('/admin/brand-about') || within('/admin/merchandising')) return '/admin/site';
   if (within('/admin/reviews')) return '/admin/reviews';
+  if (within('/admin/payment-preparation')) return '/admin/payment-preparation';
   if (within('/admin/workboard')) return '/admin/workboard';
   return path === '/admin' ? '/admin' : '';
 }

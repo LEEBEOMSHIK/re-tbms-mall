@@ -22,6 +22,7 @@
   background-color: var(--form-control-surface);
   color: var(--color-text);
   font: inherit;
+  font-size: var(--form-control-font-size, inherit);
   line-height: 1.5;
   transition: border-color 150ms ease, background-color 150ms ease;
 }

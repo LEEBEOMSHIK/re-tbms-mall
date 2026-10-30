@@ -83,3 +83,33 @@ def test_studio_garment_switch_and_legacy_template_lock(client):
     assert client.get(f"{PREFIX}/{r['id']}").json()['document']==d
     d.pop('studio');d['schema_version']=1;d['template_id']='tshirt'
     assert save(client,r['id'],d,version=2).status_code==422
+
+def test_two_tabs_conflict_copy_preserves_both_drafts_and_assets(client):
+    original = create(client).json()
+    project = original['id']
+    uploaded = asset(client, project).json()['id']
+    first = deepcopy(original['document'])
+    second = deepcopy(original['document'])
+    for doc, color in [(first, '#123456'), (second, '#654321')]:
+        doc['base_color'] = color
+        doc['studio']['settings']['color'] = color
+        doc['studio']['designs'] = [design(uploaded)]
+        doc['studio']['activeId'] = 1
+    assert save(client, project, first, version=1).status_code == 200
+    assert save(client, project, second, version=1).status_code == 409
+    body = dict(request_id=uid(), name='Preserved tab B', document=second)
+    response = client.post(f'{PREFIX}/{project}/copies', json=body)
+    assert response.status_code == 201
+    copied = response.json()
+    mapped = copied['document']['studio']['designs'][0]['asset_id']
+    assert mapped != uploaded
+    assert client.get(f'{PREFIX}/{project}').json()['document'] == first
+    assert client.get(f"{PREFIX}/{copied['id']}").json()['document']['base_color'] == '#654321'
+    source_bytes = client.get(f'{PREFIX}/{project}/assets/{uploaded}').content
+    assert client.get(f"{PREFIX}/{copied['id']}/assets/{mapped}").content == source_bytes
+    assert client.get(f"{PREFIX}/{copied['id']}/assets/{uploaded}").status_code == 404
+    changed_copy = deepcopy(copied['document'])
+    changed_copy['studio']['designs'][0]['angle'] = 15
+    assert save(client, copied['id'], changed_copy, version=copied['version']).status_code == 200
+    assert client.get(f'{PREFIX}/{project}').json()['document'] == first
+    assert client.get(f"{PREFIX}/{copied['id']}").json()['document'] == changed_copy

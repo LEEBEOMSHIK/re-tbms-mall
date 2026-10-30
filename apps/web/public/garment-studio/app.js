@@ -1,3 +1,4 @@
+import {createContextRecovery} from './context-recovery.js';
 import {atlasCopies,offset} from './wrap-print.js';
 import {hoodiePrintU} from './print-uv.js';
 import {buildHoodKnitMaps} from './hood-knit.js';
@@ -22,7 +23,13 @@ const owned=[];let renderer,controls,scene,camera,group,shadow,area,fill,rim,env
 const maps={},shapes={},composites={},materials={};
 let wrapCanvas,wrapTexture;
 let ribMaterial,liningMaterial,liningBackMaterial,outerMaterial;
-const status=text=>$('status').textContent=text;
+let recovery;
+const status=text=>recovery?recovery.status(text):$('status').textContent=text;
+function rebuildEnvironment(){
+ const envScene=new RoomEnvironment(),pmrem=new T.PMREMGenerator(renderer);
+ const next=pmrem.fromScene(envScene,.1);environment?.dispose();environment=next;scene.environment=next.texture;
+ envScene.dispose();pmrem.dispose();
+}
 function texturePixels(pixels,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');const data=x.createImageData(w,h);data.data.set(pixels);x.putImageData(data,0,0);const t=new T.CanvasTexture(c);owned.push(t);return t;}
 function imageCanvas(image){const c=document.createElement('canvas');c.width=image.width;c.height=image.height;c.getContext('2d').drawImage(image,0,0);return c;}
 function neutralTile(texture,generated,id){
@@ -78,19 +85,24 @@ function lights(){const detail=state.light==='raking';area.position.set(-2,detai
 async function init(){
  renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=.78;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
  scene=new T.Scene();scene.background=new T.Color(state.background);rulerGuide=createReferenceRuler();scene.add(rulerGuide);updateBackground();camera=new T.PerspectiveCamera(38,1,.05,30);controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.enablePan=false;controls.minDistance=.7;controls.maxDistance=16;controls.autoRotateSpeed=.8;
- RectAreaLightUniformsLib.init();const envScene=new RoomEnvironment(),pmrem=new T.PMREMGenerator(renderer);environment=pmrem.fromScene(envScene,.1);scene.environment=environment.texture;scene.environmentIntensity=.32;envScene.dispose();pmrem.dispose();
+ RectAreaLightUniformsLib.init();rebuildEnvironment();scene.environmentIntensity=.32;
  area=new T.RectAreaLight(0xfff4df,4,3,4);scene.add(area);fill=new T.RectAreaLight(0xe3edff,1.5,3,4);fill.position.set(2,1,2);fill.lookAt(0,0,0);scene.add(fill);rim=new T.RectAreaLight(0xffffff,1.5,2,3);rim.position.set(1,1,-2);rim.lookAt(0,0,0);scene.add(rim);lights();
  shadow=new T.DirectionalLight(0xfff5e7,1.1);shadow.position.set(-2,3,2);shadow.castShadow=true;shadow.shadow.mapSize.set(2048,2048);Object.assign(shadow.shadow.camera,{left:-2,right:2,top:2,bottom:-2,near:.1,far:10});shadow.shadow.bias=-.0002;shadow.shadow.normalBias=.008;shadow.shadow.radius=5;scene.add(shadow);
  const floor=new T.Mesh(new T.PlaneGeometry(200,200),new T.ShadowMaterial({opacity:.12,color:'#554e44'}));floor.rotation.x=-Math.PI/2;floor.position.y=-1.1;floor.receiveShadow=true;scene.add(floor);group=new T.Group();scene.add(group);
  for(const side of ['front','back']){const c=document.createElement('canvas');c.width=c.height=2048;composites[side]=c;const texture=new T.CanvasTexture(c);texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=16;owned.push(texture);materials[side]=new T.MeshPhysicalMaterial({map:texture,side:T.DoubleSide,metalness:0});materials[side].userData.flatTexture=texture;
 const mat=materials[side];mat.onBeforeCompile=shader=>{shader.uniforms.fabricGrain={value:mat.userData.grain};mat.userData.shader=shader;shader.fragmentShader='uniform sampler2D fabricGrain;\n'+shader.fragmentShader;shader.fragmentShader=shader.fragmentShader.replace('#include <map_fragment>','#include <map_fragment>\n diffuseColor.rgb *= texture2D(fabricGrain,vNormalMapUv).rgb;');};mat.customProgramCacheKey=()=> 'fabric-grain-uv1-v1';}
 
+ const restoreExtension=renderer.getContext().getExtension('WEBGL_lose_context');
+ recovery=createContextRecovery({canvas,button:$('restore-preview'),notice:$('status'),onInterrupt:()=>printEditor?.cancel(),requestRestore:()=>{if(!restoreExtension)throw Error('복구 확장 미지원');restoreExtension.restoreContext();},rebuild:()=>{
+  rebuildEnvironment();shadow.shadow.map?.dispose();shadow.shadow.map=null;
+  apply();renderer.render(scene,camera);
+ }});
  await Promise.all(['cotton','wool','cotton-smooth','wool-smooth','hoodie','hoodie-smooth'].map(async id=>{const r=await fetch(`assets/${id.startsWith('hoodie')?'':'drape-'}${id}.json`);if(!r.ok)throw Error('의류 파일을 불러오지 못했습니다');shapes[id]=await r.json();}));
  wrapCanvas=document.createElement('canvas');wrapCanvas.width=4096;wrapCanvas.height=2048;wrapTexture=new T.CanvasTexture(wrapCanvas);wrapTexture.colorSpace=T.SRGBColorSpace;wrapTexture.wrapS=T.RepeatWrapping;wrapTexture.anisotropy=16;owned.push(wrapTexture);
  await Promise.all([...Object.keys(presets),'hoodOuter'].map(loadFabric));createHoodMaterials();loaded=true;persistence=createPersistence({state,store:designStore,onRestore:restoreUI,onBeforeRestore:()=>{uploadVersion++;printEditor?.cancel();},isEditing:()=>!!printEditor?.dragging});await persistence.initialize();syncDesignUI();apply();view(state.side==='back');if(!window.studioReadonly)printEditor=createPrintEditor({canvas,camera,controls,group,state,paint,selectDesign});
  const resize=()=>{const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);const old=fit();camera.aspect=w/h;camera.updateProjectionMatrix();camera.position.sub(controls.target).multiplyScalar(fit()/old).add(controls.target);};new ResizeObserver(resize).observe(canvas);resize();
- renderer.setAnimationLoop(()=>{controls.autoRotate=state.auto&&!printEditor?.dragging;if(!printEditor?.dragging)controls.update();printEditor?.update();persistence?.tick();rulerGuide.userData.update(camera,controls.target,canvas);renderer.render(scene,camera);});
- canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();status('그래픽 연결이 끊겼습니다. 페이지를 새로고침해 주세요.');});
+ renderer.setAnimationLoop(()=>{persistence?.tick();if(recovery?.lost)return;controls.autoRotate=state.auto&&!printEditor?.dragging;if(!printEditor?.dragging)controls.update();printEditor?.update();rulerGuide.userData.update(camera,controls.target,canvas);renderer.render(scene,camera);});
+
 }
 $('inside-view').onclick=()=>{if(!loaded)return;printEditor?.cancel();state.auto=false;$('rotate').setAttribute('aria-pressed','false');controls.target.set(0,-.12,0);camera.position.set(.05,-2.15,.18);controls.update();canvas.scrollIntoView({block:'start'});};
 $('garment').onchange=e=>{printEditor?.cancel();state.garment=e.target.value;apply();view(state.side==='back');};

@@ -1,0 +1,30 @@
+/* Only management surfaces receive alternating row backgrounds. */
+.management-lists {
+  display: contents;
+  --management-row-stripe: color-mix(in srgb, var(--color-subtle) 70%, var(--color-surface));
+  --management-table-header: color-mix(in srgb, var(--color-text) 10%, var(--color-surface));
+  --management-table-header-border: color-mix(in srgb, var(--color-text) 25%, var(--color-line));
+}
+
+/* Column headings must be distinct from the alternating body rows. */
+.management-lists table > thead > tr > :is(th, td) {
+  background-color: var(--management-table-header);
+  color: var(--color-text);
+  font-weight: 600;
+  border-bottom: 2px solid var(--management-table-header-border);
+}
+
+/* Low specificity lets explicit warning/selection backgrounds take precedence.
+   Cell backgrounds (e.g. excluded option combinations) remain untouched. */
+:where(.management-lists table > tbody > tr:nth-child(even of :not([hidden])):not([aria-selected="true"])) {
+  background-color: var(--management-row-stripe);
+}
+
+.management-lists :is(.dashboard-task-list, .dashboard-shipping-list, .dashboard-qna-list, .dashboard-stock-preview, .factory-dashboard-tasks, .review-history > ol, .shipment-history, .factory-history, .menu-state-groups ul) > :nth-child(even of :not([hidden])) {
+  background-color: var(--management-row-stripe);
+}
+
+/* Board headings and pagination are not task rows. */
+.management-lists .board-column > .task-card:nth-child(even of .task-card) {
+  background-color: var(--management-row-stripe);
+}

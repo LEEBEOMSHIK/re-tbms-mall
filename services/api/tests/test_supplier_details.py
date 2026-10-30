@@ -83,7 +83,7 @@ def test_v7_migration_preserves_and_failure_rolls_back(tmp_path):
     with sqlite3.connect(path) as db:
         assert [row[:5] for row in db.execute('SELECT * FROM suppliers')] == old
         assert db.execute('SELECT * FROM movements').fetchall() == ledger
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 16
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 17
     broken = tmp_path / 'broken'
     v6_db(broken)
     with sqlite3.connect(broken) as db:

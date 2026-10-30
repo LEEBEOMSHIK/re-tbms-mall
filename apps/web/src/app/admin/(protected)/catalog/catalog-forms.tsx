@@ -1,4 +1,8 @@
 'use client';
+import {ColorChip} from '@/components/ui/color-chip';
+import {ProductDetailsFields} from './product-details-fields';
+import {ProductDetailsView} from '@/components/product-details-view';
+import {emptyProductDetails,parseProductDetails} from '@/lib/product-details';
 import {KeyFacts} from '@/components/ui/key-facts';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
@@ -15,7 +19,7 @@ import {
 } from '@/lib/catalog';
 
 type Refresh = () => Promise<Catalog | null>;
-const emptyProduct = { name: '', category_id: '', seasons: [] as SeasonCode[], description: '' };
+const emptyProduct = { name: '', category_id: '', seasons: [] as SeasonCode[], description: '', details:emptyProductDetails() };
 const seasonCaptions: Record<SeasonCode, string> = { SP: 'Spring', SU: 'Summer', FA: 'Fall', WI: 'Winter', ALL: 'All seasons' };
 const messages: Record<CatalogFailure, string> = {
   auth: '로그인이 만료되었습니다. 다시 로그인해 주세요.',
@@ -52,9 +56,9 @@ export function Feedback({ failure, notice }: { failure: CatalogFailure | null; 
   </>;
 }
 
-export function ProductForm({ initial, categories, seasonOptions, refresh }: { initial?: ProductDraft; categories: CatalogCategory[]; seasonOptions: SeasonOption[]; refresh: Refresh }) {
+export function ProductForm({ initial, categories, seasonOptions, refresh, embedded = false, onSaved }: { initial?: ProductDraft; categories: CatalogCategory[]; seasonOptions: SeasonOption[]; refresh: Refresh; embedded?: boolean; onSaved?: (product: ProductDraft) => void }) {
   const [product, setProduct] = useState(initial ? {
-    name: initial.name, category_id: initial.category_id, seasons: initial.seasons, description: initial.description,
+    name: initial.name, category_id: initial.category_id, seasons: initial.seasons, description: initial.description, details:initial.details??emptyProductDetails(),
   } : emptyProduct);
   const initialCategory = categories.find(category => category.id === initial?.category_id);
   const [rootId, setRootId] = useState(initialCategory?.parent_id || initialCategory?.id || '');
@@ -71,6 +75,8 @@ export function ProductForm({ initial, categories, seasonOptions, refresh }: { i
   const selectedCategory = categories.find(category => category.id === product.category_id);
   const selectedRoot = categories.find(category => category.id === rootId);
   const classificationRequired = !baseline || baseline.category_id !== product.category_id || baseline.seasons.join() !== product.seasons.join();
+
+  useEffect(()=>{if(inputError)document.getElementById('product-validation-error')?.focus();},[inputError]);
 
   useEffect(() => {
     if (completedProduct) {
@@ -97,13 +103,18 @@ export function ProductForm({ initial, categories, seasonOptions, refresh }: { i
       document.getElementById(target)?.focus();
       return;
     }
+    let details;
+    try { details=parseProductDetails(product.details); } catch(error) { setInputError(error instanceof Error?error.message:'상세 정보를 확인해 주세요.');document.getElementById('product-validation-error')?.focus();return; }
     void op.run(async () => {
       const result = await catalogRequest(initial ? `/api/admin/products/${initial.id}` : '/api/admin/products', parseProduct, {
         method: initial ? 'PUT' : 'POST',
-        body: { ...product, ...(initial ? { version: revision } : {}) },
+        body: { ...product, details, ...(initial ? { version: revision } : {}) },
       });
       if (!result.ok) { op.setFailure(result.reason); return; }
+      if (initial && result.data.id !== initial.id) { op.setFailure('unavailable'); return; }
+      if (JSON.stringify(result.data.details)!==JSON.stringify(details)) { op.setFailure('unavailable'); return; }
       if (initial) {
+        onSaved?.(result.data);
         setSavedId(result.data.id);
         setSavedInternalName(result.data.internal_name);
         setRevision(result.data.version);
@@ -117,16 +128,16 @@ export function ProductForm({ initial, categories, seasonOptions, refresh }: { i
   }
 
   if (completedProduct && initial) return <SaveResult className="catalog-panel" title="상품 수정이 완료되었습니다" actions={<>
-    <Link className="catalog-link-button catalog-primary" href={`/admin/catalog/${encodeURIComponent(completedProduct.id)}`}>상품 상세로</Link>
-    <button type="button" onClick={() => { setProduct({ name: completedProduct.name, category_id: completedProduct.category_id, seasons: completedProduct.seasons, description: completedProduct.description }); completedGuard.current = false; focusNewForm.current = true; setCompletedProduct(null); }}>계속 수정</button>
+    <Link className="catalog-link-button catalog-primary" href={embedded?"/admin/catalog":`/admin/catalog/${encodeURIComponent(completedProduct.id)}`}>{embedded?"상품 목록으로":"상품 상세로"}</Link>
+    <button type="button" onClick={() => { setProduct({ name: completedProduct.name, category_id: completedProduct.category_id, seasons: completedProduct.seasons, description: completedProduct.description, details:completedProduct.details??emptyProductDetails() }); completedGuard.current = false; focusNewForm.current = true; setCompletedProduct(null); }}>계속 수정</button>
   </>}><dl className="catalog-completion-details">
     <div><dt>고객 표시명</dt><dd>{completedProduct.name}</dd></div>
     <div><dt>내부 관리명</dt><dd>{completedProduct.internal_name}</dd></div>
     <div><dt>카테고리</dt><dd>{completedProduct.category}</dd></div>
     <div><dt>설명</dt><dd>{completedProduct.description || '없음'}</dd></div>
-  </dl><p className="catalog-note">상품 정보가 저장되었습니다. 게시 중인 상품은 고객 화면에도 변경 내용이 반영됩니다.</p></SaveResult>;
+  </dl><ProductDetailsView details={completedProduct.details}/><p className="catalog-note">상품 정보가 저장되었습니다. 게시 중인 상품은 고객 화면에도 변경 내용이 반영됩니다.</p></SaveResult>;
   if (completedProduct && !initial) return <SaveResult className="catalog-panel catalog-form-panel catalog-form-wide" title="상품 등록이 완료되었습니다" status="기본 정보 저장 완료" actions={<>
-    <Link className="catalog-link-button catalog-primary" href={`/admin/catalog/${encodeURIComponent(completedProduct.id)}`}>상품 상세로</Link>
+    <Link className="catalog-link-button catalog-primary" href={embedded?"/admin/catalog":`/admin/catalog/${encodeURIComponent(completedProduct.id)}`}>{embedded?"상품 목록으로":"상품 상세로"}</Link>
     <Link className="catalog-link-button" href={`/admin/catalog/options/new?product_id=${encodeURIComponent(completedProduct.id)}`}>색상·사이즈 등록</Link>
       <button type="button" onClick={() => {
         setProduct(emptyProduct);
@@ -140,12 +151,12 @@ export function ProductForm({ initial, categories, seasonOptions, refresh }: { i
         focusNewForm.current = true;
         setCompletedProduct(null);
       }}>다른 상품 등록</button>
-</>}><dl className="catalog-completion-details"><div><dt>고객 표시명</dt><dd>{completedProduct.name}</dd></div><div><dt>내부 관리명</dt><dd><output id="saved-internal-name" aria-label="저장한 상품의 내부 관리명">{completedProduct.internal_name}</output></dd></div></dl><div className="catalog-completion-next"><h3>다음은 색상과 사이즈를 등록해 주세요</h3><p>상품 상세에서 색상·사이즈 등록과 재고 관리를 이어갈 수 있습니다. 지금은 기본 정보만 저장되었으며 고객 화면에는 게시되지 않았습니다.</p></div></SaveResult>;
+</>}><dl className="catalog-completion-details"><div><dt>고객 표시명</dt><dd>{completedProduct.name}</dd></div><div><dt>내부 관리명</dt><dd><output id="saved-internal-name" aria-label="저장한 상품의 내부 관리명">{completedProduct.internal_name}</output></dd></div></dl><ProductDetailsView details={completedProduct.details}/><div className="catalog-completion-next"><h3>다음은 색상과 사이즈를 등록해 주세요</h3><p>상품 상세에서 색상·사이즈 등록과 재고 관리를 이어갈 수 있습니다. 지금은 기본 정보만 저장되었으며 고객 화면에는 게시되지 않았습니다.</p></div></SaveResult>;
 
   return <section className="catalog-panel catalog-form-panel catalog-form-wide">
     <h2>상품 기본 정보</h2>
     <Feedback failure={op.failure} notice={op.notice} />
-    {inputError && <p id="product-validation-error" role="alert" className="admin-session-error">{inputError}</p>}
+    {inputError && <p id="product-validation-error" tabIndex={-1} role="alert" className="admin-session-error">{inputError}</p>}
     {savedId && <div className="catalog-saved-product">
       <p>저장한 상품의 내부 관리명: <output id="saved-internal-name" aria-label="저장한 상품의 내부 관리명">{savedInternalName}</output></p>
       <div className="catalog-actions catalog-success-links">
@@ -201,25 +212,24 @@ export function ProductForm({ initial, categories, seasonOptions, refresh }: { i
         <FormLabel htmlFor="product-description" hint="선택">설명</FormLabel>
         <textarea id="product-description" aria-labelledby="product-description-label" maxLength={2000} rows={5} value={product.description} onChange={event => setProduct({ ...product, description: event.target.value })} />
         </div>
+        <ProductDetailsFields value={product.details} onChange={details=>setProduct({...product,details})}/>
         <div className="catalog-actions">
-          <button className="catalog-primary" type="submit">{op.busy ? (initial ? '저장 중…' : '등록 중…') : (initial ? '상품 수정 저장' : '상품 등록')}</button>
-          <Link className="catalog-link-button ds-form-action" href={initial?`/admin/catalog/${encodeURIComponent(initial.id)}`:"/admin/catalog"}>{initial?'취소하고 상품 상세로':'취소하고 목록으로'}</Link>
+          <button className="catalog-primary" type="submit" disabled={!!initial && (op.failure === 'conflict' || op.failure === 'unavailable')}>{op.busy ? (initial ? '저장 중…' : '등록 중…') : (initial ? '상품 수정 저장' : '상품 등록')}</button>
+          {!embedded && <Link className="catalog-link-button ds-form-action" href={initial?`/admin/catalog/${encodeURIComponent(initial.id)}`:"/admin/catalog"}>{initial?'취소하고 상품 상세로':'취소하고 목록으로'}</Link>}
         </div>
-        {initial && op.failure === 'conflict' && <>
-          <p className="catalog-note">최신 내용을 불러오면 지금 작성한 입력이 저장된 내용으로 바뀝니다.</p>
+        {initial && (op.failure === 'conflict' || op.failure === 'unavailable') && <>
+          <p className="catalog-note">최신 저장 상태를 확인해도 작성 중인 입력은 유지됩니다. 확인 후 다시 저장해 주세요.</p>
           <button type="button" onClick={() => void op.run(async () => {
             const current = await refresh();
             if (!current) { op.setFailure('unavailable'); return; }
             const latest = current.products.find(item => item.id === initial.id);
             if (!latest) { op.setFailure('missing'); return; }
-            setProduct({ name: latest.name, category_id: latest.category_id, seasons: latest.seasons, description: latest.description });
-            const latestCategory = current.categories.find(category => category.id === latest.category_id);
-            setRootId(latestCategory?.parent_id || latestCategory?.id || '');
+            // Keep the draft while updating the version used for the next save.
             setBaseline(latest);
             setInputError('');
             setRevision(latest.version);
             setSavedInternalName(latest.internal_name);
-            op.setNotice('최신 상품 내용을 불러왔습니다. 확인 후 수정해 주세요.');
+            op.setNotice('최신 저장 상태를 확인했습니다. 작성 중인 입력은 유지됩니다. 확인 후 저장해 주세요.');
           })}>최신 상품 내용 불러오기</button>
         </>}
       </fieldset>
@@ -371,7 +381,7 @@ export function OptionForm({ catalog, productId, refresh }: { catalog: Catalog; 
           <p className="catalog-note">색상·사이즈 각각 최대 50개, 총 200개까지입니다. 제외한 행은 등록하지 않습니다. 기존 옵션의 재고는 재고 관리에서 변경하세요.</p>
           {overLimit ? <p role="alert">등록 가능한 개수를 초과했습니다. 선택을 줄여 주세요.</p> : !selectedProduct ? <p>대상 상품을 선택해 주세요.</p> : !!combinations.length && <div className="catalog-table-scroll" tabIndex={0} role="region" aria-label="선택 조합 목록">
             <table><thead><tr><th>색상</th><th>사이즈</th><th>옵션 관리 코드</th><th>등록 구분</th><th>초기 입고 수량 / 현재 재고</th><th>재고 부족 표시 기준</th><th>등록 대상 관리</th></tr></thead><tbody>{combinations.map(item => <tr key={item.key} data-combination-key={item.key} className={item.excluded && !item.existing ? 'catalog-batch-excluded' : undefined}>
-              <td>{item.color.name}</td><td>{item.size.name}</td><td>{item.code}</td><td>{item.existing ? '기존 등록' : item.excluded ? '제외' : '등록 대상'}</td>
+              <td><ColorChip name={item.color.name} showName/></td><td>{item.size.name}</td><td>{item.code}</td><td>{item.existing ? '기존 등록' : item.excluded ? '제외' : '등록 대상'}</td>
               <td>{item.existing ? <span>현재 재고 {item.existing.on_hand}개</span> : <><label className="catalog-stock-label" htmlFor={`initial-stock-${item.key}`}>{item.color.name} / {item.size.name} 초기 입고 수량</label><input id={`initial-stock-${item.key}`} className="catalog-initial-stock" type="number" min={0} max={1000000} step={1} required={!item.excluded} disabled={item.excluded} value={item.stock} onChange={event => setRowInputs(current => ({ ...current, [item.key]: { excluded: item.excluded, stock: event.target.value, reorder: item.reorder } }))} /></>}</td>
               <td>{item.existing ? <span>현재 기준 {item.existing.reorder_point}개</span> : <><label className="catalog-stock-label" htmlFor={`reorder-point-${item.key}`}>{item.color.name} / {item.size.name} 재고 부족 표시 기준</label><input id={`reorder-point-${item.key}`} className="catalog-initial-stock" type="number" min={0} max={1000000} step={1} required={!item.excluded} disabled={item.excluded} value={item.reorder} onChange={event => setRowInputs(current => ({ ...current, [item.key]: { excluded: item.excluded, stock: item.stock, reorder: event.target.value } }))} /></>}</td>
               <td>{item.existing ? <Link className="catalog-link-button" href={`/admin/catalog/options/${encodeURIComponent(item.existing.id)}/edit`}>옵션 수정</Link> : <button type="button" aria-label={`${item.color.name} / ${item.size.name} ${item.excluded ? '복원' : '제외'}`} onClick={() => setRowInputs(current => ({ ...current, [item.key]: { stock: item.stock, reorder: item.reorder, excluded: !item.excluded } }))}>{item.excluded ? '복원' : '제외'}</button>}</td>
@@ -487,7 +497,7 @@ export function InventoryForm({ catalog, refresh, initialFlow = '', productId = 
         {selected && <dl id="movement-option-detail" className="catalog-selected-option" aria-label="선택한 상품과 옵션 전체 정보">
           <div><dt>상품명</dt><dd>{selectedProduct?.name || '상품 정보 없음'}</dd></div>
           <div><dt>내부 관리명</dt><dd>{selectedProduct?.internal_name || '—'}</dd></div>
-          <div><dt>색상 · 사이즈</dt><dd>{selected.color} / {selected.size}</dd></div>
+          <div><dt>색상 · 사이즈</dt><dd><ColorChip name={selected.color} showName/> / {selected.size}</dd></div>
           <div><dt>옵션 관리 코드</dt><dd>{selected.code}</dd></div>
         </dl>}
         {selected && <div className="catalog-key-summary" aria-live="polite"><KeyFacts label="재고 변경 미리보기" items={[{label:'현재 실제 재고',value:`${selected.on_hand}개`},{label:'입력한 증감',value:validQuantity?`${signedDelta>0?'+':''}${signedDelta}개`:'수량 입력'},{label:'예상 변경 후 재고',value:expectedStock===null?'—':`${expectedStock}개`,note:'최종 재고는 저장 시 서버에서 확인합니다.'}]}/></div>}

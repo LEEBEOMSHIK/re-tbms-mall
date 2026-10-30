@@ -108,13 +108,14 @@ def test_schema13_backup_preserves_original_rows_and_no_auto_publish(setup):
     client,path,_=setup;pid,_,_=prepared(client)
     before=snapshot(client)
     with sqlite3.connect(path) as db:
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('DROP TABLE review_history');db.execute('DROP TABLE product_reviews');db.execute('DROP TABLE publication_history');db.execute('DROP TABLE product_publications');db.execute('PRAGMA user_version=13')
     after=snapshot(client)
     assert before==after
     assert client.get('/api/v1/products').json()['products']==[]
     backups=list(path.parent.glob(path.name+'.pre-v14-*.bak'));assert backups
     with sqlite3.connect(backups[0]) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==13
-    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==16
+    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==17
 
 def test_publication_concurrent_versions_allow_one_writer(setup):
     from concurrent.futures import ThreadPoolExecutor

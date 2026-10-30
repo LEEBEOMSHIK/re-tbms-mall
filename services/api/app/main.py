@@ -11,6 +11,8 @@ from starlette.concurrency import run_in_threadpool
 
 from app.config import load_admin_token, load_cors_origins
 from app.dashboard import sample_dashboard
+from app.brand_about import register_brand_about_routes, DEFAULT_PATH as DEFAULT_BRAND_ABOUT_PATH
+from app.admin_navigation import register_admin_navigation_routes, DEFAULT_PATH as DEFAULT_ADMIN_NAVIGATION_PATH
 from app.inventory import CatalogStore, CategoryCreate, CategoryUpdate, ProductCreate, ProductUpdate, ProductDelete, SkuCreate, SkuBatchCreate, SelectedSkuBatchCreate, OptionValueCreate, OptionValueUpdate, MovementCreate, DEFAULT_CATALOG_PATH
 from app.storefront import DEFAULT_PATH, StorefrontStore, StorefrontUpdate
 from app.public_catalog import PublicCatalog, register_public_catalog_routes
@@ -19,6 +21,7 @@ from app.product_images import ProductImageCreate, ProductImageStore, MAX_BODY
 from app.factory import register_factory_routes
 from app.reviews import PurchaseVerifier, ReviewStore, register_review_routes
 from app.designs import register_design_routes
+from app.customer import CustomerStore, DEFAULT_CUSTOMER_PATH, register_customer_routes
 
 
 class HealthResponse(BaseModel):
@@ -26,7 +29,7 @@ class HealthResponse(BaseModel):
     service: Literal['re-tbms-mall-api'] = 're-tbms-mall-api'
 
 
-def create_app(*, env_file: Path | None = None, storefront_path: Path | None = None, catalog_path: Path | None = None, review_verifier: PurchaseVerifier | None = None, design_path: Path | None = None) -> FastAPI:
+def create_app(*, env_file: Path | None = None, storefront_path: Path | None = None, catalog_path: Path | None = None, review_verifier: PurchaseVerifier | None = None, design_path: Path | None = None, customer_path: Path | None = None, customer_transport=None, customer_clock=None, brand_about_path: Path | None = None, admin_navigation_path: Path | None = None) -> FastAPI:
     application = FastAPI(title='re-tbms-mall API', version='0.1.0')
     application.add_middleware(
         CORSMiddleware,
@@ -50,9 +53,12 @@ def create_app(*, env_file: Path | None = None, storefront_path: Path | None = N
         if scheme.lower() != 'bearer' or not valid:
             raise HTTPException(401, 'A valid administrator bearer key is required.', headers={'WWW-Authenticate': 'Bearer'})
 
+    register_brand_about_routes(application, require_admin, brand_about_path if brand_about_path is not None else (catalog_path.with_name("brand.sqlite3") if catalog_path is not None else DEFAULT_BRAND_ABOUT_PATH))
+    register_admin_navigation_routes(application, require_admin, admin_navigation_path if admin_navigation_path is not None else (catalog_path.with_name("admin-navigation.sqlite3") if catalog_path is not None else DEFAULT_ADMIN_NAVIGATION_PATH))
     register_public_catalog_routes(application, public_catalog, require_admin)
     register_review_routes(application, ReviewStore(catalog, review_verifier), require_admin)
     register_design_routes(application, require_admin, design_path if design_path is not None else Path(__file__).resolve().parents[3] / '.local' / 'designs.sqlite3')
+    register_customer_routes(application, CustomerStore(customer_path if customer_path is not None else (catalog_path.with_name(catalog_path.stem + ".customers.sqlite3") if catalog_path is not None else DEFAULT_CUSTOMER_PATH), catalog, env_file, customer_transport, customer_clock))
     register_factory_routes(application, catalog, require_admin)
     from app.shipments import register_shipment_routes
     register_shipment_routes(application, catalog, require_admin)

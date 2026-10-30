@@ -1,4 +1,5 @@
 'use client';
+import {ColorChip} from '@/components/ui/color-chip';
 import {stockMatches,type StockFilter} from '@/lib/inventory-overview';
 import {KeyFacts} from '@/components/ui/key-facts';
 
@@ -44,10 +45,10 @@ function ProductRowActions({ product, busy, onDelete }: { product: ProductDraft;
     element.style.top = `${Math.max(8, anchor.bottom + box.height + 8 <= window.innerHeight ? anchor.bottom + 8 : anchor.top - box.height - 8)}px`;
   }
   return <div className="catalog-product-actions">
-    <Link className="catalog-row-action" href={`/admin/catalog/${product.id}/edit`} aria-label={`${product.name} 수정`}><ActionIcon action="edit" />수정</Link>
+    <Link className="catalog-row-action" href={`/admin/catalog/${product.id}#product-basic`} aria-label={`${product.name} 수정`}><ActionIcon action="edit" />수정</Link>
     <button ref={trigger} type="button" className="catalog-row-action" aria-label={`${product.name} 관리 더보기`} aria-expanded={open} aria-controls={id} onClick={toggle}>더보기<span aria-hidden="true">⋯</span></button>
     <div ref={panel} id={id} popover="auto" className="catalog-actions-popover" role="group" aria-label={`${product.name} 추가 관리`} onToggle={event => setOpen(event.newState === 'open')}>
-      <Link href={`/admin/catalog/${product.id}/publication/edit`}>고객 화면 공개 설정</Link>
+      <Link href={`/admin/catalog/${product.id}#product-pricing`}>가격·할인·공개 설정</Link>
       <Link href={`/admin/catalog/options/new?product_id=${encodeURIComponent(product.id)}`} aria-label={`${product.name} 색상·사이즈 등록`}><ActionIcon action="options" />색상·사이즈 등록</Link>
       <button type="button" className="catalog-actions-danger" disabled={busy} aria-label={`${product.name} 삭제`} onClick={() => { panel.current?.hidePopover(); if (trigger.current) onDelete(trigger.current); }}><ActionIcon action="delete" />상품 삭제</button>
     </div>
@@ -285,7 +286,7 @@ export function MovementHistory({ catalog, savedMovement, missingSaved = false, 
       <p aria-live="polite">전체 {rows.length}개 옵션 중 {visibleRows.length}개</p>
       {!visibleRows.length ? <p className="catalog-empty-state">표시할 재고가 없습니다.</p> : <div className="catalog-table-scroll" tabIndex={0} role="region" aria-label="현재 보유 재고 목록"><table>
         <thead><tr><th>상품명 / 내부 관리명</th><th>색상 / 사이즈</th><th>현재 재고</th><th>부족 상태 · 관리</th><th>입출고 누계</th></tr></thead>
-        <tbody>{pageRows.map(row => <tr key={row.sku.id} data-stock-sku-id={row.sku.id}><td>{row.product ? <Link className="catalog-product-name-link" href={`/admin/catalog/${encodeURIComponent(row.product.id)}`} aria-label={`${row.product.name} 상품 상세`}>{row.product.name}</Link> : '상품 정보 없음'}<small>{row.product?.internal_name}</small></td><td>{row.sku.color} / {row.sku.size}<small>{row.sku.code}</small><span className={`sku-usage-badge ${row.sku.is_active?'is-active':'is-inactive'}`}>{row.sku.is_active?'사용 중':'사용 안 함'}</span></td><td><strong className="catalog-table-key-value">{row.current}개</strong></td><td><StatusBadge kind={row.low ? 'low_stock' : 'stock_healthy'}>{row.low ? '부족' : '양호'}</StatusBadge><small>기준 {row.sku.reorder_point}개 이하일 때 표시</small><Link className="catalog-row-action" href={`/admin/catalog/options/${encodeURIComponent(row.sku.id)}/edit`} aria-label={`${row.product?.name||row.sku.code} ${row.sku.color} ${row.sku.size} 옵션 수정`}>옵션 수정</Link></td><td><details className="catalog-list-details"><summary aria-label={`${row.product?.name||row.sku.code} ${row.sku.color} ${row.sku.size} 입출고 누계`}>누계 보기</summary><dl><div><dt>입고</dt><dd>{row.received}개</dd></div><div><dt>판매 출고</dt><dd>{row.sold}개</dd></div><div><dt>기타 출고</dt><dd>{row.otherOut}개</dd></div><div><dt>조정 순증</dt><dd>{row.adjusted>0?'+':''}{row.adjusted}개</dd></div></dl></details></td></tr>)}</tbody>
+        <tbody>{pageRows.map(row => <tr key={row.sku.id} data-stock-sku-id={row.sku.id}><td>{row.product ? <Link className="catalog-product-name-link" href={`/admin/catalog/${encodeURIComponent(row.product.id)}`} aria-label={`${row.product.name} 상품 상세`}>{row.product.name}</Link> : '상품 정보 없음'}<small>{row.product?.internal_name}</small></td><td><ColorChip name={row.sku.color} showName/> / {row.sku.size}<small>{row.sku.code}</small><span className={`sku-usage-badge ${row.sku.is_active?'is-active':'is-inactive'}`}>{row.sku.is_active?'사용 중':'사용 안 함'}</span></td><td><strong className="catalog-table-key-value">{row.current}개</strong></td><td><StatusBadge kind={row.low ? 'low_stock' : 'stock_healthy'}>{row.low ? '부족' : '양호'}</StatusBadge><small>기준 {row.sku.reorder_point}개 이하일 때 표시</small><Link className="catalog-row-action" href={`/admin/catalog/options/${encodeURIComponent(row.sku.id)}/edit`} aria-label={`${row.product?.name||row.sku.code} ${row.sku.color} ${row.sku.size} 옵션 수정`}>옵션 수정</Link></td><td><details className="catalog-list-details"><summary aria-label={`${row.product?.name||row.sku.code} ${row.sku.color} ${row.sku.size} 입출고 누계`}>누계 보기</summary><dl><div><dt>입고</dt><dd>{row.received}개</dd></div><div><dt>판매 출고</dt><dd>{row.sold}개</dd></div><div><dt>기타 출고</dt><dd>{row.otherOut}개</dd></div><div><dt>조정 순증</dt><dd>{row.adjusted>0?'+':''}{row.adjusted}개</dd></div></dl></details></td></tr>)}</tbody>
       </table></div>}
     </div> : <div className="catalog-inventory-results">
       <p aria-live="polite">조회 결과 {movements.length}건 · {view === 'receipt' ? `입고 수량 합계 ${movementTotal}개` : view === 'out' ? `출고 수량 합계 ${Math.abs(movementTotal)}개` : `변동 합계 ${movementTotal > 0 ? '+' : ''}${movementTotal}개 (미분류 포함)`}</p>

@@ -1,0 +1,16 @@
+ 'use client';
+import Link from 'next/link';
+import {useRef,useState} from 'react';
+import {PG_INQUIRY,PG_PREPARATION,PG_PROVIDER_NOTES,PG_PAYMENT_METHODS} from '@/lib/payment-preparation';
+import './preparation.css';
+export function PaymentPreparationView(){
+ const [message,setMessage]=useState('');const text=useRef<HTMLTextAreaElement>(null);
+ async function copy(){try{await navigator.clipboard.writeText(PG_INQUIRY);setMessage('문의문을 복사했습니다. 발송할 문서에 붙여넣고 빈칸과 업체별 추가 문장을 채워 주세요.')}catch{text.current?.focus();text.current?.select();setMessage('자동 복사를 사용할 수 없어 문의문을 선택했습니다. 직접 복사해 주세요.')}}
+ return <main id="main" className="pg-preparation"><header><p className="eyebrow">PAYMENT PREPARATION</p><h1>PG 도입 준비</h1><p>견적 문의문과 준비할 정보를 한곳에서 확인하세요.</p><p>견적 비교 → PG 선정 → 주문·결제 설계 → 테스트 연동 순서로 준비합니다.</p><Link href="/admin/workboard">현재 작업 상태 확인 →</Link></header>
+ <nav aria-label="PG 준비 안내 목차"><a href="#pg-inquiry">문의문</a><a href="#pg-providers">업체별 요청</a><a href="#pg-checklist">준비할 정보</a><a href="#pg-methods">카드·간편결제</a></nav>
+ <section id="pg-inquiry"><h2>1. 견적 문의문</h2><p>공통 내용을 복사하고 [입력] 항목을 채워 업체에 보내세요. 이 화면에서는 문의를 발송하거나 사업자 정보를 저장하지 않습니다.</p><label htmlFor="pg-inquiry-text">견적 문의문 원문</label><textarea ref={text} id="pg-inquiry-text" readOnly value={PG_INQUIRY} rows={12}/><button type="button" onClick={()=>void copy()}>문의문 복사</button><p role="status" aria-live="polite">{message}</p></section>
+ <section id="pg-providers"><h2>2. 업체에 맞춰 덧붙일 문장</h2><div className="pg-cards">{PG_PROVIDER_NOTES.map(([name,note])=><article key={name}><h3>{name}</h3><p>{note}</p></article>)}</div></section>
+ <section id="pg-checklist"><h2>3. 내가 준비할 정보</h2><p>견적 단계에서 확정되지 않은 항목은 ‘미정’으로 적으세요. 계약 서류는 업체의 공식 접수 경로로 제출하세요.</p><div className="pg-cards">{PG_PREPARATION.map(([title,...items])=><article key={title}><h3>{title}</h3><ul>{items.map(item=><li key={item}>{item}</li>)}</ul></article>)}</div></section>
+ <section id="pg-methods"><h2>4. 업체별 연동 가능한 결제수단</h2><p>공식 안내에 기재된 지원 범위입니다. 이 쇼핑몰에 이미 연동되었거나 계약만으로 자동 활성화된다는 뜻은 아닙니다.</p><div className="pg-cards">{PG_PAYMENT_METHODS.map(provider=><article key={provider.name}><h3>{provider.name}</h3><p>{provider.basis}</p><dl><dt>일반 결제</dt><dd>{provider.general}</dd><dt>간편결제</dt><dd>{provider.easy}</dd><dt>신청·계약 시 확인</dt><dd>{provider.note}</dd></dl><a href={provider.url}>{provider.name} 지원 근거 보기 ↗</a></article>)}</div><h3>결제수단을 비교할 때</h3><dl><dt>신용·체크카드</dt><dd>적용 수수료, 할부·무이자 비용과 부분취소 조건을 확인합니다.</dd><dt>카카오페이·토스페이</dt><dd>지원 결제수단과 추가 신청·심사·수수료를 업체별로 확인합니다. 카카오 로그인과 카카오페이 결제는 별도 서비스입니다.</dd><dt>네이버페이</dt><dd>자사 주문서에서 선택하는 결제 방식과 네이버 주문 흐름까지 연결하는 주문형을 구분해 견적을 요청합니다.</dd><dt>포트원</dt><dd>여러 PG를 연결하는 서비스입니다. PG 거래 수수료와 포트원 플랫폼 이용료를 따로 비교합니다.</dd></dl><p>지원 범위와 요금은 계약에 따라 달라집니다. 아래 공식 안내와 실제 견적서를 함께 확인하세요.</p><ul><li><a href="https://www.tosspayments.com/about/fee">토스페이먼츠 요금 안내 ↗</a></li><li><a href="https://www.tosspayments.com/services">토스페이먼츠 결제수단 ↗</a></li><li><a href="https://help.portone.io/category/pricing">포트원 경유 PG 요금 ↗</a></li><li><a href="https://www.portone.io/pricing">포트원 플랫폼 요금 ↗</a></li></ul><p>안내 확인일: 2026-10-30 · 확정 견적이나 계약을 대신하지 않습니다.</p></section>
+ <footer><Link href="/admin/guide#guide-pg-preparation">사용 가이드에서 준비 순서 보기 →</Link></footer></main>
+}

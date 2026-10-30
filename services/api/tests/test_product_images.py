@@ -116,10 +116,11 @@ def test_v8_migration_preserves_all_rows(setup):
         db.execute('ALTER TABLE skus DROP COLUMN is_active')
         for table in ('review_history','product_reviews','publication_history','product_publications','shipment_stock_links','shipment_history','shipments'):
             db.execute(f'DROP TABLE IF EXISTS {table}')
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('PRAGMA user_version=8')
     assert CatalogStore(store.path).get()==before
     with sqlite3.connect(store.path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0]==16
+        assert db.execute('PRAGMA user_version').fetchone()[0]==17
         assert db.execute('SELECT COUNT(*) FROM product_images').fetchone()[0]==0
 
 @pytest.mark.parametrize('size', [(4096, 4096), (5000, 1)])
@@ -156,6 +157,7 @@ def test_schema9_migration_failure_rolls_back(setup):
         db.execute('ALTER TABLE skus DROP COLUMN is_active')
         for table in ('review_history','product_reviews','publication_history','product_publications','shipment_stock_links','shipment_history','shipments'):
             db.execute(f'DROP TABLE IF EXISTS {table}')
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('PRAGMA user_version=8')
     from fastapi import HTTPException
     with pytest.raises(HTTPException) as error:

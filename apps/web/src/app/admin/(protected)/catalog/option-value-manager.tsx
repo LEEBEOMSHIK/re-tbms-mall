@@ -1,4 +1,5 @@
 'use client';
+import {ColorChip} from '@/components/ui/color-chip';
 import {KeyFacts,ValueStatus} from '@/components/ui/key-facts';
 
 import { useState } from 'react';
@@ -70,7 +71,7 @@ export function OptionValueManager({ catalog, refresh, mode = 'list', valueId, i
       {!values.length ? <p>등록된 {label}이 없습니다.</p> : <div className="catalog-table-scroll" tabIndex={0} role="region" aria-label={`${label} 기준정보 목록`}>
         <table><thead><tr><th>이름 / 코드</th><th>표시 순서</th><th>사용 상태</th><th>관리</th></tr></thead>
           <tbody>{valuePages.items.map(value => <tr key={value.id} data-option-value-id={value.id}>
-            <td><strong className="catalog-row-identity">{value.name}</strong><small>코드 {value.code}</small></td><td>{value.sort_order}</td><td><ValueStatus tone={value.is_active?'success':'neutral'}>{value.is_active?'사용 중':'사용 중지'}</ValueStatus></td>
+            <td><strong className="catalog-row-identity">{value.kind==='color'?<ColorChip name={value.name} showName/>:value.name}</strong><small>코드 {value.code}</small></td><td>{value.sort_order}</td><td><ValueStatus tone={value.is_active?'success':'neutral'}>{value.is_active?'사용 중':'사용 중지'}</ValueStatus></td>
             <td><Link className="catalog-link-button" aria-label={`${value.name} 수정`} href={`/admin/catalog/option-values/${value.id}/edit`}>수정</Link></td>
           </tr>)}</tbody>
         </table>

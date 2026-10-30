@@ -75,7 +75,7 @@ def test_v1_migration_preserves_entities_and_order(tmp_path):
     assert store.create_product(draft())['internal_name'] == 'TOP-TEE-SP-000001'
     assert CatalogStore(path).get()['products'][:5] == rows
     with sqlite3.connect(path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 16
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 17
         assert db.execute('SELECT id,product_id,code,color,size,reorder_point,on_hand,version FROM skus').fetchall() == before_skus
         assert db.execute('SELECT id,sku_id,delta,reason,actor,created_at,balance_after,request_id,request_payload FROM movements').fetchall() == before_movements
         assert not db.execute('PRAGMA foreign_key_check').fetchall()

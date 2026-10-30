@@ -1,0 +1,23 @@
+{
+  "eyebrow": "WEAR YOUR WORLD",
+  "title": "내가 좋아하는 세계를 입다.",
+  "intro": "평범한 옷차림에 나만의 취향을 더하는 그래픽 의류. RE: TBMS는 좋아하는 주제와 독특한 패턴을 티셔츠와 스웨트셔츠에 담습니다. 눈길을 끄는 프린트 한 장으로, 오늘의 스타일을 나답게 완성해 보세요.",
+  "hero_image": "/images/brand/individuality-hero.png",
+  "hero_alt": "AI 그래픽과 과학적 패턴을 담은 티셔츠·스웨트셔츠 콘셉트",
+  "topics": [
+    {
+      "id": "human-ai",
+      "title": "시선을 끄는 그래픽, 나다운 한 벌",
+      "description": "얼굴과 픽셀을 조합한 큼직한 프린트에 HUMAN × AI 문구를 더한 차콜 티셔츠입니다. AI에 대한 관심을 옷 위의 그래픽으로 표현했습니다. 간결한 하의와 함께 입어 프린트가 돋보이는 스타일을 즐겨 보세요.",
+      "image": "/images/brand/human-ai.png",
+      "alt": "HUMAN × AI 문구와 얼굴이 픽셀·신경망으로 이어지는 그래픽을 담은 차콜 티셔츠 콘셉트"
+    },
+    {
+      "id": "hidden-patterns",
+      "title": "심플한 옷차림에 더하는 패턴",
+      "description": "아이보리 티셔츠에 블랙과 오렌지 패턴을 담았습니다. 궤도와 파동에서 따온 섬세한 선이 담백한 옷차림에 표정을 더합니다. 셔츠나 재킷 안에 받쳐 입어도 그래픽의 매력이 드러나는 디자인입니다.",
+      "image": "/images/brand/hidden-patterns.png",
+      "alt": "궤도와 파동 도식에서 영감을 받은 아이보리 티셔츠 콘셉트"
+    }
+  ]
+}

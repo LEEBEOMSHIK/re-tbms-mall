@@ -3,6 +3,7 @@ from datetime import date, datetime, timezone
 import hashlib
 import hmac
 import json
+import math
 import re
 import secrets
 import sqlite3
@@ -12,7 +13,7 @@ from uuid import UUID, uuid4
 
 from fastapi import Depends, Header, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -598,7 +599,11 @@ def register_factory_routes(application, catalog, require_admin):
     async def factory_validation_error(request, error):
         if factory_path(request.url.path):
             return JSONResponse({'detail': 'Check the submitted field formats and limits.'}, status_code=422)
-        return await request_validation_exception_handler(request, error)
+        # Invalid non-finite JSON numbers must remain 422, not fail error serialization.
+        errors = jsonable_encoder(error.errors(), custom_encoder={
+            float: lambda value: value if math.isfinite(value) else str(value),
+        })
+        return JSONResponse({'detail': errors}, status_code=422)
 
     def bearer(authorization: str | None = Header(default=None)):
         scheme, _, token = (authorization or '').partition(' ')

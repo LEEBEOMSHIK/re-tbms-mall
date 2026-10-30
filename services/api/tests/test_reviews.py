@@ -150,11 +150,12 @@ def test_schema14_backup_and_existing_business_rows_preserved(context):
     client,pid,_,path,_=context
     before=client.get(BASE+'/catalog',headers=AUTH).json()
     with sqlite3.connect(path) as db:
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('ALTER TABLE product_publications DROP COLUMN discount_price');db.execute('ALTER TABLE publication_history DROP COLUMN discount_price');db.execute('DROP TABLE review_history');db.execute('DROP TABLE product_reviews');db.execute('PRAGMA user_version=14')
     assert client.get(BASE+'/catalog',headers=AUTH).json()==before
     backups=list(path.parent.glob(path.name+'.pre-v15-*.bak'));assert backups
     with sqlite3.connect(backups[0]) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==14
-    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==16
+    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==17
 
 
 def test_verifier_failure_is_closed(context):

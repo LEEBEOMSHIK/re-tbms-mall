@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   },
   outputFileTracingIncludes: {
     '/*': ['../../workboard.md'],
+    '/admin/guide/images/*': ['./guide-assets/*.jpg'],
   },
 };
 

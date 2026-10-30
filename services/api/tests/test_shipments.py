@@ -172,6 +172,7 @@ def test_v12_migration_backup_preserves_data(setup):
     before=store.get()
     with sqlite3.connect(store.path) as db:
         db.execute('DROP TABLE review_history');db.execute('DROP TABLE product_reviews');db.execute('DROP TABLE publication_history');db.execute('DROP TABLE product_publications');db.execute('DROP TABLE shipment_stock_links');db.execute('DROP TABLE shipment_history');db.execute('DROP TABLE shipments')
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('PRAGMA user_version=12')
     after=CatalogStore(store.path).get()
     assert after==before
@@ -179,4 +180,4 @@ def test_v12_migration_backup_preserves_data(setup):
     with sqlite3.connect(backups[0]) as db:
         assert db.execute('PRAGMA user_version').fetchone()[0]==12
         assert db.execute('SELECT id FROM skus').fetchone()[0]==sku['id']
-    with sqlite3.connect(store.path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==16
+    with sqlite3.connect(store.path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==17

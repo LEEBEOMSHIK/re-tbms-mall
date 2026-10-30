@@ -4,5 +4,5 @@ import { AdminNavigation } from '../admin-navigation';
 export const dynamic = 'force-dynamic';
 export default async function ProtectedAdminLayout({children}:{children:React.ReactNode}) {
   const session=await requireAdminSession();
-  return <AdminSessionGuard expiresAt={session.expiresAt}><a className="skip-link" href="#main">본문으로 건너뛰기</a><AdminNavigation/>{children}</AdminSessionGuard>;
+  return <AdminSessionGuard expiresAt={session.expiresAt}><a className="skip-link" href="#main">본문으로 건너뛰기</a><div className="admin-workspace"><AdminNavigation/><div className="admin-workspace-content">{children}</div></div></AdminSessionGuard>;
 }

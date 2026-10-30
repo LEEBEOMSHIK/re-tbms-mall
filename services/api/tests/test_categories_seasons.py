@@ -94,7 +94,7 @@ def test_v2_migration_preserves_legacy_and_collision(tmp_path):
     assert next(c for c in data['categories'] if c['id'] == 'tops-tee')['code'] == 'TEE1'
     assert all(p['seasons'] == [] for p in data['products'])
     with sqlite3.connect(path) as db:
-        assert [r[:-1] for r in db.execute('SELECT * FROM products ORDER BY rowid')] == before
+        assert [r[:-2] for r in db.execute('SELECT * FROM products ORDER BY rowid')] == before
     old = data['products'][0]
     updated = store.update_product(old['id'], ProductUpdate(name='Renamed', category_id=old['category_id'], seasons=[], version=old['version']))
     assert updated['internal_name'] == old['internal_name']

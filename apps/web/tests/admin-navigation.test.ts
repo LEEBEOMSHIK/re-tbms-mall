@@ -8,3 +8,8 @@ test('product and inventory navigation stay exclusive across nested routes',()=>
  assert.equal(adminSection('/admin/catalogue'),'');
  assert.equal(adminSection('/admin'),'/admin');
 });
+
+test('site content routes share the site management navigation',()=>{
+ for(const path of ['/admin/site','/admin/brand-about','/admin/brand-about/edit','/admin/brand-about/preview','/admin/merchandising/new'])assert.equal(adminSection(path),'/admin/site');
+ assert.equal(adminSection('/admin/brand-about-other'),'');
+});

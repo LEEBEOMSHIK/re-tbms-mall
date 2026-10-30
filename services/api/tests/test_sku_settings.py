@@ -62,11 +62,12 @@ def test_schema11_migration_preserves_values_and_activates_existing(setup):
         db.execute('ALTER TABLE skus DROP COLUMN is_active')
         for table in ('review_history','product_reviews','publication_history','product_publications','shipment_stock_links','shipment_history','shipments'):
             db.execute(f'DROP TABLE IF EXISTS {table}')
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('PRAGMA user_version=11')
         old=db.execute('SELECT * FROM skus').fetchall()
     assert store.get()==before
     with sqlite3.connect(store.path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0]==16
+        assert db.execute('PRAGMA user_version').fetchone()[0]==17
         rows=db.execute('SELECT * FROM skus').fetchall()
         assert [r[:-1] for r in rows]==old and all(r[-1]==1 for r in rows)
         assert db.execute('PRAGMA foreign_key_check').fetchall()==[]

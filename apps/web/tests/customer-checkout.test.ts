@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
+import {customerRoute,safeCustomerReturn,CUSTOMER_COOKIE} from '../src/lib/customer-auth-core.ts';
+import {parseCheckout} from '../src/lib/customer-checkout.ts';
+const token='q'.repeat(43),origin='http://localhost:3100',id='11111111-1111-4111-8111-111111111111';
+const guard=createHash('sha256').update('cart-session:'+token).digest('hex');
+const draft={id,status:'draft',version:0,items:[],item_count:0,total:0,has_unavailable:false,shipping:null,shipping_fee:null,grand_total:null,delivery_status:'address_required',payment_enabled:false,created_at:1,updated_at:1};
+test('checkout parser strips private fields and rejects false payment success',()=>{assert.equal((parseCheckout({...draft,secret:'private'}) as unknown as Record<string,unknown>).secret,undefined);assert.throws(()=>parseCheckout({...draft,payment_enabled:true}));assert.throws(()=>parseCheckout({...draft,total:300}));});
+test('checkout BFF enforces session guard, origin and forwards exact payload',async()=>{let calls=0;let sent:unknown;const config={origin,apiBase:'http://api.test',fetcher:async(_:unknown,init?:RequestInit)=>{calls++;sent=JSON.parse(init!.body as string);return Response.json(draft)}};const body={source:'cart',cart_version:0,request_id:id};const req=(session=guard,from=origin)=>new Request(origin+'/api/customer/checkouts',{method:'POST',headers:{host:'localhost:3100',origin:from,cookie:`${CUSTOMER_COOKIE}=${token}`,'x-cart-session':session,'content-type':'application/json'},body:JSON.stringify(body)});assert.equal((await customerRoute(req('stale'),['checkouts'],config)).status,409);assert.equal((await customerRoute(req(guard,'https://other.test'),['checkouts'],config)).status,403);assert.equal(calls,0);const r=await customerRoute(req(),['checkouts'],config);assert.equal(r.status,200);assert.deepEqual(sent,body);assert.equal((await r.json()).session_guard,guard);});
+test('checkout login return preserves selection without permitting external routes',()=>{assert.equal(safeCustomerReturn('/checkout?sku=sku-1&quantity=2'),'/checkout?sku=sku-1&quantity=2');assert.equal(safeCustomerReturn('/orders'),'/orders');assert.equal(safeCustomerReturn('/checkout/'+id),'/checkout/'+id);assert.equal(safeCustomerReturn('/checkout?next=https://evil.test'),'/cart');});

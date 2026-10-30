@@ -34,3 +34,11 @@
 .dashboard-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
 @media(max-width:1023px){.dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:639px){.dashboard-live-metrics,.dashboard-metrics{grid-template-columns:1fr}.dashboard-stock-preview a{grid-template-columns:minmax(0,1fr) auto;gap:var(--space-3)}.dashboard-stock-preview-value{text-align:right}.dashboard-stock-preview a>span:last-child{justify-self:end}.dashboard-stock-refresh{width:100%}}
+
+/* Compact workspace rhythm; text-size preference remains relative. */
+.admin-workspace .dashboard-page{padding-block:var(--space-6) var(--space-8)}
+.admin-workspace .dashboard-heading{flex-wrap:wrap;gap:var(--space-4)}
+.admin-workspace .dashboard-panel{padding:20px}
+.admin-workspace .dashboard-live-metrics{margin-block:var(--space-4)}
+.admin-workspace .dashboard-metric{padding:var(--space-4)}
+@media(max-width:639px){.admin-workspace .dashboard-panel{padding:var(--space-4)}}

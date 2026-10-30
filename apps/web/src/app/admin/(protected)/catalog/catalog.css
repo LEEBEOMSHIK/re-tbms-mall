@@ -290,4 +290,21 @@
 
 .product-price-amount{display:block;font-size:1.75rem;font-weight:750;margin-top:12px}.product-price-panel{margin-block:24px}.product-price-panel .catalog-actions{flex-wrap:wrap}
 
+.product-detail-tabs{flex-wrap:wrap;gap:var(--space-1);padding:var(--space-1);border-bottom:1px solid var(--color-line)}
+.product-detail-tabs [role="tab"]{position:relative;min-height:44px;width:auto;flex:0 0 auto;padding:var(--space-3) var(--space-4);border:0;border-radius:var(--radius-control) var(--radius-control) 0 0;background:transparent;color:var(--color-secondary);font-size:var(--text-sm);font-weight:500;text-decoration:none;transition:background-color .15s,color .15s}
+.product-detail-tabs [role="tab"]:hover{background:var(--color-subtle);color:var(--color-text)}
+.product-detail-tabs [role="tab"][aria-selected="true"]{background:var(--color-subtle);color:var(--color-text);font-weight:600;text-decoration:none}
+.product-detail-tabs [role="tab"][aria-selected="true"]::after{content:"";position:absolute;bottom:0;left:var(--space-4);right:var(--space-4);height:2px;border-radius:2px;background:var(--color-text)}
+.product-detail-tabs [role="tab"]:focus-visible{outline:2px solid var(--color-focus);outline-offset:-3px}
+@media(prefers-reduced-motion:reduce){.product-detail-tabs [role="tab"]{transition:none}}
+.catalog-product-detail>[role="tabpanel"][hidden]{display:none}
+.catalog-product-detail>[role="tabpanel"]{min-width:0;border-top:0}
+
+.product-details-fields{display:grid;gap:var(--space-6);padding-top:var(--space-6);border-top:1px solid var(--color-line);min-width:0}
+.product-measurements-heading{display:flex;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap}
+.product-measurement-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr) minmax(0,1fr) auto;gap:var(--space-3);align-items:end;padding:var(--space-4);background:var(--color-subtle);border-radius:var(--radius-control)}
+.product-measurement-row>div{display:grid;gap:var(--space-2);min-width:0}
+.product-measurement-add{justify-self:start}
+@media(max-width:639px){.product-measurement-row{grid-template-columns:1fr 1fr}.product-measurement-row>div:nth-child(2){grid-column:1/-1;grid-row:2}.product-measurement-row>button{grid-column:1/-1}}
+
 .publication-discount-section{display:grid;gap:24px;margin-block:24px;padding-block:24px;border-block:1px solid var(--color-line)}.publication-discount-input{max-width:600px}.publication-price-preview{background:var(--color-subtle);padding:20px;border-radius:var(--radius-panel)}.publication-discount-section .ds-choice{max-width:600px}

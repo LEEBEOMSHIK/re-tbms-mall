@@ -23,3 +23,6 @@ GET `/api/v1/products/{pid}/images/{iid}` → 검증된 PNG/JPEG/WebP bytes, no-
 schema13→14는 product_publications, publication_history 두 테이블을 추가한다. 상품/SKU/원장/이미지는 수정하지 않는다. 마이그레이션 전 `.pre-v14-UUID.bak` 파일로13 DB를 보존한다. 이전버전 코드는14를 거부하므로 코드만 되돌리는 복구는 불가하다. 백업복원시 이후 업무기록을 보존/대사하거나14호환 코드로 전진수정한다. 새기능 데이터는 없던 상품을자동게시하지 않는다.
 
 public_visible/publication_visible는 published이고 고객이미지·설명·분류·활성옵션 조건이 유지되는지 표시한다. 재고0은 false 사유가 아니다. 관리자에서 게시설정은 유지되지만 구조조건 부족으로 비공개인 상품과 품절 공개상품을 구별한다.
+
+## WB88 상세정보 확장
+PublicProduct의 details는 docs/contracts/product-details.md를 따른다. 기존 공개조건과 내부필드 차단은 유지한다. 관리자 기본정보 Product도 동일 객체를 포함한다. 저장소 최신 확장은 schema17 products.details이며 v16 사전 백업을 생성한다.

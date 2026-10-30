@@ -1,14 +1,22 @@
 'use client';
 
-import { useId, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import './site-settings.css';
 
 /** The shell owns modal behavior only; setting sections are provided by the caller. */
-export function SiteSettingsButton({ children }: { children: ReactNode }) {
+export function SiteSettingsButton({ children, customer=false }: { children: ReactNode; customer?: boolean }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const titleId = useId();
+
+  useEffect(() => {
+    if (!customer) return;
+    const media = window.matchMedia('(min-width: 768px)');
+    const close = () => dialog.current?.close();
+    media.addEventListener('change', close);
+    return () => media.removeEventListener('change', close);
+  }, [customer]);
 
   function open() {
     if (dialog.current?.open) return;
@@ -23,8 +31,8 @@ export function SiteSettingsButton({ children }: { children: ReactNode }) {
         <circle cx="12" cy="11.5" r="3" stroke="currentColor" strokeWidth="1.5" />
       </svg>
     </button>
-    <dialog className="site-settings-dialog" ref={dialog} aria-labelledby={titleId}
-      onClose={() => trigger.current?.focus()}
+    <dialog className={`site-settings-dialog${customer ? " customer-settings-dialog" : ""}`} ref={dialog} aria-labelledby={titleId}
+      onClose={() => { if (trigger.current?.getClientRects().length) trigger.current.focus(); }}
       onKeyDown={event => {
         if (event.key !== 'Tab') return;
         const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'))

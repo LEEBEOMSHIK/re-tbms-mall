@@ -127,10 +127,11 @@ def test_schema10_progress_migration_preserves_rows_and_no_fake_history(setup):
         db.execute('ALTER TABLE skus DROP COLUMN is_active')
         for table in ('review_history','product_reviews','publication_history','product_publications','shipment_stock_links','shipment_history','shipments'):
             db.execute(f'DROP TABLE IF EXISTS {table}')
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('PRAGMA user_version=10')
     assert store.get()==before
     with sqlite3.connect(store.path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0]==16
+        assert db.execute('PRAGMA user_version').fetchone()[0]==17
         assert db.execute('SELECT product_id,supplier_id FROM product_suppliers').fetchall()==old_assignment
         row=db.execute('SELECT assignment_id,progress_status,progress_updated_at FROM product_suppliers').fetchone()
         assert row[0] and row[1:] == ('not_started','')
@@ -148,6 +149,7 @@ def test_schema10_progress_migration_rolls_back_on_conflict(setup):
         db.execute('ALTER TABLE skus DROP COLUMN is_active')
         for table in ('review_history','product_reviews','publication_history','product_publications','shipment_stock_links','shipment_history','shipments'):
             db.execute(f'DROP TABLE IF EXISTS {table}')
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('PRAGMA user_version=10')
     with pytest.raises(HTTPException) as error:store.get()
     assert error.value.status_code==503

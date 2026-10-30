@@ -1,3 +1,7 @@
 import {requireAdminSession} from '@/lib/admin-session';
-import {PublicationEditor} from '../../../publication-editor';
-export default async function Page({params}:{params:Promise<{id:string}>}){await requireAdminSession();const {id}=await params;return <PublicationEditor id={id}/>}
+import {redirect} from 'next/navigation';
+export default async function Page({params}:{params:Promise<{id:string}>}) {
+  await requireAdminSession();
+  const {id}=await params;
+  redirect(`/admin/catalog/${encodeURIComponent(id)}#product-pricing`);
+}

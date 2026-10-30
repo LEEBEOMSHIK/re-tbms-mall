@@ -1,0 +1,12 @@
+# WB121 / R111 실제 주문서 연결 (PG 제외)
+- 담당 root; 독립검증 별도. 사용자 승인: 연결 가능한 주문서 기능 구현, PG 제외.
+- 포함: 실상품/카트 주문서 시작, 서버 재가격/재고 검증, 인증 고객 소유 주문서 초안, 배송지 저장/재조회, 주소 검색, 계정별 주문서 목록. 제외: 결제승인/결제완료/실재고확보 실행/출고 주문관리. 결제하기 전에는 확보하지 않는 기존 정책 때문에 PG 미설정 상태는 항상 결제시작 차단.
+- 설계 선택: 고객DB에 additive checkout_drafts/checkout_requests 테이블. draft는 구매확정 아님. 저장시 원자적 version·request_id, 계정은 인증정보만. 고객 제공 가격/소유자/지역판정 신뢰 금지.
+- API /api/v1/customer/checkouts: POST {source:'cart'|'direct',sku_id?:string,quantity?:int,cart_version?:int,request_id:UUID}; GET {checkouts:[Checkout]}. /checkouts/{id}: GET, PUT {version,request_id,shipping:{recipient,phone,postal_code,address,address_detail,memo}}. /checkouts/{id}/payment POST: 소유권 확인 뒤503, 저장/재고 변경 없음.
+- Checkout: {id,status:'draft',version,items:CartItem[],item_count,total,has_unavailable,shipping:null|Shipping,shipping_fee:null|int,grand_total:null|int,delivery_status:'address_required'|'restricted'|'verification_required',payment_enabled:false,created_at,updated_at}. total은 할인후상품금액. 배송료는 주소 입력 후 기본 예상3천/5만원무료, 제한/판정미완료 총액은 null. 조회시 실상품 재평가, 품절·가격변경 안내. draft 작성은 재고예약 안함.
+- 도서산간: 미선정 택배사 자료를 추정하지 않음. 서버에서 제주 주소/우편번호를 제한하고 나머지도 검증자료 미설정시 verification_required. 결제는 PG미설정+지역미검증 모두 fail-closed.
+- 프론트: /checkout?sku=...&quantity=... 또는 /checkout (cart), /checkout/{id}, /orders. 기존 시안 별도 유지. session_guard를 전체 checkout 쓰기에 확장. OAuth 복귀 allowlist checkout/orders 좁게 확장. SaveResult로 초안저장 확정/후속동작; 실패입력보존·응답불명확 동일요청 재시도.
+- 파일소유권: backend 담당 services/api/app/checkout.py, customer.py 라우트등록/return whitelist, tests/test_checkout.py. root 프론트와 문서/보드. DB 스키마버전 기존호환 유지.
+- 검증: 합성DB 인증/타계정/빈카트/품절/가격/무료배송경계/중복/경합/결제차단·재고불변; BFF CSRF/sessionguard; 타입/lint; PC/모바일 동작. 운영 고객정보로 테스트 금지.
+- 가이드 영향 없음: 관리자 메뉴/업무 미변경. 고객주문초안만. 주문관리는 후속 작업에서 가이드 추가.
+- 복구: 신규 라우트 제거, additive 테이블은 보존. 기존카트/재고 데이터 삭제 없음. 외부주소검색은 클릭시 로드, 고객주소검색어가 카카오로 전송됨을 UI에 안내. 새 패키지 없음.

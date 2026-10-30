@@ -1,0 +1,2 @@
+# WB113 / R109 GNB 깊이 구분
+목적: 그룹과 메뉴가 같은 깊이로 보여 복잡하다는 피드백 반영. 담당 root/별도검증자. 범위 admin.css 및 디자인문서/보드. API/저장/인증 변경 없음. 하위 컨테이너 margin12+padding8+border1로 깊이21px 추가, 세로guide, 그룹primary650/하위secondary400, 활성하위만 강조. 44px 유지. 수용/검증: 실제 깊이/활성/접기·모바일넘침, 독립검토. 복구: WB113 CSS 변경만 되돌림. 검증 완료: 실제 Chrome 관리자 화면에서 그룹 x16/하위x37 및 동일 padding12로 21px 들여쓰기 확인, 링크높이44px. 1440px 다크 및390px 크게18px에서 가로넘침 없음. 모바일 접기 hidden=true/재펼치기 확인 후 원래뷰포트복원. 독립 menu_depth_review CSS/위계/특이성/hidden/44px 검토 통과. 증거 .local/wb113-menu-depth.jpg. CSS-only 변경으로 앱전체/API테스트 재실행하지 않음.

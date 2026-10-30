@@ -100,11 +100,11 @@ def test_v6_preserves_all_old_fields_and_failure_rollback(tmp_path):
     assert all(event['supplier_id'] is None and event['supplier_name'] is None for event in data['movements'])
     with sqlite3.connect(path) as db:
         assert [row[:-2] for row in db.execute('SELECT * FROM movements')] == before
-        assert db.execute('SELECT * FROM products').fetchall() == products
+        assert [row[:-1] for row in db.execute('SELECT * FROM products')] == products
         assert [row[:-1] for row in db.execute('SELECT * FROM skus')] == skus
         assert all(row[0] == 1 for row in db.execute('SELECT is_active FROM skus'))
         assert db.execute('PRAGMA foreign_key_check').fetchall() == []
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 16
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 17
     broken = tmp_path / 'broken'
     v5_db(broken)
     with sqlite3.connect(broken) as db:

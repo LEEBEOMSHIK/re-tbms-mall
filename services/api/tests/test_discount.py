@@ -65,6 +65,7 @@ def test_schema15_additive_discount_preserves_prices_history_and_inventory(setup
     with sqlite3.connect(path) as db:
         db.execute('ALTER TABLE product_publications DROP COLUMN discount_price')
         db.execute('ALTER TABLE publication_history DROP COLUMN discount_price')
+        db.execute('ALTER TABLE products DROP COLUMN details')
         db.execute('PRAGMA user_version=15')
         publication_before=db.execute('SELECT * FROM product_publications').fetchall()
         history_before=db.execute('SELECT * FROM publication_history').fetchall()
@@ -73,7 +74,7 @@ def test_schema15_additive_discount_preserves_prices_history_and_inventory(setup
     assert values(after['history'][0])==[12345,None,12345,None]
     assert snapshot(client)==before
     with sqlite3.connect(path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0]==16
+        assert db.execute('PRAGMA user_version').fetchone()[0]==17
         assert [r[:-1] for r in db.execute('SELECT * FROM product_publications')]==publication_before
         assert [r[:-1] for r in db.execute('SELECT * FROM publication_history')]==history_before
     backups=list(path.parent.glob(path.name+'.pre-v16-*.bak'));assert backups

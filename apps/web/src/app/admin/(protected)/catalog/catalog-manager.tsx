@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import type {StockFilter} from '@/lib/inventory-overview';
 import {scopeInventoryCatalog} from '@/lib/inventory-summary';
-import { catalogRequest, parseCatalog, type Catalog, type CatalogFailure } from '@/lib/catalog';
+import { catalogRequest, parseCatalog, type Catalog, type CatalogFailure, type ProductDraft } from '@/lib/catalog';
 import { CatalogList, MovementHistory } from './catalog-list';
 import { ProductForm, OptionForm, InventoryForm } from './catalog-forms';
 import {ProductDetail} from './product-detail';
@@ -65,6 +65,7 @@ export function CatalogManager({ mode = 'list', productId = '', entityId = '', c
     };
   }, [mode, refreshAfterChange]);
 
+  const updateProduct = (saved: ProductDraft) => setCatalog(current => current ? {...current, products: current.products.map(item => item.id === saved.id ? {...item, ...saved} : item)} : current);
   const product = catalog?.products.find(item => item.id === productId);
   const inventoryCatalog = catalog ? scopeInventoryCatalog(catalog,productId) : null;
   const allInventoryHref = '/admin/catalog/inventory' + (savedMovementId ? `?saved=${encodeURIComponent(savedMovementId)}` : '');
@@ -102,7 +103,7 @@ export function CatalogManager({ mode = 'list', productId = '', entityId = '', c
       )}
       {catalog && <>
         {mode === 'list' && <CatalogList catalog={catalog} refresh={refreshAfterChange} />}
-        {mode === 'detail' && (product ? <ProductDetail catalog={catalog} product={product} savedImageId={savedImageId}/> : <p role="alert">상품을 찾을 수 없습니다. 삭제되었거나 잘못된 주소일 수 있습니다. 상품 목록에서 다시 선택해 주세요.</p>)}
+        {mode === 'detail' && (product ? <ProductDetail key={product.id} catalog={catalog} product={product} savedImageId={savedImageId} refresh={refreshAfterChange} onProductSaved={updateProduct}/> : <p role="alert">상품을 찾을 수 없습니다. 삭제되었거나 잘못된 주소일 수 있습니다. 상품 목록에서 다시 선택해 주세요.</p>)}
         {mode === 'product' && <ProductForm categories={catalog.categories} seasonOptions={catalog.season_options} refresh={refreshAfterChange} />}
         {mode === 'edit' && (product
           ? <ProductForm key={productId} initial={product} categories={catalog.categories} seasonOptions={catalog.season_options} refresh={refreshAfterChange} />

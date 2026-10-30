@@ -1,4 +1,5 @@
 'use client';
+import {ProductOptionPreview} from './product-option-preview';
 
 import Image from 'next/image';
 import {priceDescription} from '@/lib/pricing';
@@ -93,7 +94,7 @@ export function ProductCarousel({ title, products, priority, suspended }: Props)
     <div id={trackId} ref={track} className="product-grid carousel-track" aria-live="off" onTouchStart={() => setPaused(true)} onWheel={() => setPaused(true)}>
       {products.map((product, index) => <Link href={`/products/${encodeURIComponent(product.id)}`} className="product-card" key={product.id} onClick={() => setPaused(true)} aria-label={`${product.name}, ${priceDescription(product)}, 자세히 보기`}>
         <div className="product-image"><Image src={shopImage(product.image)} unoptimized alt={`${product.color} ${product.name}`} width={480} height={640} priority={priority && index < 4}/>{product.sold_out&&<span className="shop-soldout">품절</span>}<span className="view-label">자세히 보기 ↗</span></div>
-        <div className="product-info"><span className="product-color">{product.color}</span><h3>{product.name}</h3><ShopPrice pricing={product}/><ReviewRating summary={product.review_summary}/></div>
+        <div className="product-info"><h3>{product.name}</h3><ShopPrice pricing={product}/><ProductOptionPreview options={product.options}/><ReviewRating summary={product.review_summary}/></div>
       </Link>)}
     </div>
   </div>;
