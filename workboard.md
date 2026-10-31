@@ -1,7 +1,7 @@
 # RE: TBMS 작업 보드
 
-- 갱신일: 2026-10-31
-- 검증일: 2026-10-31
+- 갱신일: 2026-11-01
+- 검증일: 2026-11-01
 - 검증 요약: WB134 PC/모바일 입력복원·주문서/계정분리·로그아웃 초기화·독립9 통과. WB122 마이페이지·주소록·주문서 재사용 검증 완료(API637+추가경계4/웹204/독립/PC·모바일). WB121 실상품 주문서 연결 API47/웹23/독립검토/PC·모바일 통과(PG 제외). WB119 관리자 PG준비메뉴·기존메뉴보존·가이드캡처 API31/웹13/독립10/타입/lint·PC/모바일 확인. WB101 Google 실로그인/카트2개저장/재로그인유지/복구 확인, Kakao 실로그인/카트저장/재로그인유지/Google계정분리/복구 확인; 복귀/계정전환2건수정 웹20/API41/타입/lint/독립통과. WB117 PC전체캡처·기본화면맞춤/원본전환·통합검증완료. WB116 캡처비율/표식보정·독립/PC/모바일검증통과. WB115 실제캡처18장·9테스트/타입/lint/독립·모바일확대/인증통과. WB114 사용가이드10항목·자동10/타입/lint/독립/브라우저통과·동기화규칙반영. WB112 메뉴그룹·표시관리 웹192/API48/타입/lint/독립·통합통과. WB111 관리자 사이드바·화면밀도 타입/lint/웹7/독립/브라우저3폭 통과. WB110 의류 중심 소개 문구·웹10/독립검토/공개반영 확인. WB109 AI 예시 추가·웹/보드10/API21/타입/독립검증·공개반영 확인. WB108 브랜드소개 관리/생성이미지3장 웹188/API90·실제모바일/저장게시·독립검증 통과(docs/reviews/brand-about.md). WB107 프로필사진 코드/합성 API41·웹17·독립검토 통과, 실사진 확인 WB101. WB105 계정 프로필·빈카트 웹181/API34·타입/lint·독립웹16/API34·모바일/PC 검증 통과(docs/reviews/customer-account-cart.md). WB103 고객 모바일 헤더/nav/하단설정·폰트/여백 정비 웹180·타입/lint·독립22/캡처 통과(docs/reviews/customer-mobile.md). WB100 코드/모의통합 웹180·API563·후속고객29·독립검증 통과, 실설정 반영·공급자조회200, 실제 로그인은 WB101 진행 중(docs/reviews/customer-shopping.md). WB83 안정성 수정·웹165/API48·독립 브라우저/성능 검증 완료(docs/reviews/designer-stability.md). WB88 상세 정보 서버534/웹163·타입/lint·독립API28/브라우저 통과(docs/reviews/product-details.md). WB93 통합·워크트리/백업 현황 독립 대조 완료(docs/reviews/workboard-reconcile.md). WB99 헤더 구분·공통/관리자 디자인 문서 동기화 및 독립검증 완료(docs/reviews/management-table-header.md). WB98 관리 목록 짝수행 공통 적용/독립검증 완료(docs/reviews/management-row-stripes.md). WB97 탭 시각·키보드 독립 검증 통과(docs/reviews/product-detail-tabs-polish.md). WB96 선택 탭·패널 통합/독립 검증 통과(docs/reviews/product-detail-tabs.md). WB95 상품 상세 편집 통합 완료(웹160/타입/lint/브라우저/독립검증, docs/reviews/product-detail-edit.md). WB92 판매가격·할인관리 서버459/웹98·독립/실제관리저장/고객표시 통과(docs/reviews/sale-price.md). WB91 가격·리뷰 관리 및 구매인증 차단 경계 API435/웹95/독립검증 통과(docs/reviews/price-reviews.md). WB90 실제 샘플 홈/목록/상세·옵션·PC/모바일 독립 검증 통과(docs/reviews/sample-storefront.md). WB89 고객 필터토글·디자인분리 웹13/독립8·타입/lint·8보기/관리자격리 통과(docs/reviews/customer-design.md). WB87 공개상품 API256/최종67·독립56·웹92/type/lint·20보기 통과(docs/reviews/public-catalog.md). WB13 실제 재고 API61/독립22·웹20·독립4보기 통과(docs/reviews/dashboard-inventory.md). WB86 샘플/완제품 발송·수령·검수·합격입고 API207/독립17·웹업무흐름 통과(docs/reviews/shipments.md). WB85 본인 프로필 수정 API54/독립18·브라우저4보기 통과(docs/reviews/factory-profile.md). WB84 왼쪽 메뉴·프로필 독립4보기 및 공장 대시보드·독립12보기 통과(docs/reviews/factory-dashboard.md). WB82 공장 테스트 로그인·권한·저장·3100통합 검증 통과(docs/reviews/factory-test-login.md). WB81 관리자 목록 간소화·독립 웹80/112보기 검증 통과(docs/reviews/admin-lists.md). WB79 카테고리 > 표기·상품6열 정리 검증 통과. WB80 원본 HEAD/index 보존·417개 blob 일치·웹80/보드5·독립 검증 통과. docs/reviews/catalog-list.md / docs/reviews/worktree-isolation.md
 
 이 파일이 작업 현황의 유일한 원본입니다. 수정 후 /admin/workboard를 새로고침하면 반영됩니다. 편집 형식과 작업 절차는 docs/workboard.md를 참고합니다. 사업 정책의 제안·미정은 승인으로 바꾸지 않습니다.
@@ -9,6 +9,15 @@
 다음 제안: WB118 완제품 재고판매·기본배송비3,000원/할인후5만원이상 무료 확정. 제주·도서산간 추가비 미정. 결제 확인 후1~3영업일 이내 출고 확정. 주문당 배송지1곳·합배송·판매자 사정 분할발송 추가비 판매자부담 확정. 로그인 고객만 구매·주문은 인증 고객계정에 귀속 확정. 결제하기 시10분 재고확보·승인시판매확정 확정. 상품 준비 중 전 직접취소·이후 관리자 확인 처리 확정. 변심/색상·사이즈 변경 고객부담·불량/오배송 판매자부담 확정. 일반지역 반품 편도3,000원/왕복6,000원·교환6,000원 및 무료배송 반품 정산 확정(docs/decisions.md). 제주·도서산간 운임 미정. 신청기간 법정기준·교환품절 고객안내 후 반품환불 전환 확정. 판매자 지정택배사 방문수거 접수 확정. 교환 회수·검수/필요배송비 결제확인 후1~3영업일 출고 확정. 국내배송·제주/도서산간 운임확정 전 결제제한 확정. WB120 로컬서버 연결복구·PC1440/모바일390 재검증 완료. 시안도구 접힘·구분선1개·배송비/지역제한 확인. WB121 실상품/장바구니 주문서·배송지 저장 연결 완료. 다음은 지정 택배사/도서산간 자료 확정 및 PG 선정 후 결제·예약·구매확정 구현. 회수택배사/주소는 미정. 관리자 프로젝트→PG 도입 준비에서 문의자료 확인 → 업체별 견적 수집·동일조건 비교 → PG 선정 → WB118 주문·결제 설계/구현. PG 미선정, 실계약·실결제 미실행. 사용가이드의 실제화면 번호로 업무순서를 확인하고 기능변경시 원문·캡처·클릭표식도 동기화. 사이트 관리→메뉴 관리에서 실제 운영에 맞춰 그룹/표시를 편집 가능. WB108 브랜드소개 예시 문구·이미지 검토 후 관리자 사이트관리에서 실제 브랜드 콘텐츠로 편집 가능. WB101 Google 실로그인·카트 재로그인 유지 검증 완료. Kakao KOE006 해소 및 실로그인·카트 재로그인유지·Google과 계정분리 검증 완료. Kakao 이름/프로필 제공 설정, 실제 동의취소·상품 선택복귀·운영 HTTPS는 후속 확인 필요. 사용자 계정으로 실제 구글·카카오 로그인/취소·로그아웃과 장바구니를 확인하고 운영 도메인/HTTPS·공개상태를 별도 점검. 절차 docs/customer-login-setup.md. 운영 관리자(WB07)·판매/결제(WB08)와 고객용 시안/AI(WB09)는 별도 미정 유지.
 
 ## 작업 목록
+
+### WB139 | 프로젝트 캐시 정책 및 안전한 임시 파일 정리
+- 상태: done
+- 담당: root / customer_account_review 독립 검토
+- 우선순위: P2
+- 내용: 사용자 승인으로 CACHE_POLICY.md 신설, 사용자 자료·생성 이미지·DB 보존, 종료 QA 빌드 캐시·컴파일 파일·중복 프로세스 로그 정리
+- 완료 기준: 정확 경로·해시 조사 및 경계 검사, 보존 이미지 해시 일치, 대상 삭제 확인, 기존 서버 응답·독립 검토 확인
+- 선행 조건: 사용자 2026-11-01 정책 작성 및 불필요 캐시 정리 승인
+- 검증: 2026-11-01 대상521개 삭제·잔여0,227,892,848바이트(약217MiB) 논리 정리. 보호 이미지476개 SHA256 전부일치 및 독립 재확인. root 프로세스조회로QA중지 확인, 웹 /login 200·API /api/v1/health 200, QA원본·의존성 보존 확인. 처음 확인한 /health는 실제 API 경로가 아니므로 검증결과에서 제외. 보드 테스트5·git diff --check 통과. 독립 검토 정책/manifest 일치·추적파일0·보호파일교집합0, 독립프로세스조회는 권한제한으로 미실행(root실행근거로 보완). .local/wb139-cleanup-manifest.json의521개227,892,848바이트 대상. .local/wb122-web/.next 이미지 제외, .local/__pycache__ pyc, WB134 종료 로그8개만 포함. 이미지476개 사전해시 .local/wb139-images-before.json. 앱/테스트 실행 중 캐시·모든DB·환경설정·사용자자료·QA원본 보존. 캐시는 재생성 가능, 종료 로그는 검증 요약 docs/reviews/checkout-draft-input.md로 대체하며 원본 로그 삭제는 복구 불가. 관리자 가이드 영향 없음(운영 UI 변경 없음). 정리 완료 후 사용자 추가 승인으로 CACHE_POLICY.md·workboard.md만 커밋·푸시 대상으로 지정. 배포 없음.
 
 ### WB138 | 누적 변경 커밋·푸시 정리
 - 상태: done
