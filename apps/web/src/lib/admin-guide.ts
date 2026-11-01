@@ -7,16 +7,28 @@ export type AdminGuide = {
 };
 export const ADMIN_GUIDES: AdminGuide[] = [
   {
-    id:'start', title:'관리자 화면 처음 사용하기', summary:'로그인 후 메뉴를 찾고 화면 크기를 조정하는 순서입니다.', updatedAt:'2026-10-30',
+    id:'start', title:'관리자 화면 처음 사용하기', summary:'로그인 후 메뉴를 찾고 화면 크기를 조정하는 순서입니다.', updatedAt:'2026-11-01',
     prerequisites:['관리자 로그인 권한이 필요합니다. 현재 관리자는 접근 키를 사용하는 세션 방식입니다.'],
     steps:[
       {title:'로그인하고 오늘의 현황 확인',description:'관리자 홈에서 현재 재고와 확인할 부족 옵션, 실제 발송·수령 업무를 살펴봅니다. 화면에 샘플이라고 표시된 구역은 실제 업무 집계와 구별합니다.',href:'/admin',linkLabel:'관리자 홈 열기'},
-      {title:'왼쪽 그룹에서 업무 선택',description:'그룹 제목으로 메뉴를 접고 펼칩니다. 들여쓴 하위 메뉴에서 업무를 선택하고, 강조된 메뉴로 현재 위치를 확인합니다. 작은 화면에서는 먼저 메뉴 열기를 누릅니다.'},
+      {title:'왼쪽 그룹에서 업무 선택',description:'운영 그룹에서 상품·재고·주문 관리에 들어갈 수 있습니다. 그룹 제목으로 메뉴를 접고 펼칩니다. 들여쓴 하위 메뉴에서 업무를 선택하고, 강조된 메뉴로 현재 위치를 확인합니다. 작은 화면에서는 먼저 메뉴 열기를 누릅니다.'},
       {title:'보기 편한 글자와 테마 선택',description:'관리자 계정 옆 톱니바퀴에서 글자 크기와 테마를 선택합니다. 사이트의 크게·더 크게 설정은 Chrome 등의 브라우저 확대 배율과 별개로 적용됩니다.'},
     ],
     completion:'원하는 업무 화면이 열리고 현재 메뉴가 강조되어 있는지 확인합니다.',
     notes:['표시된 관리자 세션은 개인 이름·이메일 정보가 아닙니다.','작업을 마치면 왼쪽 하단 로그아웃을 사용합니다.'],
     relatedPaths:['apps/web/src/app/admin/admin-navigation.tsx','apps/web/src/components/site-settings-content.tsx','apps/web/src/components/text-size-control.tsx','apps/web/src/app/admin/(protected)/dashboard-view.tsx'],
+  },
+  {
+    id:'sales-orders',title:'고객 주문 내역 확인하기',summary:'주문 목록을 상태별로 조회하고 주문 상세의 상품·금액·배송 정보·이력을 확인합니다.',updatedAt:'2026-11-01',
+    prerequisites:['관리자 로그인 권한이 필요합니다. 조회할 주문이 등록되어 있어야 하며, 주문이 없으면 빈 목록이 표시됩니다.'],
+    steps:[
+      {title:'주문 목록 열기',description:'왼쪽 운영 그룹의 주문 관리를 엽니다. 목록에서 주문 상태와 금액을 확인합니다. 대기는 노랑·시계, 확인 필요는 주황·주의, 준비/배송은 파랑·상자/트럭, 완료는 초록·체크, 취소/만료는 회색·종료 아이콘으로 구분합니다. 색상과 상태 문구를 함께 확인합니다.',href:'/admin/orders',linkLabel:'주문 관리 열기'},
+      {title:'조건으로 주문 검색',description:'검색 대상과 검색어는 바로 입력합니다. 검색어 오른쪽 슬라이더 모양의 상세 필터 아이콘을 눌러 주문일 시작·종료, 주문·결제·배송 상태를 펼친 뒤 검색을 누릅니다. 접어도 적용한 조건은 유지되고 아이콘의 숫자 배지에 적용 개수가 표시됩니다. 주문일은 한국 시간으로 양 끝 날짜를 포함합니다. 조건은 함께 적용되며 초기화하면 전체 목록으로 돌아갑니다. 빈 결과와 조회 실패 안내를 구분합니다.'},
+      {title:'주문 상세 확인',description:'목록에서 주문을 선택해 별도 상세 화면으로 이동합니다. 주문 상품·옵션·수량과 금액, 등록된 배송 정보, 주문 이력을 대조한 뒤 목록으로 돌아갑니다.'},
+    ],
+    completion:'선택한 주문의 상태와 상품·금액·배송 정보·이력을 확인하고 목록으로 돌아왔는지 확인합니다.',
+    notes:['테스트 주문 · 실제 결제 없음 표시가 있는 주문은 합성 검증 자료입니다. 번호 형식이 같아도 실제 결제·배송 주문이 아닙니다.','현재 주문 관리는 조회 전용입니다. 결제 승인·취소·환불·배송 처리 버튼은 제공하지 않습니다.','PG 연동이나 주문 상태 변경이 완료된 기능으로 해석하지 않습니다.','주문·배송 정보에는 개인정보가 포함될 수 있으므로 필요한 업무 범위에서만 확인합니다.'],
+    relatedPaths:['apps/web/src/components/sales-orders.tsx','apps/web/src/lib/sales-orders.ts','apps/web/src/app/admin/(protected)/orders/page.tsx'],
   },
   {
     id:'catalog',title:'상품 등록부터 고객 화면 공개까지',summary:'상품을 등록하고 상세 화면에서 정보·이미지·옵션·가격을 준비한 뒤 공개합니다.',updatedAt:'2026-10-31',
@@ -94,7 +106,7 @@ export const ADMIN_GUIDES: AdminGuide[] = [
     relatedPaths:['apps/web/src/app/admin/(protected)/brand-about/brand-admin.tsx','apps/web/src/components/brand-about-view.tsx','services/api/app/brand_about.py'],
   },
   {
-    id:'navigation',title:'관리자 메뉴 그룹과 표시 관리하기',summary:'그룹을 구성하고 메뉴 순서·표시 여부를 바꾸는 순서입니다.',updatedAt:'2026-10-30',
+    id:'navigation',title:'관리자 메뉴 그룹과 표시 관리하기',summary:'그룹을 구성하고 메뉴 순서·표시 여부를 바꾸는 순서입니다.',updatedAt:'2026-11-01',
     prerequisites:['변경할 그룹과 메뉴 배치를 정합니다. 설정은 관리자 공통으로 적용됩니다.'],
     steps:[
       {title:'저장된 구성 확인',description:'사이트 관리 또는 왼쪽 하단 메뉴 관리에서 현재 그룹과 표시 상태를 확인합니다.',href:'/admin/navigation',linkLabel:'메뉴 관리 열기'},

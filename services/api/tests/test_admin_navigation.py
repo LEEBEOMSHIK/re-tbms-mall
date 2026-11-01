@@ -171,7 +171,7 @@ def test_concurrent_writers_cannot_overwrite_same_revision(tmp_path):
 def legacy_state():
     value = initial()
     for group in value['groups']:
-        group['items'] = [item for item in group['items'] if item['id'] != 'payment-preparation']
+        group['items'] = [item for item in group['items'] if item['id'] not in {'payment-preparation', 'orders'}]
     return value
 
 
@@ -191,6 +191,7 @@ def test_legacy_read_adds_payment_menu_without_overwriting_customization(tmp_pat
     actual = AdminNavigationStore(path).get()
     expected = deepcopy(old)
     expected['groups'][0]['items'].append({'id': 'payment-preparation', 'visible': True})
+    expected['groups'][-1]['items'].append({'id': 'orders', 'visible': True})
     assert actual == expected
     with sqlite3.connect(path) as db:
         assert db.execute('SELECT state FROM admin_navigation').fetchone()[0] == raw
@@ -217,10 +218,36 @@ def test_incomplete_legacy_storage_is_not_silently_repaired(tmp_path):
     assert error.value.status_code == 503
 
 
-def test_all_nine_menus_can_share_one_group(setup):
+def test_all_ten_menus_can_share_one_group(setup):
     client, _, _ = setup
     value = initial()
-    assert len(MENU_IDS) == 9
+    assert len(MENU_IDS) == 10
     items = [item for group in value['groups'] for item in group['items']]
     value['groups'] = [{'id': 'all', 'label': '전체', 'visible': True, 'items': items}]
     assert client.put(URL, headers=AUTH, json=value).status_code == 200
+
+
+def test_previous_nine_menu_state_adds_orders_to_inventory_group_preserving_everything(tmp_path):
+    path = tmp_path / 'previous.sqlite3'
+    old = initial()
+    for group in old['groups']:
+        group['items'] = [item for item in group['items'] if item['id'] != 'orders']
+    old['revision'] = 13
+    old['groups'][0]['id'] = 'custom-operations'
+    old['groups'][0]['label'] = '개인 설정'
+    old['groups'][0]['visible'] = False
+    old['groups'][0]['items'][2]['visible'] = False
+    old['groups'].reverse()
+    raw = json.dumps(old, ensure_ascii=False)
+    with sqlite3.connect(path) as db:
+        db.execute('CREATE TABLE admin_navigation (id INTEGER PRIMARY KEY, state TEXT NOT NULL)')
+        db.execute('INSERT INTO admin_navigation VALUES (1, ?)', (raw,))
+    upgraded = AdminNavigationStore(path).get()
+    expected = deepcopy(old)
+    expected['groups'][-1]['items'].append({'id': 'orders', 'visible': True})
+    assert upgraded == expected
+    with sqlite3.connect(path) as db:
+        assert db.execute('SELECT state FROM admin_navigation').fetchone()[0] == raw
+    saved = AdminNavigationStore(path).save(NavigationState.model_validate(upgraded))
+    assert saved['revision'] == 14
+    assert AdminNavigationStore(path).get() == saved

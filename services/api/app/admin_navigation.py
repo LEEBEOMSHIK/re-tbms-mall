@@ -13,13 +13,13 @@ from starlette.concurrency import run_in_threadpool
 
 DEFAULT_PATH = Path(__file__).resolve().parents[3] / '.local' / 'admin-navigation.sqlite3'
 MAX_BODY = 32 * 1024
-MENU_IDS = {'home', 'catalog', 'inventory', 'factories', 'designs', 'site', 'reviews', 'workboard', 'payment-preparation'}
-MenuId = Literal['home', 'catalog', 'inventory', 'factories', 'designs', 'site', 'reviews', 'workboard', 'payment-preparation']
+MENU_IDS = {'home', 'catalog', 'inventory', 'factories', 'designs', 'site', 'reviews', 'workboard', 'payment-preparation', 'orders'}
+MenuId = Literal['home', 'catalog', 'inventory', 'factories', 'designs', 'site', 'reviews', 'workboard', 'payment-preparation', 'orders']
 DEFAULT_GROUPS = [
     {'id': group_id, 'label': label, 'visible': True,
      'items': [{'id': item, 'visible': True} for item in items]}
     for group_id, label, items in [
-        ('operations', '운영', ['home', 'catalog', 'inventory']),
+        ('operations', '운영', ['home', 'catalog', 'inventory', 'orders']),
         ('production', '제작·협업', ['factories', 'designs']),
         ('site-customer', '사이트·고객', ['site', 'reviews']),
         ('project', '프로젝트', ['workboard', 'payment-preparation']),
@@ -40,7 +40,7 @@ class MenuGroup(StrictModel):
     id: str = Field(min_length=1, max_length=64, pattern=r'^[a-zA-Z0-9_-]+$')
     label: str = Field(min_length=1, max_length=40)
     visible: bool
-    items: list[MenuItem] = Field(max_length=9)
+    items: list[MenuItem] = Field(max_length=10)
 
     @field_validator('id', mode='before')
     @classmethod
@@ -67,8 +67,12 @@ class NavigationState(StrictModel):
         return groups
 
 
+class PreviousNavigationState(NavigationState):
+    registered_menu_ids: ClassVar[set[str]] = MENU_IDS - {'orders'}
+
+
 class LegacyNavigationState(NavigationState):
-    registered_menu_ids: ClassVar[set[str]] = MENU_IDS - {'payment-preparation'}
+    registered_menu_ids: ClassVar[set[str]] = MENU_IDS - {'payment-preparation', 'orders'}
 
 
 def failure(status, detail):
@@ -106,10 +110,16 @@ class AdminNavigationStore:
             return NavigationState.model_validate_json(row[0]).model_dump()
         except ValidationError:
             # Only the complete old registry is eligible; corrupt states still fail closed.
-            legacy = LegacyNavigationState.model_validate_json(row[0]).model_dump()
-            target = next(group for group in legacy['groups']
-                          if any(item['id'] == 'workboard' for item in group['items']))
-            target['items'].append({'id': 'payment-preparation', 'visible': True})
+            try:
+                legacy = PreviousNavigationState.model_validate_json(row[0]).model_dump()
+            except ValidationError:
+                legacy = LegacyNavigationState.model_validate_json(row[0]).model_dump()
+                project = next(group for group in legacy['groups']
+                               if any(item['id'] == 'workboard' for item in group['items']))
+                project['items'].append({'id': 'payment-preparation', 'visible': True})
+            operations = next(group for group in legacy['groups']
+                              if any(item['id'] == 'inventory' for item in group['items']))
+            operations['items'].append({'id': 'orders', 'visible': True})
             # Preserve revision and all existing presentation choices; persist only on save.
             return NavigationState.model_validate(legacy).model_dump()
 

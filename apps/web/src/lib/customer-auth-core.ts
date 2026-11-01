@@ -85,6 +85,10 @@ export async function customerRoute(request:Request,path:string[],options:Option
    const result=await call('/logout',token,{});if(!result.ok&&result.status!==401)return failure(result.status);
    const response=reply({ok:true});response.headers.append('Set-Cookie',setCookie(CUSTOMER_COOKIE,'',0,'/',production));return response;
   }
+  if(path[0]==='sales-orders'&&method==='GET'&&(path.length===1||(path.length===2&&/^[a-f0-9-]{36}$/.test(path[1])))){
+   const {parseSalesOrders,parseOrderDetail}=await import('./sales-orders.ts');const q=new URLSearchParams();const source=new URL(request.url).searchParams;for(const key of ['cursor','status','date_from','date_to','payment_status','fulfillment_status','q']){const value=source.get(key);if(value)q.set(key,value)}
+   const result=await call('/'+path.join('/')+(path.length===1?'?'+q:''),token);if(!result.ok)return failure(result.status);return reply((path.length===1?parseSalesOrders:parseOrderDetail)(await result.json()));
+  }
   const isCart=path.length===1&&path[0]==='cart'&&method==='GET';
   const isItem=path.length===3&&path[0]==='cart'&&path[1]==='items'&&/^[A-Za-z0-9_-]{1,128}$/.test(path[2])&&['PUT','DELETE'].includes(method);
   const isCheckout=path[0]==='checkouts'&&((path.length===1&&['GET','POST'].includes(method))||(path.length===2&&/^[a-f0-9-]{36}$/.test(path[1])&&['GET','PUT'].includes(method))||(path.length===3&&/^[a-f0-9-]{36}$/.test(path[1])&&path[2]==='payment'&&method==='POST'));

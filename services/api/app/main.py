@@ -22,6 +22,7 @@ from app.factory import register_factory_routes
 from app.reviews import PurchaseVerifier, ReviewStore, register_review_routes
 from app.designs import register_design_routes
 from app.customer import CustomerStore, DEFAULT_CUSTOMER_PATH, register_customer_routes
+from app.sales_orders import register_sales_order_routes
 
 
 class HealthResponse(BaseModel):
@@ -58,7 +59,9 @@ def create_app(*, env_file: Path | None = None, storefront_path: Path | None = N
     register_public_catalog_routes(application, public_catalog, require_admin)
     register_review_routes(application, ReviewStore(catalog, review_verifier), require_admin)
     register_design_routes(application, require_admin, design_path if design_path is not None else Path(__file__).resolve().parents[3] / '.local' / 'designs.sqlite3')
-    register_customer_routes(application, CustomerStore(customer_path if customer_path is not None else (catalog_path.with_name(catalog_path.stem + ".customers.sqlite3") if catalog_path is not None else DEFAULT_CUSTOMER_PATH), catalog, env_file, customer_transport, customer_clock))
+    customers = CustomerStore(customer_path if customer_path is not None else (catalog_path.with_name(catalog_path.stem + ".customers.sqlite3") if catalog_path is not None else DEFAULT_CUSTOMER_PATH), catalog, env_file, customer_transport, customer_clock)
+    register_customer_routes(application, customers)
+    register_sales_order_routes(application, catalog, customers, require_admin)
     register_factory_routes(application, catalog, require_admin)
     from app.shipments import register_shipment_routes
     register_shipment_routes(application, catalog, require_admin)

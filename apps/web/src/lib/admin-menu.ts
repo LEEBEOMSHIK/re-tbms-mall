@@ -2,6 +2,7 @@ export const MENU_ITEMS = [
   {id:'home',label:'관리자 홈',href:'/admin'},
   {id:'catalog',label:'상품 관리',href:'/admin/catalog'},
   {id:'inventory',label:'재고 관리',href:'/admin/catalog/inventory'},
+  {id:'orders',label:'주문 관리',href:'/admin/orders'},
   {id:'factories',label:'공장 협업',href:'/admin/factories'},
   {id:'designs',label:'의류 디자인',href:'/admin/designs'},
   {id:'site',label:'사이트 관리',href:'/admin/site'},
@@ -15,7 +16,7 @@ export type AdminMenuGroup = {id:string;label:string;visible:boolean;items:Admin
 export type AdminMenuState = {revision:number;groups:AdminMenuGroup[]};
 const group = (id:string,label:string,ids:MenuId[]):AdminMenuGroup => ({id,label,visible:true,items:ids.map(id=>({id,visible:true}))});
 export const DEFAULT_ADMIN_MENU:AdminMenuState = {revision:0,groups:[
-  group('operations','운영',['home','catalog','inventory']),
+  group('operations','운영',['home','catalog','inventory','orders']),
   group('production','제작·협업',['factories','designs']),
   group('site-customer','사이트·고객',['site','reviews']),
   group('project','프로젝트',['workboard','payment-preparation']),
@@ -34,7 +35,7 @@ export function parseAdminMenu(value:unknown):AdminMenuState {
     const g=object(raw,['id','label','visible','items']);
     if(typeof g.id!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(g.id))throw Error('Invalid group ID');
     if(typeof g.label!=='string'||!g.label.trim()||[...g.label.trim()].length>40)throw Error('Invalid group label');
-    if(!Array.isArray(g.items)||g.items.length>9)throw Error('Invalid items');
+    if(!Array.isArray(g.items)||g.items.length>10)throw Error('Invalid items');
     const items=g.items.map(raw=>{
       const item=object(raw,['id','visible']);
       if(!MENU_ITEMS.some(known=>known.id===item.id))throw Error('Unknown menu');

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {DEFAULT_ADMIN_MENU,MENU_ITEMS,moveMenuItem,parseAdminMenu,visibleMenuCount} from '../src/lib/admin-menu.ts';
 const fresh=()=>structuredClone(DEFAULT_ADMIN_MENU);
 test('defaults cover fixed routes once and visibility respects group and item independently',()=>{
-  const state=parseAdminMenu(fresh());assert.equal(state.groups.length,4);assert.equal(visibleMenuCount(state.groups),9);
+  const state=parseAdminMenu(fresh());assert.equal(state.groups.length,4);assert.equal(visibleMenuCount(state.groups),10);
   state.groups[0].visible=false;assert.equal(visibleMenuCount(state.groups),6);assert.equal(state.groups[0].items.every(i=>i.visible),true);
   state.groups.forEach(g=>g.visible=false);assert.equal(visibleMenuCount(state.groups),0);
   assert.equal(MENU_ITEMS.some(i=>String(i.href)==='/admin/navigation'),false);
@@ -32,3 +32,5 @@ test('moving menu preserves visibility and identities without mutating source; e
   assert.equal(moveMenuItem(s.groups,'home','missing'),s.groups);
   const empty=moveMenuItem(s.groups,'workboard','operations');assert.equal(empty[3].items.length,1);assert.doesNotThrow(()=>parseAdminMenu({...s,groups:empty}));
 });
+
+test('ten menus including orders can be placed in a single group',()=>{const s=fresh();s.groups=[{id:'all',label:'전체',visible:true,items:s.groups.flatMap(g=>g.items)}];assert.equal(parseAdminMenu(s).groups[0].items.length,10);assert.equal(MENU_ITEMS.find(i=>i.id==='orders')?.href,'/admin/orders');});

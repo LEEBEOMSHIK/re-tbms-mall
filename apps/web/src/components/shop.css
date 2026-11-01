@@ -32,3 +32,10 @@
 
 /* WB118: actionable option validation */
 .shop-option-group[aria-invalid="true"]{border-inline-start:3px solid var(--color-error);padding-inline-start:12px}.shop-option-group:focus-visible{outline:2px solid var(--color-focus);outline-offset:6px}.shop-option-error{font-weight:600;color:var(--color-text);margin:8px 0 0}
+
+/* WB142: shared color chips and size badges in the selectable detail controls. */
+.shop-detail .shop-option-group .shop-color-option,.shop-detail .shop-option-group .shop-size-option{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;min-width:44px;min-height:44px;max-width:100%;padding:7px;border:0;border-radius:4px;background:transparent;color:var(--color-text);font-size:.75rem;line-height:1.2;overflow-wrap:anywhere}
+.shop-color-option .color-chip-label{pointer-events:none}.shop-detail .shop-color-option[aria-pressed=true] .color-chip{outline:2px solid var(--color-text);outline-offset:2px}.shop-detail .shop-color-option[aria-pressed=true]>span:last-child{font-weight:700}
+.shop-detail .shop-size-option .product-size-badge{min-width:34px;min-height:34px;padding:5px 7px}.shop-detail .shop-size-option[aria-pressed=true] .product-size-badge{border-color:var(--color-text);background:var(--color-text);color:var(--color-surface)}
+.shop-size-option.is-soldout .product-size-badge{text-decoration:line-through;color:var(--color-secondary);border-style:dashed}.shop-option-soldout-label{font-size:.6875rem;color:var(--color-secondary)}
+.shop-detail .shop-option-group .shop-color-option:focus-visible,.shop-detail .shop-option-group .shop-size-option:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px}

@@ -13,3 +13,5 @@ test('site content routes share the site management navigation',()=>{
  for(const path of ['/admin/site','/admin/brand-about','/admin/brand-about/edit','/admin/brand-about/preview','/admin/merchandising/new'])assert.equal(adminSection(path),'/admin/site');
  assert.equal(adminSection('/admin/brand-about-other'),'');
 });
+
+test('sales order detail stays within orders navigation',()=>{assert.equal(adminSection('/admin/orders'),'/admin/orders');assert.equal(adminSection('/admin/orders/example'),'/admin/orders');assert.notEqual(adminSection('/admin/orders-other'),'/admin/orders');});

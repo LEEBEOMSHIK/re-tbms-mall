@@ -61,3 +61,45 @@
 .customer-avatar img{display:block;width:100%;height:100%;object-fit:cover}
 .customer-header nav .customer-login-link{display:inline-flex;align-items:center;gap:8px;min-height:44px}
 .customer-login-link>svg{flex-shrink:0}
+
+/* Account menu: equal hit areas and feedback without layout movement. */
+.customer-header .customer-account-panel>a,.customer-header .customer-account-panel .customer-nav-button{display:flex;align-items:center;min-height:44px;width:100%;box-sizing:border-box;padding:10px 12px;border:0;border-radius:6px;margin:2px 0;color:var(--color-text);text-decoration:none;background:transparent;transition:background-color 140ms ease,color 140ms ease;line-height:1.5}
+.customer-header .customer-account-panel>a:first-of-type{margin-top:12px}
+.customer-account-logout{margin-top:12px;padding-top:10px;border-top:1px solid var(--color-line)}
+@media(hover:hover){.customer-header .customer-account-panel>a:hover,.customer-header .customer-account-panel .customer-nav-button:not(:disabled):hover{background:var(--color-subtle);color:var(--color-text)}}
+.customer-header .customer-account-panel>a:focus-visible,.customer-header .customer-account-panel .customer-nav-button:focus-visible{background:var(--color-subtle);outline:2px solid var(--color-focus);outline-offset:2px}
+.customer-header .customer-account-panel>a:active,.customer-header .customer-account-panel .customer-nav-button:not(:disabled):active{background:color-mix(in srgb,var(--color-text) 12%,var(--color-surface))}
+.customer-header .customer-account-panel .customer-nav-button:disabled{opacity:.5;cursor:wait}
+@media(prefers-reduced-motion:reduce){.customer-header .customer-account-panel>a,.customer-header .customer-account-panel .customer-nav-button{transition:none}}
+
+/* Compact storefront account menu (WB152). */
+.customer-header .customer-account-panel{width:264px;padding:10px;border-radius:12px;box-shadow:0 12px 32px #00000014}
+.customer-account-identity{display:flex;align-items:center;gap:12px;padding:10px 10px 16px;margin-bottom:6px;border-bottom:1px solid var(--color-line)}
+.customer-account-identity>div{min-width:0}
+.customer-account-identity .customer-avatar{width:36px;height:36px;flex:0 0 36px;font-size:.875rem}
+.customer-account-identity .customer-avatar img{width:100%;height:100%;object-fit:cover}
+.customer-account-panel .customer-account-name{font-size:.9375rem;line-height:1.4;overflow-wrap:anywhere}
+.customer-account-panel .customer-account-provider{font-size:.75rem;margin:4px 0 0;color:var(--color-secondary)}
+.customer-header .customer-account-panel>a{gap:10px;font-size:.875rem;font-weight:400}
+.customer-header .customer-account-panel>a:first-of-type{margin-top:2px}
+.customer-menu-icon{flex-shrink:0;color:var(--color-secondary)}
+.customer-menu-arrow{margin-left:auto;flex-shrink:0;color:var(--color-secondary);opacity:.6}
+.customer-header .customer-account-panel>a[aria-current="page"]{background:var(--color-subtle);font-weight:600}
+.customer-account-logout{margin-top:6px;padding-top:6px}
+.customer-header .customer-account-panel .customer-nav-button{gap:10px;color:var(--color-secondary);font-size:.8125rem}
+@media(max-width:767px){.customer-header .customer-account-panel{width:100%;max-width:none;padding:10px;margin:6px 0 12px;box-shadow:none}.customer-header .customer-account-panel>a{border-bottom:0;font-size:.875rem}}
+
+/* Mobile account is a header utility, separate from site navigation. */
+@media(max-width:767px){
+ .customer-mobile-tools{position:relative}
+ .customer-mobile-account .customer-account{position:static}
+ .customer-header .customer-mobile-account .customer-account>summary{width:44px;min-height:44px;padding:0;justify-content:center;border:0}
+ .customer-mobile-account .customer-account-label,.customer-mobile-account .customer-account-chevron,.customer-mobile-account .customer-login-link>span{display:none}
+ .customer-mobile-account .customer-login-link{display:flex;align-items:center;justify-content:center;width:44px;min-height:44px}
+ .customer-header .customer-mobile-account .customer-account-panel{position:absolute;top:calc(100% + 8px);right:0;width:min(280px,calc(100vw - 32px));max-width:calc(100vw - 32px);margin:0;padding:10px;box-shadow:0 12px 32px #00000020;max-height:calc(100dvh - 88px);overflow-y:auto}
+ .customer-mobile-account>span[role="status"]{display:inline-flex;align-items:center;justify-content:center;width:44px;min-height:44px;font-size:0}
+ .customer-mobile-account>span[role="status"]::after{content:'…';font-size:16px}
+}
+
+.customer-account-panel>[role="alert"]{display:block;font-size:.8125rem;line-height:1.6;padding:8px 10px;color:var(--color-text)}
+@media(max-width:767px){.customer-mobile-account .customer-account-retry{width:44px;height:44px;padding:0;font-size:0}.customer-mobile-account .customer-account-retry::after{content:'↻';font-size:22px}}
