@@ -1,4 +1,6 @@
 'use client';
+import {BrandLogo} from '@/components/brand-logo';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import {useSearchParams} from 'next/navigation';
@@ -19,7 +21,7 @@ export function CustomerLogin(){
  return <section className="customer-shopping customer-login" aria-labelledby="customer-login-title">
   <div className="customer-login-card">
    <header className="customer-login-heading">
-    <p className="customer-login-brand">RE: TBMS<span>EVERYDAY WARDROBE</span></p>
+    <p className="customer-login-brand"><BrandLogo/><span>TAG A NEW POSSIBILITY</span></p>
     <h1 id="customer-login-title">반가워요</h1>
     <p>로그인하고 마음에 드는 옷을<br/>나만의 장바구니에 담아보세요.</p>
    </header>

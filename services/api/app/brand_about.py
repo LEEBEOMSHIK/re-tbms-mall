@@ -11,7 +11,7 @@ from uuid import UUID, uuid4
 
 from fastapi import Depends, HTTPException, Request, Response
 from PIL import Image, UnidentifiedImageError
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator, field_validator
 from starlette.concurrency import run_in_threadpool
 
 from app.product_images import MAX_BODY, MAX_BYTES, clean_raster
@@ -51,10 +51,18 @@ class Content(StrictModel):
     eyebrow: str = Field(min_length=1, max_length=60)
     title: str = Field(min_length=1, max_length=100)
     intro: str = Field(min_length=1, max_length=1500)
+    philosophy_title: str = Field(default="", max_length=100)
+    philosophy_body: str = Field(default="", max_length=2000)
     hero_image: str = Field(max_length=200)
     hero_alt: str = Field(min_length=1, max_length=200)
     topics: list[Topic] = Field(max_length=6)
     _image = field_validator('hero_image')(image_reference)
+
+    @model_validator(mode='after')
+    def complete_philosophy(self):
+        if bool(self.philosophy_title) != bool(self.philosophy_body):
+            raise ValueError('Philosophy title and body must be provided together.')
+        return self
 
     @field_validator('topics')
     @classmethod

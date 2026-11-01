@@ -10,7 +10,7 @@ const policies = {
 type Slug = keyof typeof policies;
 function findPolicy(slug: string) { return Object.hasOwn(policies, slug) ? policies[slug as Slug] : null; }
 export function generateStaticParams() { return Object.keys(policies).map(slug => ({ slug })); }
-export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const policy=findPolicy((await params).slug);return {title:policy?`${policy.title} · 준비 중 | RE: TBMS`:'안내를 찾을 수 없습니다'};}
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}):Promise<Metadata>{const policy=findPolicy((await params).slug);return {title:policy?`${policy.title} · 준비 중 | RE:TAG`:'안내를 찾을 수 없습니다'};}
 export default async function PolicyPage({params}:{params:Promise<{slug:string}>}){
   const policy=findPolicy((await params).slug);if(!policy)notFound();
   return <><ShopHeader/><main id="main" className="policy-page"><p className="eyebrow">INFORMATION</p><h1>{policy.title}</h1><p className="policy-notice"><strong>준비 중인 안내 초안입니다.</strong><br/>정식 정책이 아니며, 실제 판매를 시작하기 전에 확정된 내용으로 교체합니다.</p>{policy.sections.map(([title,body])=><section key={title}><h2>{title}</h2><p>{body}</p></section>)}</main><ShopFooter/></>;

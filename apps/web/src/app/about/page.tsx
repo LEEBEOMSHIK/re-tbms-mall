@@ -3,7 +3,7 @@ import { BrandAboutView } from '@/components/brand-about-view';
 import { adminApiBase } from '@/lib/admin-session';
 import { parsePublicBrand, readBrandBody } from '@/lib/brand-about';
 export const dynamic = 'force-dynamic';
-export const metadata = { title: '브랜드 소개 | RE: TBMS' };
+export const metadata = { title: '브랜드 소개 | RE:TAG' };
 export default async function About() {
   let data = null;
   try { const response = await fetch(`${adminApiBase()}/api/v1/brand-about`, { cache: 'no-store', signal: AbortSignal.timeout(10000) }); if (response.ok) data = parsePublicBrand(JSON.parse(new TextDecoder().decode(await readBrandBody(response, 131072)))); } catch { /* Never substitute a draft. */ }

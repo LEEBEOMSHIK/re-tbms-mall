@@ -1,5 +1,5 @@
 export type BrandTopic = { id: string; title: string; description: string; image: string; alt: string };
-export type BrandContent = { eyebrow: string; title: string; intro: string; hero_image: string; hero_alt: string; topics: BrandTopic[] };
+export type BrandContent = { eyebrow: string; title: string; intro: string; philosophy_title: string; philosophy_body: string; hero_image: string; hero_alt: string; topics: BrandTopic[] };
 export type BrandState = { revision: number; draft: BrandContent; published: BrandContent; published_revision: number };
 export const BRAND_PRESETS = ['/images/brand/individuality-hero.png', '/images/brand/ai-language.png', '/images/brand/hidden-patterns.png', '/images/brand/human-ai.png'];
 export const CONCEPT_CAPTION = '디자인 콘셉트 예시 · 실제 판매 상품이 아닙니다';
@@ -13,7 +13,10 @@ export function parseBrandContent(value: unknown): BrandContent {
   const v = object(value); if (!Array.isArray(v.topics) || v.topics.length > 6) throw Error('Invalid topics');
   const topics = v.topics.map(value => { const t = object(value); const id = string(t.id, 64); if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw Error('Invalid id'); return { id, title: string(t.title, 80), description: string(t.description, 800), image: parseBrandImage(t.image), alt: string(t.alt, 200) }; });
   if (new Set(topics.map(t => t.id)).size !== topics.length) throw Error('Duplicate topic');
-  return { eyebrow: string(v.eyebrow, 60), title: string(v.title, 100), intro: string(v.intro, 1500), hero_image: parseBrandImage(v.hero_image), hero_alt: string(v.hero_alt, 200), topics };
+  const philosophy_title = v.philosophy_title === undefined || v.philosophy_title === '' ? '' : string(v.philosophy_title, 100);
+  const philosophy_body = v.philosophy_body === undefined || v.philosophy_body === '' ? '' : string(v.philosophy_body, 2000);
+  if (Boolean(philosophy_title) !== Boolean(philosophy_body)) throw Error('Incomplete philosophy');
+  return { philosophy_title, philosophy_body, eyebrow: string(v.eyebrow, 60), title: string(v.title, 100), intro: string(v.intro, 1500), hero_image: parseBrandImage(v.hero_image), hero_alt: string(v.hero_alt, 200), topics };
 }
 export function parseBrandState(value: unknown): BrandState { const v = object(value); const result = { revision: revision(v.revision), published_revision: revision(v.published_revision), draft: parseBrandContent(v.draft), published: parseBrandContent(v.published) }; if (result.published_revision > result.revision) throw Error('Invalid version order'); return result; }
 export function parsePublicBrand(value: unknown) { const v = object(value); return { revision: revision(v.revision), content: parseBrandContent(v.content) }; }

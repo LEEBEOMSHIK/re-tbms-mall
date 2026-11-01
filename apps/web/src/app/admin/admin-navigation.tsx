@@ -1,4 +1,6 @@
 'use client';
+import {BrandLogo} from '@/components/brand-logo';
+
 import Link from 'next/link';
 import { adminSection } from '@/lib/admin-navigation';
 import { DEFAULT_ADMIN_MENU, MENU_ITEMS, parseAdminMenu, type AdminMenuGroup, type AdminMenuState } from '@/lib/admin-menu';
@@ -26,7 +28,7 @@ export function AdminNavigation(){
   function closeMenu(){setMenuOpen(false);if(menuOpen)mobileToggle.current?.focus();}
   async function logout(){setBusy(true);setError('');try{const response=await fetch('/api/admin/session',{method:'DELETE',credentials:'same-origin',signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error();router.replace('/admin/login');router.refresh();}catch{setError('로그아웃하지 못했습니다. 다시 시도해 주세요.');setBusy(false);}}
   return <aside className="admin-sidebar" aria-label="관리자 작업 공간" onKeyDown={event=>{if(event.key==='Escape'&&menuOpen&&!(event.target instanceof Element&&event.target.closest('dialog'))){event.preventDefault();closeMenu();}}}>
-    <div className="admin-sidebar-brand"><Link className="wordmark" href="/admin">RE: TBMS<span>ADMINISTRATION</span></Link><button ref={mobileToggle} type="button" className="admin-menu-toggle" aria-expanded={menuOpen} aria-controls="admin-sidebar-menu" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen?'메뉴 닫기':'메뉴 열기'}</button></div>
+    <div className="admin-sidebar-brand"><Link className="wordmark" href="/admin" aria-label="RE:TAG 관리자 홈"><BrandLogo/><span>ADMINISTRATION</span></Link><button ref={mobileToggle} type="button" className="admin-menu-toggle" aria-expanded={menuOpen} aria-controls="admin-sidebar-menu" onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen?'메뉴 닫기':'메뉴 열기'}</button></div>
     <div id="admin-sidebar-menu" className={`admin-sidebar-menu${menuOpen?' is-open':''}`}>
       <section className="admin-identity" aria-label="관리자 계정"><span className="admin-identity-icon" aria-hidden="true">A</span><div><strong>관리자</strong><p>관리자 세션</p></div><SiteSettingsButton><SiteSettingsContent /></SiteSettingsButton></section>
       {configError&&<div className="admin-nav-notice" role="status"><p>{configError} {loaded?'마지막으로 확인한 메뉴를 표시합니다.':'기본 메뉴를 표시합니다.'}</p><button type="button" onClick={()=>setRetry(value=>value+1)}>메뉴 다시 불러오기</button></div>}

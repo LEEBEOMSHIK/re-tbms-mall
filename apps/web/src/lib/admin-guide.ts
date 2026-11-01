@@ -7,7 +7,7 @@ export type AdminGuide = {
 };
 export const ADMIN_GUIDES: AdminGuide[] = [
   {
-    id:'start', title:'관리자 화면 처음 사용하기', summary:'로그인 후 메뉴를 찾고 화면 크기를 조정하는 순서입니다.', updatedAt:'2026-11-01',
+    id:'start', title:'관리자 화면 처음 사용하기', summary:'로그인 후 메뉴를 찾고 화면 크기를 조정하는 순서입니다.', updatedAt:'2026-11-02',
     prerequisites:['관리자 로그인 권한이 필요합니다. 현재 관리자는 접근 키를 사용하는 세션 방식입니다.'],
     steps:[
       {title:'로그인하고 오늘의 현황 확인',description:'관리자 홈에서 현재 재고와 확인할 부족 옵션, 실제 발송·수령 업무를 살펴봅니다. 화면에 샘플이라고 표시된 구역은 실제 업무 집계와 구별합니다.',href:'/admin',linkLabel:'관리자 홈 열기'},
@@ -15,7 +15,7 @@ export const ADMIN_GUIDES: AdminGuide[] = [
       {title:'보기 편한 글자와 테마 선택',description:'관리자 계정 옆 톱니바퀴에서 글자 크기와 테마를 선택합니다. 사이트의 크게·더 크게 설정은 Chrome 등의 브라우저 확대 배율과 별개로 적용됩니다.'},
     ],
     completion:'원하는 업무 화면이 열리고 현재 메뉴가 강조되어 있는지 확인합니다.',
-    notes:['표시된 관리자 세션은 개인 이름·이메일 정보가 아닙니다.','작업을 마치면 왼쪽 하단 로그아웃을 사용합니다.'],
+    notes:['현재 사이트 브랜드는 RE:TAG입니다. 이전 업무 캡처에 RE: TBMS가 남아 있어도 메뉴와 업무 절차는 같습니다.','표시된 관리자 세션은 개인 이름·이메일 정보가 아닙니다.','작업을 마치면 왼쪽 하단 로그아웃을 사용합니다.'],
     relatedPaths:['apps/web/src/app/admin/admin-navigation.tsx','apps/web/src/components/site-settings-content.tsx','apps/web/src/components/text-size-control.tsx','apps/web/src/app/admin/(protected)/dashboard-view.tsx'],
   },
   {
@@ -93,11 +93,11 @@ export const ADMIN_GUIDES: AdminGuide[] = [
     relatedPaths:['apps/web/src/app/admin/(protected)/merchandising/merchandising-list.tsx','apps/web/src/app/admin/(protected)/merchandising/merchandising-editor.tsx'],
   },
   {
-    id:'brand',title:'브랜드 소개 편집하고 게시하기',summary:'소개 문구와 예시 이미지를 초안으로 저장한 뒤 미리보기하고 게시합니다.',updatedAt:'2026-10-30',
+    id:'brand',title:'브랜드 소개 편집하고 게시하기',summary:'소개 문구·브랜드 철학과 예시 이미지를 초안으로 저장한 뒤 미리보기하고 게시합니다.',updatedAt:'2026-11-02',
     prerequisites:['고객에게 보여줄 문구·이미지와 대체텍스트를 준비합니다.'],
     steps:[
       {title:'현재 소개 확인 후 편집',description:'브랜드 소개 관리에서 저장된 초안과 게시본 상태를 확인하고 편집 화면으로 이동합니다.',href:'/admin/brand-about',linkLabel:'브랜드 소개 관리 열기'},
-      {title:'문구·이미지 수정 후 초안 저장',description:'대표 이미지와 주제별 내용을 수정합니다. 이미지 업로드만으로 소개 전체가 저장되지는 않으므로 초안 저장 완료까지 확인합니다.'},
+      {title:'문구·이미지 수정 후 초안 저장',description:'소개 다음 브랜드 철학 제목·본문을 함께 입력합니다. 둘 다 비우면 철학 영역이 숨겨지며, 본문은 빈 줄로 문단을 구분합니다. 대표 이미지와 주제별 내용도 수정할 수 있습니다. 이미지 업로드만으로 소개 전체가 저장되지는 않으므로 초안 저장 완료까지 확인합니다.'},
       {title:'저장된 초안 미리보기',description:'미리보기에서 문구·사진·대체텍스트와 모바일 구성을 확인합니다. 이 단계는 고객 공개와 구분됩니다.',href:'/admin/brand-about/preview',linkLabel:'저장된 초안 미리보기'},
       {title:'저장된 초안 게시',description:'관리 상태 화면으로 돌아가 저장된 초안을 게시하고 확정 버전과 완료 안내를 확인합니다.'},
     ],

@@ -156,3 +156,24 @@ def test_stream_upload_bound_without_length(setup):
         for _ in range(4):
             yield b' ' * (1024 * 1024)
     assert client.post(ADMIN + '/assets', headers=AUTH, content=chunks()).status_code == 413
+
+
+def test_philosophy_validation_and_draft_isolation(setup):
+    client, fresh, _ = setup
+    before = client.get(PUBLIC).json()
+    state = client.get(ADMIN, headers=AUTH).json()
+    content = deepcopy(state['draft'])
+    content.update(philosophy_title='Synthetic title', philosophy_body='Synthetic body')
+    for bad in [{'philosophy_body': ''}, {'philosophy_title': 'x' * 101}, {'philosophy_body': 'x' * 2001}]:
+        assert client.put(ADMIN, headers=AUTH, json={'revision': 0, 'content': {**content, **bad}}).status_code == 422
+    saved = client.put(ADMIN, headers=AUTH, json={'revision': 0, 'content': content})
+    assert saved.status_code == 200
+    assert client.get(PUBLIC).json() == before
+    assert fresh().get(ADMIN, headers=AUTH).json()['draft']['philosophy_body'] == 'Synthetic body'
+    assert client.post(ADMIN + '/publish', headers=AUTH, json={'revision': 1}).status_code == 200
+    assert client.get(PUBLIC).json()['content']['philosophy_body'] == 'Synthetic body'
+    del content['philosophy_title']
+    del content['philosophy_body']
+    legacy = client.put(ADMIN, headers=AUTH, json={'revision': 2, 'content': content})
+    assert legacy.status_code == 200
+    assert legacy.json()['draft']['philosophy_title'] == ''

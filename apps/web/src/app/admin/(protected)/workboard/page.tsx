@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { readWorkboard } from '@/lib/workboard-server';
 import './workboard.css';
 import { WorkboardColumn } from './workboard-column';
-export const metadata: Metadata = {title:'공유 작업 보드 | RE: TBMS',robots:{index:false,follow:false}};
+export const metadata: Metadata = {title:'공유 작업 보드 | RE:TAG',robots:{index:false,follow:false}};
 const columns = [{id:'in-progress',label:'진행 중'},{id:'next',label:'다음 작업 제안'},{id:'decision',label:'결정할 일'},{id:'done',label:'완료'}];
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

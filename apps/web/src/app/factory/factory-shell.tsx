@@ -1,4 +1,6 @@
 'use client';
+import {BrandLogo} from '@/components/brand-logo';
+
 import {useEffect,useRef,useState,type ReactNode} from 'react';
 import Link from 'next/link';
 import {usePathname,useRouter} from 'next/navigation';
@@ -11,7 +13,7 @@ import {FactoryLogout} from './factory-login';
 import './factory-shell.css';
 
 type Profile={name:string;username:string;supplier:string};
-function Brand({onNavigate}:{onNavigate?:()=>void}){return <Link className="factory-shell-brand" href="/factory" onClick={onNavigate}><strong>RE: TBMS</strong><span>공장 작업실</span></Link>;}
+function Brand({onNavigate}:{onNavigate?:()=>void}){return <Link className="factory-shell-brand" href="/factory" onClick={onNavigate}><BrandLogo/><span>공장 작업실</span></Link>;}
 function FactoryProfile(){
  const router=useRouter(),pathname=usePathname();const [profile,setProfile]=useState<Profile|null>(null),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);const detail=useRef<HTMLDetailsElement>(null),trigger=useRef<HTMLElement>(null);
  useEffect(()=>{let active=true;void catalogRequest('/api/factory/profile',parseFactoryProfile).then(async result=>{if(!active)return;if(result.ok){setProfile({name:result.data.account.display_name,username:result.data.account.username,supplier:result.data.supplier_name});setError('')}else{setProfile(null);setError(result.reason==='auth'?'로그인이 만료되었습니다. 다시 로그인해 주세요.':'계정 정보를 불러오지 못했습니다.');if(result.reason==='auth'){try{const cleared=await fetch('/api/factory/session',{method:'DELETE',credentials:'same-origin',signal:AbortSignal.timeout(10000)});if(cleared.ok){router.replace('/factory/login');router.refresh()}}catch{/* The profile stays cleared and explicit retry remains available. */}}}});return()=>{active=false}},[router,pathname,attempt]);

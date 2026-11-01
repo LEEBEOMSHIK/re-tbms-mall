@@ -1,0 +1,7 @@
+.brand-logo{display:block;width:180px;height:60px;max-width:100%;object-fit:contain;background:#fff;border-radius:6px;flex-shrink:0}
+.customer-header .wordmark:has(.brand-logo){display:flex;align-items:center;min-height:44px;flex-shrink:0}
+.customer-login-brand:has(.brand-logo){display:grid;justify-items:center;gap:12px}
+.customer-login-brand .brand-logo{width:216px;height:72px}
+.admin-sidebar-brand .wordmark:has(.brand-logo){display:grid;gap:6px}
+.factory-shell-brand .brand-logo{width:168px;height:56px}
+@media(max-width:767px){.customer-header .brand-logo{width:132px;height:44px}.mobile-footer-brand .brand-logo{width:150px;height:50px}}
