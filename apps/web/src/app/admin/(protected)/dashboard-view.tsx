@@ -20,7 +20,7 @@ export function DashboardView(){
   const qnaPage=useListPagination(qna,qnaFilter,'Q&A');
   const inboundPage=useListPagination(data?.inbound || [], '', '입고');
   const shippingPage=useListPagination(shipments,shippingFilter,'배송');
-  return <main id="main" className="dashboard-page"><header className="dashboard-heading"><div><p className="eyebrow">OPERATIONS OVERVIEW</p><h1>관리자 대시보드</h1><p>확인이 필요한 일부터, 오늘의 운영 현황을 살펴보세요.</p></div><div className="dashboard-shortcuts"><Link href="/admin/catalog">상품 관리 ↗</Link><Link href="/admin/catalog/inventory">재고 관리 ↗</Link><Link href="/admin/merchandising">홈 진열 관리 ↗</Link><Link href="/admin/workboard">프로젝트 작업 보드 ↗</Link></div></header>
+  return <main id="main" className="dashboard-page"><header className="dashboard-heading"><div><p className="eyebrow">OPERATIONS OVERVIEW</p><h1>관리자 대시보드</h1><p>확인이 필요한 일부터, 오늘의 운영 현황을 살펴보세요.</p></div><div className="dashboard-shortcuts"><Link href="/admin/catalog">상품 관리 ↗</Link><Link href="/admin/catalog/inventory">재고 관리 ↗</Link><Link className="dashboard-md-link" href="/admin/merchandising">홈 진열 관리 ↗</Link><Link href="/admin/workboard">프로젝트 작업 보드 ↗</Link></div></header>
     <InventoryOverviewPanel/>
     <ShipmentOverview scope="admin"/>
     <aside className="dashboard-sample"><span className="dashboard-tag">샘플 데이터</span><p>아래 문의·입고 예정·고객 배송 현황은 화면 검토용 예시입니다. 실제 재고와 공장 발송·수령 업무는 위의 영역에서 확인합니다.</p>{data&&<time dateTime={data.as_of}>예시 기준 {dashboardDate(data.as_of)} (한국 시간)</time>}</aside>

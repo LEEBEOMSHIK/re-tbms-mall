@@ -7,6 +7,8 @@ import {CustomerSession} from './customer-session';
 import './footer.css';
 import './shop.css';
 import './customer-mobile.css';
+import './customer-typography.css';
+import './customer-motion.css';
 import {CustomerMobileNav} from './customer-mobile-nav';
 export function ShopHeader() { return <><a className="skip-link" href="#main">본문으로 건너뛰기</a><header className="site-header customer-header"><Link className="wordmark" href="/" aria-label="RE:TAG 홈"><BrandLogo/></Link><nav className="customer-desktop-nav" aria-label="주요 메뉴"><CustomerNavLink menu="shop"/><CustomerNavLink menu="about"/><CustomerSession/><SiteSettingsButton customer><SiteSettingsContent /></SiteSettingsButton></nav><CustomerMobileNav><Link href="/products">상품 둘러보기</Link><Link href="/about">브랜드 소개</Link><div className="customer-mobile-settings"><span>화면 설정</span><SiteSettingsButton customer><SiteSettingsContent /></SiteSettingsButton></div></CustomerMobileNav></header></>; }
 export function ShopFooter() {

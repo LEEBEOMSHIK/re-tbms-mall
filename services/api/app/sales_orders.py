@@ -1,4 +1,4 @@
-"""Read-only sales order snapshots. No checkout conversion, payment or stock writes."""
+"""Sales order snapshots and authorized reads with local hold expiry."""
 import base64
 import binascii
 from contextlib import closing, contextmanager
@@ -7,10 +7,14 @@ import hashlib
 import json
 import re
 import sqlite3
+from time import time as epoch_time
 from typing import Literal
 from uuid import UUID, uuid4
 
 from fastapi import Depends, Header, HTTPException, Query, Response
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+from .customer import Mutation
+from .order_reservations import cancel_order, release_expired, reservation_detail
 from .order_numbers import allocate_order_number
 
 OrderStatus = Literal['awaiting_payment', 'confirmed', 'closed', 'cancelled', 'expired']
@@ -57,6 +61,12 @@ SCHEMA = [
         id TEXT PRIMARY KEY, order_id TEXT NOT NULL REFERENCES sales_orders(id), position INTEGER NOT NULL,
         label TEXT NOT NULL, at TEXT NOT NULL, UNIQUE(order_id,position))''',
 ]
+
+
+class CancelRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid', strict=True)
+    request_id: str = Field(min_length=36, max_length=36)
+    _uuid = field_validator('request_id')(Mutation.valid_uuid.__func__)
 
 
 def encode_cursor(row, status):
@@ -120,8 +130,9 @@ def admin_search(*, status, search_field, q, date_from, date_to, payment_status,
 
 
 class SalesOrderStore:
-    def __init__(self, catalog):
+    def __init__(self, catalog, clock=epoch_time):
         self.catalog = catalog
+        self.clock = clock
 
     @contextmanager
     def transaction(self):
@@ -198,6 +209,7 @@ class SalesOrderStore:
             params.extend(point)
         where = ' WHERE ' + ' AND '.join(clauses) if clauses else ''
         with self.transaction() as db:
+            release_expired(db, self.clock())
             if search is not None:
                 db.create_function('order_phone', 1, normalize_phone, deterministic=True)
                 db.create_function('order_utc', 1, utc_timestamp, deterministic=True)
@@ -212,21 +224,26 @@ class SalesOrderStore:
         except ValueError:
             raise HTTPException(404, 'Order not found.') from None
         with self.transaction() as db:
-            sql = 'SELECT * FROM sales_orders WHERE id=?'
-            params = [order_id]
-            if customer_id is not None:
-                sql += ' AND customer_id=?'
-                params.append(customer_id)
-            row = db.execute(sql, params).fetchone()
-            if row is None:
-                raise HTTPException(404, 'Order not found.')
-            shipping = db.execute('SELECT recipient,phone,postal_code,address,address_detail,memo FROM sales_order_shipping WHERE order_id=?', (order_id,)).fetchone()
-            if shipping is None:
-                raise HTTPException(503, 'Order shipping snapshot is incomplete.')
-            return {**self.summary(db, row), 'shipping': dict(shipping),
-                    'lines': [dict(line) for line in db.execute('SELECT id,product_name,color,size,quantity,unit_price,line_total FROM sales_order_lines WHERE order_id=? ORDER BY position', (order_id,))],
-                    'shipments': [dict(shipment) for shipment in db.execute('SELECT id,carrier,tracking_number,status,quantity FROM sales_order_shipments WHERE order_id=? ORDER BY rowid', (order_id,))],
-                    'events': [dict(event) for event in db.execute('SELECT id,label,at FROM sales_order_events WHERE order_id=? ORDER BY position', (order_id,))]}
+            now = self.clock()
+            release_expired(db, now)
+            return self.detail_in_transaction(db, order_id, customer_id, now)
+
+    def detail_in_transaction(self, db, order_id, customer_id, now):
+        sql = 'SELECT * FROM sales_orders WHERE id=?'
+        params = [order_id]
+        if customer_id is not None:
+            sql += ' AND customer_id=?'
+            params.append(customer_id)
+        row = db.execute(sql, params).fetchone()
+        if row is None:
+            raise HTTPException(404, 'Order not found.')
+        shipping = db.execute('SELECT recipient,phone,postal_code,address,address_detail,memo FROM sales_order_shipping WHERE order_id=?', (order_id,)).fetchone()
+        if shipping is None:
+            raise HTTPException(503, 'Order shipping snapshot is incomplete.')
+        return {**self.summary(db, row), 'shipping': dict(shipping), **reservation_detail(db, order_id, now),
+                'lines': [dict(line) for line in db.execute('SELECT id,product_name,color,size,quantity,unit_price,line_total FROM sales_order_lines WHERE order_id=? ORDER BY position', (order_id,))],
+                'shipments': [dict(shipment) for shipment in db.execute('SELECT id,carrier,tracking_number,status,quantity FROM sales_order_shipments WHERE order_id=? ORDER BY rowid', (order_id,))],
+                'events': [dict(event) for event in db.execute('SELECT id,label,at FROM sales_order_events WHERE order_id=? ORDER BY position', (order_id,))]}
 
 
 def register_sales_order_routes(app, catalog, customers, require_admin):
@@ -248,6 +265,10 @@ def register_sales_order_routes(app, catalog, customers, require_admin):
     @app.get('/api/v1/customer/sales-orders/{order_id}', dependencies=[Depends(no_cache)])
     def customer_order(order_id: str, who=Depends(customer)):
         return store.detail(order_id, who['id'])
+
+    @app.post('/api/v1/customer/sales-orders/{order_id}/cancel', dependencies=[Depends(no_cache)])
+    def cancel_customer_order(order_id: str, body: CancelRequest, who=Depends(customer)):
+        return cancel_order(store, order_id, who['id'], body.request_id)
 
     @app.get('/api/v1/admin/sales-orders', dependencies=[Depends(require_admin), Depends(no_cache)])
     def admin_orders(limit: int = Query(default=20, ge=1, le=50), cursor: str | None = Query(default=None, max_length=1024), status: OrderStatus | None = None,

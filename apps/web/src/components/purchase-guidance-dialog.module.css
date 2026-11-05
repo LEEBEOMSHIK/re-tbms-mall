@@ -1,0 +1,29 @@
+.dialog { box-sizing:border-box; width:min(42rem,calc(100% - 2rem)); max-width:42rem; max-height:calc(100dvh - 3rem); margin:auto; padding:0; border:1px solid var(--color-line); border-radius:var(--radius-panel); background:var(--color-surface); color:var(--color-text); box-shadow:0 20px 70px rgb(17 15 29 / .22); overflow:hidden; }
+.dialog[open] { display:flex; flex-direction:column; }
+.dialog::backdrop { background:rgb(17 15 29 / .48); }
+body:has(.dialog[open]) { overflow:hidden; }
+.header { display:flex; justify-content:space-between; gap:1rem; align-items:center; flex:none; padding:1.5rem 2rem; border-bottom:1px solid var(--color-line); }
+.header p { font-size:.7rem; letter-spacing:.16em; color:var(--ui-accent); margin:0 0 .35rem; }
+.header h2 { margin:0; font-size:1.6rem; font-weight:700; line-height:1.3; }
+.dialog .close { min-width:44px; min-height:44px; padding:0; border:0; background:transparent; color:var(--color-secondary); font-size:1.8rem; }
+.body { min-height:0; overflow:auto; overscroll-behavior:contain; padding:1.5rem 2rem; }
+.body section + section { margin-top:1.25rem; }
+.body h3 { margin:0 0 .35rem; font-size:1rem; font-weight:650; }
+.body p { margin:0; font-size:.95rem; line-height:1.75; color:var(--color-secondary); word-break:keep-all; overflow-wrap:anywhere; }
+.highlight { display:grid; gap:.35rem; padding:1rem 1.25rem; margin-bottom:1.5rem; border-radius:var(--ui-control-radius); background:var(--ui-tint); color:var(--ui-on-tint); font-size:.95rem; }
+.body .notice { margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--color-line); font-size:.8rem; }
+.footer { flex:none; padding:1rem 2rem 1.5rem; border-top:1px solid var(--color-line); }
+.dialog .footer button { width:100%; min-height:48px; border:1px solid var(--ui-accent); border-radius:var(--ui-control-radius); background:var(--ui-accent); color:var(--color-surface); font-weight:650; }
+.dialog button:hover { filter:brightness(.94); }
+.dialog button:focus-visible { outline:2px solid var(--ui-accent); outline-offset:3px; }
+@media (max-width:600px) {
+  .dialog { width:100%; max-width:100%; max-height:90dvh; margin:auto 0 0; border-radius:1.25rem 1.25rem 0 0; }
+  .header { padding:1.25rem 1.25rem 1rem; }
+  .header h2 { font-size:1.3rem; }
+  .body { padding:1.25rem; }
+  .footer { padding:1rem 1.25rem max(1rem,env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion:no-preference) {
+  .dialog[open] { animation:arrive var(--shop-feedback); }
+  @keyframes arrive { from { opacity:0; transform:translateY(.5rem); } }
+}

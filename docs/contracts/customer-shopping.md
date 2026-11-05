@@ -34,3 +34,10 @@ customer에 선택 avatar_url(null 또는 HTTPS 공급자 CDN URL)을 추가. Go
 ## WB101 실연동 점검 보정 (2026-10-30)
 OAuth 취소·실패 재시도는 provider별 경로/10분/HttpOnly/SameSite=Lax 복귀쿠키로 허용된 상품·옵션·수량 주소를 보존한다. callback 성공/실패에서 flow와 복귀쿠키를 지운다. 복귀쿠키는 인증에 사용하지 않으며 읽을 때도 허용 경로로 제한한다.
 Next 카트 응답에 session_guard(SHA256의 cart-session: + 고엔트로피 세션 토큰 지문)를 추가하고 카트 변경 요청에 X-Cart-Session을 요구한다. 인증 자격이 아니며 실제 인증은 기존 HttpOnly 쿠키/Bearer를 따른다. 조회 당시와 현재 세션이 다르거나 guard가 없으면 API 변경 호출 전에409로 차단한다. UI의 재시도 payload는 당시 guard를 유지한다. 새 조회에서 guard 변경 시 이전 계정의 초안·완료 결과·pending을 제거한다. API 카트 업무계약/DB는 변경하지 않는다. 오래 열린 기존 UI는 새로고침 후 사용한다.
+
+## WB196 선택 상품과 옵션 변경
+
+- 장바구니 응답의 `shipping_policy.base_fee`와 `shipping_policy.free_threshold`는 주문서·재고 확보 시 사용하는 일반 지역 운임의 원 단위 값이다. 선택 상품의 할인 후 금액을 기준으로 예상 운임을 계산하며 주소 확인은 주문서 단계에서 수행한다.
+- POST `/api/v1/customer/cart/remove-selection`은 `{sku_ids,version,request_id}`를 받는다. 본인 장바구니의 고유 SKU 1~100개를 한 번에 삭제한다. 하나라도 없으면 409이며 모두 보존한다.
+- POST `/api/v1/customer/cart/change-option`은 `{sku_id,target_sku_id,version,request_id}`를 받는다. 같은 공개 상품의 다른 활성 옵션으로 원래 수량 전체를 옮기고 대상 행이 이미 있으면 수량을 합친다. 가용 재고 또는 99개를 초과하면 409다.
+- 두 요청 모두 장바구니를 한 번만 갱신하고 서버 확정 장바구니를 반환한다. 계정별 버전 충돌과 요청 ID 재사용은 기존 쓰기 계약을 따른다. 같은 요청을 재전송하면 이미 반영한 수량·버전을 다시 변경하지 않는다.

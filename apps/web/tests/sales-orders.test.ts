@@ -18,3 +18,20 @@ test('status tone follows displayed terminal/payment/shipping precedence',async(
  assert.equal(orderTone({...base,fulfillment_status:'partially_shipped'}),'progress');
  assert.equal(orderTone({...base,fulfillment_status:'delivered'}),'success');
 });
+
+test('only detail exposes the permitted reservation fields and uses the server clock', async () => {
+ const {reservationSeconds}=await import('../src/lib/sales-orders.ts');
+ const detail={...base,lines:[],item_count:0,goods_total:0,grand_total:3000,shipments:[],events:[],
+  shipping:{recipient:'',phone:'',postal_code:'',address:'',address_detail:'',memo:''}};
+ const reservation={status:'held' as const,server_now:'2026-11-01T00:00:00+00:00',expires_at:'2026-11-01T00:10:00Z'};
+ assert.equal(parseOrderDetail(detail).reservation,undefined);
+ assert.equal('reservation' in parseSalesOrder({...base,reservation}),false);
+ assert.deepEqual(parseOrderDetail({...detail,reservation:{...reservation,private_id:'private'}}).reservation,reservation);
+ assert.equal(parseOrderDetail({...detail,reservation:{...reservation,status:'released'}}).reservation?.status,'released');
+ for(const invalid of [{...reservation,status:'paid'},{...reservation,server_now:'now'},{...reservation,expires_at:'2026-11-01'}]){
+  assert.throws(()=>parseOrderDetail({...detail,reservation:invalid}));
+ }
+ assert.equal(reservationSeconds(reservation,0),600);
+ assert.equal(reservationSeconds(reservation,599001),1);
+ assert.equal(reservationSeconds(reservation,601000),0);
+});

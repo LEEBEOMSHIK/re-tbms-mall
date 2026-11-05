@@ -171,7 +171,7 @@ def test_concurrent_writers_cannot_overwrite_same_revision(tmp_path):
 def legacy_state():
     value = initial()
     for group in value['groups']:
-        group['items'] = [item for item in group['items'] if item['id'] not in {'payment-preparation', 'orders'}]
+        group['items'] = [item for item in group['items'] if item['id'] not in {'design-system', 'payment-preparation', 'orders', 'carrier-preparation'}]
     return value
 
 
@@ -191,6 +191,8 @@ def test_legacy_read_adds_payment_menu_without_overwriting_customization(tmp_pat
     actual = AdminNavigationStore(path).get()
     expected = deepcopy(old)
     expected['groups'][0]['items'].append({'id': 'payment-preparation', 'visible': True})
+    expected['groups'][0]['items'].append({'id': 'carrier-preparation', 'visible': True})
+    expected['groups'][0]['items'].insert(1, {'id': 'design-system', 'visible': True})
     expected['groups'][-1]['items'].append({'id': 'orders', 'visible': True})
     assert actual == expected
     with sqlite3.connect(path) as db:
@@ -218,10 +220,10 @@ def test_incomplete_legacy_storage_is_not_silently_repaired(tmp_path):
     assert error.value.status_code == 503
 
 
-def test_all_ten_menus_can_share_one_group(setup):
+def test_all_twelve_menus_can_share_one_group(setup):
     client, _, _ = setup
     value = initial()
-    assert len(MENU_IDS) == 10
+    assert len(MENU_IDS) == 12
     items = [item for group in value['groups'] for item in group['items']]
     value['groups'] = [{'id': 'all', 'label': '전체', 'visible': True, 'items': items}]
     assert client.put(URL, headers=AUTH, json=value).status_code == 200
@@ -231,7 +233,7 @@ def test_previous_nine_menu_state_adds_orders_to_inventory_group_preserving_ever
     path = tmp_path / 'previous.sqlite3'
     old = initial()
     for group in old['groups']:
-        group['items'] = [item for item in group['items'] if item['id'] != 'orders']
+        group['items'] = [item for item in group['items'] if item['id'] not in {'design-system', 'orders', 'carrier-preparation'}]
     old['revision'] = 13
     old['groups'][0]['id'] = 'custom-operations'
     old['groups'][0]['label'] = '개인 설정'
@@ -244,6 +246,8 @@ def test_previous_nine_menu_state_adds_orders_to_inventory_group_preserving_ever
         db.execute('INSERT INTO admin_navigation VALUES (1, ?)', (raw,))
     upgraded = AdminNavigationStore(path).get()
     expected = deepcopy(old)
+    expected['groups'][0]['items'].append({'id': 'carrier-preparation', 'visible': True})
+    expected['groups'][0]['items'].insert(1, {'id': 'design-system', 'visible': True})
     expected['groups'][-1]['items'].append({'id': 'orders', 'visible': True})
     assert upgraded == expected
     with sqlite3.connect(path) as db:
@@ -251,3 +255,69 @@ def test_previous_nine_menu_state_adds_orders_to_inventory_group_preserving_ever
     saved = AdminNavigationStore(path).save(NavigationState.model_validate(upgraded))
     assert saved['revision'] == 14
     assert AdminNavigationStore(path).get() == saved
+
+def test_ten_menu_state_inserts_carrier_after_relocated_hidden_payment(tmp_path):
+    store = AdminNavigationStore(tmp_path / 'ten.sqlite3')
+    old = initial()
+    project = old['groups'].pop()
+    payment = next(item for item in project['items'] if item['id'] == 'payment-preparation')
+    payment['visible'] = False
+    old['groups'][1]['items'].insert(0, payment)
+    old['groups'][1]['visible'] = False
+    old['groups'][0]['items'].extend(item for item in project['items'] if item['id'] == 'workboard')
+    old['revision'] = 21
+    raw = json.dumps(old)
+    with store.transaction() as db:
+        db.execute('INSERT INTO admin_navigation VALUES (1, ?)', (raw,))
+    expected = deepcopy(old)
+    expected['groups'][0]['items'].append({'id':'design-system','visible':True})
+    expected['groups'][1]['items'].insert(1, {'id': 'carrier-preparation', 'visible': True})
+    assert store.get() == expected
+    with store.transaction() as db:
+        assert db.execute('SELECT state FROM admin_navigation').fetchone()[0] == raw
+
+
+@pytest.mark.parametrize('separate_group', [True, False])
+def test_twelve_menu_state_projects_only_removed_item(setup, separate_group):
+    client, _, path = setup
+    store = AdminNavigationStore(path / 'admin-navigation.sqlite3')
+    expected = initial()
+    expected['revision'] = 31
+    expected['groups'].reverse()
+    expected['groups'][1]['visible'] = False
+    expected['groups'][1]['items'][0]['visible'] = False
+    if separate_group:
+        expected['groups'].append({'id':'custom', 'label':'직접 추가', 'visible':False, 'items':[]})
+    else:
+        items = [item for group in expected['groups'] for item in group['items']]
+        expected['groups'] = [{'id':'single','label':'전체','visible':False,'items':items}]
+    old = deepcopy(expected)
+    for group in old['groups']:
+        group['items'] = [i for i in group['items'] if i['id'] != 'design-system']
+    old['groups'][-1]['items'].insert(0, {'id':'merchandising','visible':False})
+    raw = json.dumps(old)
+    with store.transaction() as db:
+        db.execute('INSERT INTO admin_navigation VALUES (1, ?)', (raw,))
+    assert client.get(URL, headers=AUTH).json() == expected
+    assert client.put(URL, headers=AUTH, json=old).status_code == 422
+    with store.transaction() as db:
+        assert db.execute('SELECT state FROM admin_navigation').fetchone()[0] == raw
+    assert client.put(URL, headers=AUTH, json=expected).json() == expected | {'revision':32}
+
+
+def test_eleven_menu_state_adds_design_system_after_moved_workboard(tmp_path):
+    store = AdminNavigationStore(tmp_path / 'eleven.sqlite3')
+    old = initial()
+    old['revision'] = 45
+    old['groups'][3]['items'] = [i for i in old['groups'][3]['items'] if i['id'] not in ('workboard','design-system')]
+    group = old['groups'][1]
+    group['visible'] = False
+    group['items'].insert(1, {'id':'workboard','visible':False})
+    raw = json.dumps(old)
+    with store.transaction() as db:
+        db.execute('INSERT INTO admin_navigation VALUES (1, ?)', (raw,))
+    expected = deepcopy(old)
+    expected['groups'][1]['items'].insert(2, {'id':'design-system','visible':True})
+    assert store.get() == expected
+    with store.transaction() as db:
+        assert db.execute('SELECT state FROM admin_navigation').fetchone()[0] == raw

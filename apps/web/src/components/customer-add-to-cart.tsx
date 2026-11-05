@@ -2,8 +2,8 @@
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useRef,useState} from 'react';
-import {SaveResult} from './ui/save-result';
-import {customerRequest,parseCart,shoppingError,won,productLoginReturn,type Cart} from '@/lib/customer-shopping';
+import {CartAddedDialog} from './cart-added-dialog';
+import {customerRequest,parseCart,shoppingError,productLoginReturn,type Cart} from '@/lib/customer-shopping';
 import './customer-shopping.css';
 type Pending={sessionGuard?:string;sku:string;label:string;body:{quantity:number;version:number;request_id:string}};
 export function CustomerAddToCart({productId,selected,priced,initialQuantity,validateSelection}:{validateSelection:()=>boolean;productId:string;selected?:{id:string;color:string;size:string;available:boolean};priced:boolean;initialQuantity:string}){const [quantity,setQuantity]=useState(/^(?:[1-9]|[1-9][0-9])$/.test(initialQuantity)?initialQuantity:'1'),[busy,setBusy]=useState(false),[errorState,setErrorState]=useState<{message:string;sku?:string}>({message:''}),[login,setLogin]=useState(false),[pending,setPending]=useState<Pending|null>(null),[conflict,setConflict]=useState(false),[saved,setSaved]=useState<{cart:Cart;sku:string;key:string}|null>(null);const lock=useRef(false),input=useRef<HTMLInputElement>(null);
@@ -17,4 +17,25 @@ export function CustomerAddToCart({productId,selected,priced,initialQuantity,val
  const router=useRouter();
  function buyNow(){if(!validateSelection()||!selected)return;if(!selected.available||!priced){setError('선택한 상품의 재고와 판매 가격을 확인해 주세요.');return}const count=Number(quantity);if(!Number.isInteger(count)||count<1||count>99){setError('수량은 1~99 사이의 정수로 입력해 주세요.');input.current?.focus();return}router.push('/checkout?'+new URLSearchParams({sku:selected.id,quantity:String(count)}));}
  const savedItem=saved?.cart.items.find(i=>i.sku_id===saved.sku);
- return <section className="customer-add"><label htmlFor="add-quantity">수량</label><input ref={input} id="add-quantity" type="number" min={1} max={99} inputMode="numeric" value={quantity} disabled={busy||!!pending} onChange={e=>setQuantity(e.target.value)}/><button disabled={busy||conflict} onClick={()=>void add()}>{busy?'장바구니 확인 중':pending?'같은 담기 요청 결과 확인':'장바구니 담기'}</button><button disabled={busy||!!pending||conflict} onClick={buyNow}>바로 구매</button>{pending&&<p>확인 중인 옵션: {pending.label} · 요청한 장바구니 수량 {pending.body.quantity}개</p>}{conflict&&<button disabled={busy} onClick={()=>void refresh()}>최신 장바구니 확인 (입력 유지)</button>}{!priced&&<p>판매 가격이 준비되면 담을 수 있어요.</p>}{error&&<p role="alert">{error}</p>}{login&&<Link href={`/login?return_to=${encodeURIComponent(returnTo)}`}>로그인하고 이 상품으로 돌아오기 →</Link>}{saved&&savedItem&&<SaveResult key={saved.key} title="장바구니에 담았어요." actions={<><Link href="/cart">장바구니 보기</Link><button className="customer-secondary" onClick={()=>{setSaved(null);input.current?.focus()}}>계속 선택하기</button><Link href="/products">계속 쇼핑하기</Link></>}><p>{savedItem.name} · {savedItem.color} / {savedItem.size}</p><p>장바구니에 담긴 수량 {savedItem.quantity}개 · 현재 상품 금액 {savedItem.line_total===null?'확인 필요':won(savedItem.line_total)}</p><p>재고는 예약되지 않아요.</p></SaveResult>}</section>}
+ const addButton = useRef<HTMLButtonElement>(null);
+ return <><section className="customer-add">
+  <div className="customer-add-controls">
+   <label htmlFor="add-quantity">수량</label>
+   <input ref={input} id="add-quantity" type="number" min={1} max={99} inputMode="numeric" value={quantity} disabled={busy||!!pending} onChange={e=>setQuantity(e.target.value)}/>
+   <button ref={addButton} disabled={busy||conflict} onClick={()=>void add()}>{busy?'장바구니 확인 중':pending?'같은 담기 요청 결과 확인':'장바구니 담기'}</button>
+   <button onClick={buyNow}>바로 구매</button>
+  </div>
+  <div className="customer-add-feedback">
+   {pending&&<p>확인 중인 옵션: {pending.label} · 요청한 장바구니 수량 {pending.body.quantity}개</p>}
+   {conflict&&<button disabled={busy} onClick={()=>void refresh()}>최신 장바구니 확인 (입력 유지)</button>}
+   {!priced&&<p>판매 가격이 준비되면 담을 수 있어요.</p>}
+   {error&&<p role="alert">{error}</p>}
+   {login&&<Link href={`/login?return_to=${encodeURIComponent(returnTo)}`}>로그인하고 이 상품으로 돌아오기 →</Link>}
+  </div>
+ </section>
+ {saved && savedItem && <CartAddedDialog key={saved.key} item={savedItem} onClose={() => {
+   setSaved(null);
+   addButton.current?.focus({preventScroll:true});
+ }}/>}
+ </>;
+}

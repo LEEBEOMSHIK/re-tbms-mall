@@ -14,6 +14,8 @@ def design(asset_id=None, **changes):
 def test_new_studio_roundtrip(client):
     r=create(client).json(); d=r['document']
     assert d['schema_version']==2
+    assert d['studio']['settings']['wrinkles'] is False
+    d['studio']['settings']['wrinkles'] = True
     d['studio']['designs']=[design(),design(id=2,side='back',wrapHorizontal=200)]
     d['studio']['activeId']=1
     d['studio']['settings'].update(garmentFit='male',garmentSize='XL',hoodFabric='brushed',fabric='wool')

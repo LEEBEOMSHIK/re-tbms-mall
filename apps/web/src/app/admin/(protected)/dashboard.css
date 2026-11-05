@@ -42,3 +42,5 @@
 .admin-workspace .dashboard-live-metrics{margin-block:var(--space-4)}
 .admin-workspace .dashboard-metric{padding:var(--space-4)}
 @media(max-width:639px){.admin-workspace .dashboard-panel{padding:var(--space-4)}}
+
+.dashboard-refresh-status { min-height:1.5em; }

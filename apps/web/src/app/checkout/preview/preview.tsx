@@ -35,7 +35,7 @@ export function CheckoutPreview() {
     </div><aside className="checkout-summary"><p className="checkout-subtle">ORDER SUMMARY</p><h2>결제금액</h2><dl><div><dt>상품금액</dt><dd>{won(subtotal)}</dd></div><div><dt>배송비</dt><dd>{restricted?'확정 전':shipping===0?'무료':won(shipping)}</dd></div></dl><div className="checkout-grand" aria-live="polite"><span>총 결제 예정금액</span><strong>{restricted?'확정 전':won(subtotal+shipping)}</strong></div><p className="checkout-subtle">{restricted?'추가 운임 확정 후 주문할 수 있어요.':shipping===0?'무료배송 기준을 충족했어요.':`${won(50000-subtotal)} 더 담으면 기본 배송비가 무료예요.`}</p>
       <label className="checkout-agree"><input type="checkbox" checked={reviewed} onChange={e=>setReviewed(e.target.checked)}/>예시 상품과 배송 정보를 확인했습니다.</label>
       <button className="checkout-action" disabled={restricted} onClick={()=>setMessage(reviewed?'시안 확인이 완료됐어요. 실제 주문이나 결제는 생성되지 않았습니다.':'상품과 배송 정보 확인 항목을 체크해 주세요.')}>{restricted?'배송 지역 확인 필요':'주문서 시안 확인'}</button>
-      <p className="checkout-feedback" role="status">{message}</p><p className="checkout-subtle">실제 서비스에서는 결제하기를 누르면 10분간 재고를 확보하고, 결제 승인 시 구매가 확정됩니다.</p>
+      <p className="checkout-feedback" role="status">{message}</p><p className="checkout-subtle">장바구니에 담거나 주문서를 작성하는 동안에는 재고를 확보하지 않습니다. 결제를 시작하면 10분간 재고를 확보하고, 결제가 승인되면 구매가 확정되고, 결제하지 않고 시간이 지나면 재고가 해제됩니다.</p>
     </aside></div>
   </div>;
 }

@@ -59,10 +59,10 @@ body:has(.customer-menu-dialog[open],.customer-settings-dialog[open]){overflow:h
  .shop-detail .product-details-view{gap:24px;padding-block:24px}
  .shop-detail .product-details-view h2{font-size:1.125rem}
  .shop-detail .product-details-view p{font-size:.9375rem;line-height:1.7}
- .shop-detail .customer-add{display:grid;grid-template-columns:auto minmax(0,1fr);width:100%;gap:12px}
- .shop-detail .customer-add>input{justify-self:end;width:96px;max-width:100%}
- .shop-detail .customer-add>:not(label):not(input){grid-column:1/-1;width:100%}
- .shop-detail .customer-add>button{min-height:48px}
+ .shop-detail .customer-add-controls{display:grid;grid-template-columns:auto minmax(0,1fr);width:100%;gap:12px}
+ .shop-detail .customer-add-controls>input{justify-self:end;width:96px;max-width:100%}
+ .shop-detail .customer-add-controls>:not(label):not(input){grid-column:1/-1;width:100%}
+ .shop-detail .customer-add-controls>button{min-height:48px}
  .customer-login .customer-login-card{border:0;border-radius:0;padding:16px 8px 0}
  .customer-login .customer-login-brand{margin-bottom:28px;font-size:1.375rem}
  .customer-login .customer-login-brand span{display:none}
@@ -74,16 +74,6 @@ body:has(.customer-menu-dialog[open],.customer-settings-dialog[open]){overflow:h
  .customer-cart .empty-state h2{font-size:1.125rem}
  .customer-cart .empty-state p{font-size:.9375rem}
  .customer-cart .empty-state a{display:inline-flex;align-items:center;min-height:44px}
- .customer-cart .customer-cart-item{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding-block:20px}
- .customer-cart .customer-cart-item:not(:has(>img)){grid-template-columns:minmax(0,1fr)}
- .customer-cart .customer-cart-item>img{width:72px;height:96px}
- .customer-cart .customer-cart-copy h2{font-size:1rem}
- .customer-cart-copy>p{font-size:.875rem;margin-block:8px}
- .customer-cart .customer-cart-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
- .customer-cart-controls input{width:100%;max-width:none}
- .customer-cart-controls button{font-size:.875rem;padding:10px 8px}
- .customer-cart .customer-cart-total{padding:20px 0;border-top:1px solid var(--color-line)}
- .customer-cart-total>p{font-size:.875rem;margin-block:8px}
  .customer-header~.about-page{padding-block:24px 40px;gap:24px;grid-template-columns:1fr}
  .customer-header~.about-page h1{font-size:1.75rem;margin-bottom:20px}
  .about-page .about-copy>p:not(.eyebrow){margin-block:16px;font-size:1rem;line-height:1.7}

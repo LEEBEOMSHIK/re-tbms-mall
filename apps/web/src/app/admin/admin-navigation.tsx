@@ -1,7 +1,9 @@
 'use client';
 import {BrandLogo} from '@/components/brand-logo';
+import {SidebarWidthControl} from './sidebar-width';
 
 import Link from 'next/link';
+import {loadAdminNavigation} from '@/lib/load-admin-navigation';
 import { adminSection } from '@/lib/admin-navigation';
 import { DEFAULT_ADMIN_MENU, MENU_ITEMS, parseAdminMenu, type AdminMenuGroup, type AdminMenuState } from '@/lib/admin-menu';
 import { SiteSettingsButton } from '@/components/site-settings';
@@ -22,9 +24,9 @@ export function AdminNavigation(){
     const controller=new AbortController();let active=true;let savedDuringRequest=false;
     function updated(event:Event){try{const state=parseAdminMenu((event as CustomEvent).detail);savedDuringRequest=true;setConfig(state);setLoaded(true);setConfigError('');}catch{/* Ignore events that do not match the server contract. */}}
     window.addEventListener('admin-navigation-updated',updated);
-    void fetch('/api/admin/navigation',{cache:'no-store',credentials:'same-origin',signal:AbortSignal.any([controller.signal,AbortSignal.timeout(10000)])}).then(async response=>{if(!response.ok)throw Error();return parseAdminMenu(await response.json());}).then(state=>{if(active&&!savedDuringRequest){setConfig(state);setLoaded(true);setConfigError('');}}).catch(()=>{if(active&&!savedDuringRequest)setConfigError('메뉴 설정을 불러오지 못했습니다.');});
+    void loadAdminNavigation(controller.signal).then(state=>{if(active&&!savedDuringRequest){setConfig(state);setLoaded(true);setConfigError('');}}).catch(error=>{if(active&&!savedDuringRequest)setConfigError(error.message);});
     return()=>{active=false;controller.abort();window.removeEventListener('admin-navigation-updated',updated);};
-  },[path,retry]);
+  },[retry]);
   function closeMenu(){setMenuOpen(false);if(menuOpen)mobileToggle.current?.focus();}
   async function logout(){setBusy(true);setError('');try{const response=await fetch('/api/admin/session',{method:'DELETE',credentials:'same-origin',signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error();router.replace('/admin/login');router.refresh();}catch{setError('로그아웃하지 못했습니다. 다시 시도해 주세요.');setBusy(false);}}
   return <aside className="admin-sidebar" aria-label="관리자 작업 공간" onKeyDown={event=>{if(event.key==='Escape'&&menuOpen&&!(event.target instanceof Element&&event.target.closest('dialog'))){event.preventDefault();closeMenu();}}}>
@@ -36,5 +38,6 @@ export function AdminNavigation(){
       <div className="admin-sidebar-actions"><Link href="/admin/guide" aria-current={path==='/admin/guide'?'page':undefined} onClick={closeMenu}>사용 가이드</Link><Link href="/admin/navigation" aria-current={path==='/admin/navigation'||path.startsWith('/admin/navigation/')?'page':undefined} onClick={closeMenu}>메뉴 관리</Link><Link href="/">쇼핑몰 보기 ↗</Link><button disabled={busy} onClick={()=>void logout()}>{busy?'로그아웃 중…':'로그아웃'}</button></div>
       {error&&<p role="alert" className="admin-session-error">{error}</p>}
     </div>
+    <SidebarWidthControl/>
   </aside>;
 }

@@ -44,9 +44,28 @@ class Section(BaseModel):
         return value
 
 
+class HeroSlide(BaseModel):
+    model_config = ConfigDict(extra='forbid', strict=True)
+    id: str = Field(min_length=1, max_length=64, pattern=r'^[a-zA-Z0-9][a-zA-Z0-9_-]*$')
+    section_id: str = Field(min_length=1, max_length=64, pattern=r'^[a-zA-Z0-9][a-zA-Z0-9_-]*$')
+    product_id: str = Field(min_length=1, max_length=80)
+    title: str = Field(min_length=1, max_length=80)
+    subtitle: str = Field(max_length=200)
+    enabled: StrictBool
+
+    @field_validator('title')
+    @classmethod
+    def nonblank_title(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError('title must not be blank')
+        return value
+
+
 class StorefrontUpdate(BaseModel):
     model_config = ConfigDict(extra='forbid', strict=True)
     revision: Annotated[int, Field(ge=0)]
+    hero_enabled: StrictBool = True
+    hero_slides: list[HeroSlide] | None = Field(default=None, max_length=20)
     sections: list[Section] = Field(max_length=20)
 
     @field_validator('sections')
@@ -54,6 +73,13 @@ class StorefrontUpdate(BaseModel):
     def unique_sections(cls, value: list[Section]) -> list[Section]:
         if len({section.id for section in value}) != len(value):
             raise ValueError('section ids must be unique')
+        return value
+
+    @field_validator('hero_slides')
+    @classmethod
+    def unique_slides(cls, value: list[HeroSlide] | None) -> list[HeroSlide] | None:
+        if value and len({slide.id for slide in value}) != len(value):
+            raise ValueError('slide ids must be unique')
         return value
 
 
@@ -79,7 +105,14 @@ class StorefrontStore:
         ids = {p['id'] for p in catalog['products']}
         sections = [{**section.model_dump(), 'product_ids':[id for id in section.product_ids if id in ids]} for section in state.sections if section.enabled or not public]
         if public: sections = [section for section in sections if section['product_ids']]
-        return {'revision':state.revision, **catalog, 'sections':sections}
+        slides = state.hero_slides
+        if public and slides is not None:
+            links = {(s['id'], product_id) for s in sections for product_id in s['product_ids']}
+            with_image = {p['id'] for p in catalog['products'] if p.get('image')}
+            slides = [slide for slide in slides if state.hero_enabled and slide.enabled
+                      and (slide.section_id, slide.product_id) in links and slide.product_id in with_image]
+        return {'revision':state.revision, 'hero_enabled':state.hero_enabled,
+                'hero_slides': None if slides is None else [s.model_dump() for s in slides], **catalog, 'sections':sections}
 
     def get(self, *, public: bool = False) -> dict:
         with _STORE_LOCK:
@@ -93,7 +126,14 @@ class StorefrontStore:
             ids = {p['id'] for p in (self.public_catalog.listing(public=False)['products'] if self.public_catalog else PRODUCTS)}
             if any(id not in ids for section in body.sections for id in section.product_ids):
                 raise HTTPException(422, 'Choose existing products.')
-            updated = body.model_copy(update={'revision': current.revision + 1})
+            hero_enabled = body.hero_enabled if 'hero_enabled' in body.model_fields_set else current.hero_enabled
+            slides = current.hero_slides
+            if 'hero_slides' in body.model_fields_set:
+                slides = body.hero_slides
+                links = {(section.id, product_id) for section in body.sections for product_id in section.product_ids}
+                if any((slide.section_id, slide.product_id) not in links for slide in slides or []):
+                    raise HTTPException(422, 'Choose a product from the linked section for each slide.')
+            updated = body.model_copy(update={'revision': current.revision + 1, 'hero_enabled': hero_enabled, 'hero_slides': slides})
             raw = updated.model_dump_json().encode('utf-8')
             if len(raw) > MAX_FILE_BYTES:
                 raise HTTPException(422, 'Settings exceed the local size limit.')

@@ -1,0 +1,48 @@
+.hero {
+  position: relative;
+  isolation: isolate;
+  touch-action: pan-y pinch-zoom;
+  display: grid;
+  grid-template-columns: minmax(0, .92fr) minmax(0, 1fr);
+  min-height: clamp(18rem, 30vw, 27rem);
+  margin-top: clamp(.75rem, 2vw, 1.5rem);
+  border-radius: 16px;
+  overflow: hidden;
+  color: #faf9ff;
+  background: radial-gradient(ellipse at 0% 120%, #504668 0%, transparent 62%), #252331;
+}
+.copy { align-self: center; padding: clamp(1.5rem, 4vw, 4rem); }
+.label { display: flex; align-items: center; gap: .7rem; color: #ded7f6; font-size: .7rem; font-weight: 700; letter-spacing: .18em; }
+.label i { width: 1.8rem; height: 4px; border-radius: 2px; background: var(--ui-foil); }
+.copy h2 { margin: .85rem 0 .5rem; font-size: clamp(1.6rem, 3.4vw, 3.35rem); font-weight: 700; line-height: 1.15; letter-spacing: -.055em; }
+.caption { color: #ddd9e9; line-height: 1.55; }
+.link { display: inline-flex; align-items: center; gap: .75rem; min-height: 44px; margin-top: 1.2rem; padding: .55rem 1rem; border-radius: var(--ui-control-radius); background: #f7f4ff; color: #302b41; font-size: .9rem; font-weight: 650; }
+.link:hover { background: #e4ddff; }
+.link::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: 16px; }
+.link:focus-visible::after { outline: 3px solid var(--ui-accent); outline-offset: -3px; }
+.controls button { position: relative; z-index: 2; }
+.controls { display: flex; align-items: center; margin-top: 1.25rem; gap: 3px; }
+.counter { margin-right: .65rem; font-size: .78rem; letter-spacing: .1em; color: #c9c4d6; font-variant-numeric: tabular-nums; }
+.counter b { color: white; }
+.controls button { border: 1px solid #797586; border-radius: 50%; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; background: transparent; color: white; }
+.controls button:hover { background: #514c64; }
+.hero :focus-visible { outline: 2px solid #ddd1ff; outline-offset: 2px; }
+.visual { position: relative; background: #eeeae4; touch-action: pan-y; }
+.visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; }
+@media (prefers-reduced-motion: no-preference) {
+  .visual img { animation: reveal .35s ease-out; }
+  @keyframes reveal { from { opacity: .65; } to { opacity: 1; } }
+}
+@media (max-width: 639px) {
+  .hero { grid-template-columns: 1fr; border-radius: 12px; margin-bottom: 1.25rem; }
+  .visual { grid-row: 1; height: clamp(10rem, 45vw, 15rem); }
+  .copy { padding: 1rem 1.1rem; }
+  .copy h2 { margin-top: .5rem; }
+  .caption { font-size: .875rem; }
+  .link { margin-top: .8rem; }
+  .controls { display: inline-flex; margin: .8rem 0 0 .75rem; vertical-align: middle; }
+  .link { vertical-align: middle; }
+}
+@media (forced-colors: active) {
+  .hero, .link, .controls button { border: 1px solid ButtonText; }
+}

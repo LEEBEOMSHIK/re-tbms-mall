@@ -1,13 +1,13 @@
 /* Shared control tokens and states. Apply ds-form to a form or its container. */
 .ds-form {
-  --form-control-radius: var(--radius-control);
+  --form-control-radius: var(--ui-control-radius, var(--radius-control));
   --form-control-height: 52px;
   --form-control-padding-inline: var(--space-4);
-  --form-control-border: var(--color-border);
+  --form-control-border: var(--ui-outline, var(--color-border));
   --form-control-surface: var(--color-surface);
   --form-control-muted-surface: var(--color-subtle);
-  --form-control-selected-border: var(--color-text);
-  --form-control-focus: var(--color-focus);
+  --form-control-selected-border: var(--ui-accent, var(--color-text));
+  --form-control-focus: var(--ui-accent, var(--color-focus));
 }
 
 /* Repeated scope beats legacy global input selectors; state rules remain more specific. */
@@ -27,6 +27,7 @@
   transition: border-color 150ms ease, background-color 150ms ease;
 }
 
+.ds-form :is(input[type='checkbox'], input[type='radio']) { accent-color: var(--ui-accent, var(--color-action)); }
 .ds-form textarea { resize: vertical; }
 .ds-form input::placeholder, .ds-form textarea::placeholder { color: var(--color-secondary); opacity: 1; }
 .ds-form.ds-form select {
@@ -66,8 +67,8 @@
   height: 100%;
   padding: var(--space-3) 36px var(--space-3) var(--space-4);
   margin: 0;
-  border: 1px solid var(--form-control-border, var(--color-border));
-  border-radius: var(--form-control-radius, var(--radius-control));
+  border: 1px solid var(--form-control-border, var(--ui-outline, var(--color-border)));
+  border-radius: var(--form-control-radius, var(--ui-control-radius, var(--radius-control)));
   background-color: var(--form-control-surface, var(--color-surface));
   color: var(--color-text);
   cursor: pointer;
@@ -81,17 +82,20 @@
   position: absolute;
   top: var(--space-3);
   right: var(--space-3);
-  display: none;
+  display: block;
   width: 18px;
   height: 18px;
-  border-radius:var(--radius-circle);
-  background: var(--color-action);
-  color: var(--color-on-action);
+  box-sizing: border-box;
+  border: 1px solid var(--ui-outline, var(--color-border));
+  border-radius: 5px;
+  background: var(--color-surface);
+  color: var(--ui-on-tint, var(--color-text));
 }
-.ds-choice-check svg { display: block; width: 100%; height: 100%; }
-.ds-choice-input:checked + .ds-choice-label { background-color: var(--form-control-muted-surface, var(--color-subtle)); border-color: var(--form-control-selected-border, var(--color-text)); box-shadow: inset 0 0 0 1px var(--form-control-selected-border, var(--color-text)); }
-.ds-choice-input:checked + .ds-choice-label .ds-choice-check { display: block; }
-.ds-choice-input:focus-visible + .ds-choice-label { outline: 2px solid var(--form-control-focus, var(--color-focus)); outline-offset: 3px; }
+.ds-choice-check svg { visibility: hidden; display: block; width: 100%; height: 100%; }
+.ds-choice-input:checked + .ds-choice-label { background-color: var(--ui-tint, var(--color-subtle)); border-color: var(--form-control-selected-border, var(--ui-accent, var(--color-text))); box-shadow: inset 0 0 0 1px var(--form-control-selected-border, var(--ui-accent, var(--color-text))); }
+.ds-choice-input:checked + .ds-choice-label .ds-choice-check { background: var(--ui-tint, var(--color-subtle)); border-color: currentColor; }
+.ds-choice-input:checked + .ds-choice-label .ds-choice-check svg { visibility: visible; }
+.ds-choice-input:focus-visible + .ds-choice-label { outline: 2px solid var(--form-control-focus, var(--ui-accent, var(--color-focus))); outline-offset: 3px; }
 .ds-choice-input:not(:disabled) + .ds-choice-label:hover { border-color: var(--color-text); }
 .ds-choice-input:disabled + .ds-choice-label { opacity: .6; cursor: not-allowed; }
 .ds-choice-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-2); }
@@ -106,7 +110,8 @@
 @media (forced-colors: active) {
   .ds-form.ds-form select { appearance: auto; background-image: none; }
   .ds-choice-input:checked + .ds-choice-label { border-color: Highlight; outline: 1px solid Highlight; box-shadow: none; }
-  .ds-choice-check { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .ds-choice-check { forced-color-adjust: none; border-color: ButtonText; background: Canvas; }
+  .ds-choice-input:checked + .ds-choice-label .ds-choice-check { background: Highlight; color: HighlightText; border-color: Highlight; }
   .ds-choice-input:focus-visible + .ds-choice-label { outline: 3px solid Highlight; outline-offset: 3px; }
 }
 .ds-form-label { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); }
@@ -130,13 +135,13 @@
 .ds-select-chevron { width: 20px; height: 20px; flex-shrink: 0; }
 .ds-select-trigger[aria-expanded='true'] .ds-select-chevron { transform: rotate(180deg); }
 .ds-form .ds-select-trigger:hover:not(:disabled):not([aria-invalid='true']) { border-color: var(--color-text); }
-.ds-form .ds-select-trigger:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.ds-form .ds-select-trigger:focus-visible { outline: 2px solid var(--form-control-focus, var(--color-focus)); outline-offset: 3px; }
 .ds-form .ds-select-trigger:disabled { background: var(--color-subtle); color: var(--color-secondary); opacity: .65; cursor: not-allowed; }
 .ds-form .ds-select-trigger[aria-invalid='true'] { border-color: var(--color-error); }
 .ds-select-listbox {
   position: absolute; z-index: 40; top: calc(100% + var(--space-2)); left: 0; width: 100%; box-sizing: border-box;
   overflow-y: auto; overscroll-behavior: contain; padding: var(--space-1); margin: 0; list-style: none;
-  border: 1px solid var(--color-border); border-radius: var(--form-control-radius); background: var(--color-surface);
+  border: 1px solid var(--form-control-border); border-radius: var(--form-control-radius); background: var(--color-surface);
   box-shadow: 0 8px 24px #00000014;
 }
 .ds-select-above { top: auto; bottom: calc(100% + var(--space-2)); }
@@ -145,11 +150,26 @@
   padding: var(--space-3); border-radius: var(--radius-md); cursor: pointer; overflow-wrap: anywhere;
 }
 .ds-select-option[aria-selected='true'] { font-weight: 600; }
-.ds-select-option.ds-select-active:not([aria-disabled='true']) { background: var(--color-subtle); outline: 1px solid var(--color-line); outline-offset: -1px; }
+.ds-select-option.ds-select-active:not([aria-disabled='true']) { background: var(--ui-tint, var(--color-subtle)); color: var(--ui-on-tint, var(--color-text)); outline: 1px solid var(--form-control-selected-border); outline-offset: -1px; }
 .ds-select-option[aria-disabled='true'] { color: var(--color-secondary); opacity: .6; cursor: not-allowed; }
 .ds-select-selected { flex-shrink: 0; }
 .ds-select-empty { padding: var(--space-4); color: var(--color-secondary); font-size: var(--text-sm); }
 @media (forced-colors: active) {
   .ds-select-option.ds-select-active:not([aria-disabled='true']) { outline: 2px solid Highlight; }
   .ds-select-listbox { border-color: CanvasText; box-shadow: none; }
+}
+
+/* The label remains in normal flow for wrapping/zoom; its surface interrupts the top border. */
+.ds-outlined-field{display:grid;grid-template-columns:minmax(0,1fr);gap:0;align-content:start;min-width:0}
+.ds-outlined-field>.ds-form-label{
+  position:relative;z-index:1;justify-self:start;max-width:calc(100% - 2 * var(--space-3));
+  margin:0 0 -.58em var(--space-3);padding-inline:var(--space-1);
+  background:var(--form-control-surface,var(--color-surface));color:var(--color-secondary);
+  font-size:var(--text-xs);font-weight:600;line-height:1.25;overflow-wrap:anywhere;
+}
+.ds-outlined-field:focus-within>.ds-form-label{color:var(--ui-accent,var(--color-focus))}
+.ds-outlined-field:has([aria-invalid=true])>.ds-form-label{color:var(--color-error)}
+@media(forced-colors:active){
+  .ds-outlined-field>.ds-form-label{background:Canvas;color:CanvasText}
+  .ds-outlined-field:focus-within>.ds-form-label{color:Highlight}
 }

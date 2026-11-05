@@ -83,14 +83,18 @@ class PublicCatalog:
     def product(cls,db,product_id,public=True):
         p,state,images,options,reasons=cls.source(db,product_id)
         if public and (state['status']!='published' or reasons): raise HTTPException(404,'Product not found.')
+        from app.order_reservations import held_quantities
+        reserved = held_quantities(db, [option['id'] for option in options])
+        sizes = [{'id': o['id'], 'color': o['color'], 'size': o['size'],
+                  'available': o['on_hand'] > reserved.get(o['id'], 0)} for o in options]
         for image in images: image['url']=f"/api/v1/products/{product_id}/images/{image['id']}"
         result={'id':p['id'],'name':p['name'],'category_id':p['category_id'],'description':p['description'],
             'details':ProductDetails.model_validate_json(p['details']).model_dump(),
             **pricing(state['price'],state['discount_price']),'image':images[0]['url'] if images else '',
             'color':' · '.join(dict.fromkeys(o['color'] for o in options)),
             'review_summary':review_summary(db,product_id),
-            'sold_out':not any(o['on_hand']>0 for o in options),
-            'options':[{'id':o['id'],'color':o['color'],'size':o['size'],'available':o['on_hand']>0} for o in options], 'images':images}
+            'sold_out':not any(o['available'] for o in sizes),
+            'options':sizes, 'images':images}
         if not public: result['publication_status']=state['status']
         return result
 

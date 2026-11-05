@@ -8,7 +8,7 @@ export function CustomerOrderSearch({loading,onSearch}:{loading:boolean;onSearch
   <div className="customer-order-filter-fields"><div><label htmlFor="customer-order-state">진행 상태</label><FormSelect id="customer-order-state" value={state} onChange={setState} options={customerOrderStates}/></div>
   <div><label htmlFor="customer-order-period">조회 기간</label><FormSelect id="customer-order-period" value={period} onChange={setPeriod} options={[{value:'',label:'전체 기간'},{value:'1',label:'최근 1개월'},{value:'3',label:'최근 3개월'},{value:'6',label:'최근 6개월'},{value:'12',label:'최근 1년'}]}/></div>
   <div className="customer-order-query"><label htmlFor="customer-order-query">상품명</label><input id="customer-order-query" type="search" value={query} maxLength={100} placeholder="주문한 상품명 검색" onChange={e=>setQuery(e.target.value)}/></div>
-  <div className="customer-order-filter-actions"><button type="button" className="sales-action" disabled={loading} onClick={()=>{setState('');setPeriod('');setQuery('');setApplied('||');onSearch({})}}>초기화</button><button type="submit" className="sales-action customer-order-apply" disabled={loading}>{loading?'조회 중…':'조회'}</button></div></div>
-  <p className="sales-muted" role="status">{applied!==state+'|'+period+'|'+query?'조건을 변경했어요. 조회를 눌러 적용해 주세요.':'주문한 날짜 기준으로 조회합니다.'}</p>
+  <div className="customer-order-filter-actions"><button type="button" className="sales-action" onClick={()=>{setState('');setPeriod('');setQuery('');setApplied('||');onSearch({})}}>초기화</button><button type="submit" className="sales-action customer-order-apply">조회</button></div></div>
+  <p className="sales-muted" role="status">{loading?'검색 결과를 갱신하고 있어요. 조건 변경과 재검색은 계속할 수 있어요.':applied!==state+'|'+period+'|'+query?'조건을 변경했어요. 조회를 눌러 적용해 주세요.':'주문한 날짜 기준으로 조회합니다.'}</p>
  </form>;
 }

@@ -63,9 +63,11 @@ GET `/api/v1/health` → 200 JSON `{"status":"ok","service":"re-tbms-mall-api"}`
 
 ## 샘플 상품·진열 API
 
-GET `/api/v1/storefront`: 공개용 revision·categories·products·sections. sections는 enabled=true만 반환하고 저장 순서를 유지한다.
+GET `/api/v1/storefront`: 공개용 revision·hero_enabled·hero_slides·categories·products·sections. sections는 enabled=true만 반환하고 저장 순서를 유지한다.
 GET `/api/v1/admin/storefront`: 로컬 관리 키로 전체 진열을 조회한다.
-PUT `/api/v1/admin/storefront`: `{revision, sections}` 전체 진열을 교체하고 revision을 증가시킨다. sections 요소는 `{id,title,subtitle,kind,product_ids,enabled}`이며 kind는 category 또는 collection이다.
+PUT `/api/v1/admin/storefront`: `{revision, sections, hero_enabled?, hero_slides?}` 전체 진열을 교체하고 revision을 증가시킨다. hero_enabled는 광고 영역 표시 여부(boolean)이며 생략하면 기존 값을 보존한다. 이전 저장 파일은 기본 표시(true)로 읽는다. sections 요소는 `{id,title,subtitle,kind,product_ids,enabled}`이며 kind는 category 또는 collection이다.
+
+`hero_slides`를 생략하면 현재 광고 구성을 유지한다. `null`은 섹션 기반 자동 구성이고 배열은 관리자가 정한 순서의 광고다. `[]`는 직접 지정한 광고가 0개라는 뜻이다. 슬라이드 항목과 공개 조건은 [홈 진열 계약](contracts/public-catalog.md#홈-진열)에 기록한다.
 
 관리 API는 `Authorization: Bearer <STORE_ADMIN_TOKEN>`을 요구한다. 미설정은503, 무인증/오인증은401, 오래된 revision은409, 필드·참조 제약 위반은422다. 키는 추적되지 않는 API .env 또는 서버 환경변수에서만 읽는다. 공개 응답에 포함하지 않으며 웹 브라우저 저장소에 남기지 않는다.
 
@@ -207,3 +209,7 @@ BFF는 no-store 및 기존 관리자 세션을 사용하고 응답 형식/개수
 
 ## 판매 가격·할인 — WB92
 [판매 가격 계약](contracts/sale-price.md)에 따라 게시 가격/이력과 공개 Product에 discount_price/effective_price/discount_rate가 추가된다. 기존price는기본가로유지한다.
+
+로고 자료 초안·게시·공장 최신 조회는 [브랜드 자료실 계약](contracts/brand-library.md)을 따른다(WB160/R108).
+
+WB174 홈 진열 관리는 사이트 관리에서 진입한다. WB176 디자인 시스템을 포함한 현재 12개 메뉴와 구형 8~12개 설정의 읽기 호환은 [관리자 메뉴 계약](contracts/admin-menu.md)을 따른다.

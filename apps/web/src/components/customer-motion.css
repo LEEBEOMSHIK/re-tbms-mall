@@ -1,0 +1,76 @@
+/* Share timing across shopping routes, including the home navigation. */
+body:has(.customer-header) {
+  --shop-feedback: 160ms ease-out;
+  --shop-press: 100ms ease-out;
+  --shop-text-action-inset: .75rem;
+}
+
+/* Text actions need room inside the shared hover ring. Keep icon buttons,
+   product cards and inline prose links on their existing geometry. */
+body:has(.customer-header) :is(
+  main a.text-link,
+  .shop-detail > .shop-action,
+  .shop-all-link,
+  .checkout-heading > a,
+  .customer-header .customer-account-retry,
+  .customer-footer nav a,
+  .customer-header .customer-menu-dialog nav > a
+) {
+  box-sizing: border-box;
+  align-items: center;
+  min-height: 44px;
+  max-width: 100%;
+  padding: .5rem var(--shop-text-action-inset);
+  border-radius: var(--ui-control-radius);
+  gap: .5rem;
+}
+body:has(.customer-header) .checkout-heading > a { display: inline-flex; }
+body:has(.customer-header) :is(
+  main a.text-link,
+  .shop-detail > .shop-action,
+  .shop-all-link,
+  .checkout-heading > a,
+  .customer-header .customer-account-retry,
+  .customer-footer nav a,
+  .customer-header .customer-menu-dialog nav > a
+):is(:hover, :focus-visible) {
+  background: var(--ui-tint);
+  color: var(--ui-on-tint);
+  text-decoration: none;
+}
+@media (min-width:768px) {
+  .customer-header nav .customer-login-link {
+    padding-inline: var(--shop-text-action-inset);
+    border-radius: var(--ui-control-radius);
+  }
+}
+
+/* Keep each control's selected, destructive, or provider-specific colors. */
+body:has(.customer-header) :where(main:not(:has(.shop-home)), .customer-header, .customer-footer)
+  :is(button, [role="tab"], a.button, a.text-link, a.shop-action, a.shop-all-link,
+      a.shop-review-anchor, a.customer-action, a.customer-cart-cta, a.checkout-action,
+      a.sales-action, .account-actions a, .customer-account-panel a, .checkout-heading a,
+      .customer-header nav a, .customer-icon-link, .customer-login-link,
+      .customer-footer nav a):not(:disabled, [aria-disabled="true"], .is-soldout) {
+  &:is(:hover, :focus-visible, :active) {
+    box-shadow: inset 0 0 0 2px var(--ui-accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: background-color var(--shop-feedback), color var(--shop-feedback),
+      border-color var(--shop-feedback), box-shadow var(--shop-feedback), scale var(--shop-press);
+    &:active { scale: .97; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+/* The main shopping actions fill on interaction, while options retain their
+   own selection indicator and the actual fabric color remains visible. */
+body:has(.customer-header) :is(.shop-products .shop-filter-toggle, .shop-search-form button,
+    .customer-add-controls > button, .shop-pagination button):enabled:is(:hover, :focus-visible, :active),
+body:has(.customer-header) a.customer-cart-cta[href]:is(:hover, :focus-visible, :active) {
+  background-color: var(--ui-accent);
+  color: var(--color-surface);
+}

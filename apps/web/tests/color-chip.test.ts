@@ -16,3 +16,10 @@ import {productSizeLabel} from '../src/lib/product-option-labels.ts';
 test('size display aliases preserve custom option names',()=>{
  assert.equal(productSizeLabel('스몰'),'S');assert.equal(productSizeLabel('미디움'),'M');assert.equal(productSizeLabel('미디엄'),'M');assert.equal(productSizeLabel(' small '),'S');assert.equal(productSizeLabel('프리 사이즈'),'FREE');assert.equal(productSizeLabel('95'),'95');assert.equal(productSizeLabel('사용자 사이즈'),'사용자 사이즈');
 });
+test('studio apparel swatches share English names and representative colors',()=>{
+ for(const [name,label] of [['오트밀','Oatmeal'],['샌드 베이지','Sand Beige'],['인디고','Indigo'],['모카','Mocha']]){
+  assert.equal(colorChipLabel(name),label);
+  assert.match(colorChipValue(name) ?? '',/^#[a-f0-9]{6}$/);
+  assert.equal(colorChipValue(label),colorChipValue(name));
+ }
+});

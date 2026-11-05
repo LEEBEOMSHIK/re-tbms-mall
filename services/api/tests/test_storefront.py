@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.main import create_app
+from app.public_catalog import PublicCatalog
 
 ADMIN = '/api/v1/admin/storefront'
 PUBLIC = '/api/v1/storefront'
@@ -37,6 +38,53 @@ def test_public_fixture(setup):
     assert data['products'] == []
     assert data['categories'] == []
     assert data['sections'] == []
+    assert data['hero_enabled'] is True
+    assert data['hero_slides'] is None
+
+
+def test_independent_slides_preserve_filter_and_validate_references(setup, monkeypatch):
+    products = {'visible': '/img', 'draft': '/private-img', 'noimage': ''}
+    def catalogue(self, public=True):
+        return {'categories': [], 'products': [{'id': key, 'image': image} for key, image in products.items() if not public or key != 'draft']}
+    monkeypatch.setattr(PublicCatalog, 'listing', catalogue)
+    client = client_for(setup)
+    section = {'id': 'shirts', 'title': 'Tops', 'subtitle': '', 'kind': 'collection', 'enabled': True, 'product_ids': list(products)}
+    slide = {'id': 'first', 'title': 'Copy', 'subtitle': 'Subtitle', 'section_id': 'shirts', 'product_id': 'visible', 'enabled': True}
+    slides = [dict(slide, id='disabled', enabled=False), dict(slide, id='draft', product_id='draft'), dict(slide, id='hidden-section', section_id='hidden'), slide]
+    sections = [section, dict(section, id='hidden', enabled=False)]
+    def put(revision, sections, **fields):
+        return client.put(ADMIN, headers=AUTH, json={'revision': revision, 'sections': sections, **fields})
+    assert put(0, sections, hero_slides=slides).json()['hero_slides'] == slides
+    assert client_for(setup).get(PUBLIC).json()['hero_slides'] == [slide]
+    assert put(0, sections, hero_slides=[]).status_code == 409
+    products['visible'] = ''
+    assert client.get(PUBLIC).json()['hero_slides'] == []
+    products['visible'] = '/img'
+    assert put(1, []).json()['hero_slides'] == slides
+    assert client.get(PUBLIC).json()['hero_slides'] == []
+    assert put(2, [], hero_slides=slides).status_code == 422
+    for invalid in [[dict(slide, product_id='missing')], [dict(slide, section_id='absent')], [slide, slide], [dict(slide, title='  ')], [dict(slide, subtitle='x'*201)], [dict(slide, id='bad/id')], [dict(slide, id=str(i)) for i in range(21)], [dict(slide, enabled='true')]]:
+        assert put(2, sections, hero_slides=invalid).status_code == 422
+    assert put(2, [dict(section, product_ids=['draft'])], hero_slides=[slide]).status_code == 422
+    assert put(2, sections, hero_slides=[]).json()['hero_slides'] == []
+    assert put(3, sections).json()['hero_slides'] == []
+    assert put(4, sections, hero_slides=None).json()['hero_slides'] is None
+
+
+def test_hero_visibility_preserved_for_legacy_settings_and_updates(setup):
+    path = setup[1]
+    path.parent.mkdir()
+    path.write_text('{"revision":7,"sections":[]}', encoding='utf-8')
+    client = client_for(setup)
+    assert client.get(ADMIN, headers=AUTH).json()['hero_enabled'] is True
+    body = {'revision': 7, 'sections': [], 'hero_enabled': False}
+    assert client.put(ADMIN, headers=AUTH, json=body).json()['hero_enabled'] is False
+    assert client_for(setup).get(PUBLIC).json()['hero_enabled'] is False
+    assert client.put(ADMIN, headers=AUTH, json={**body, 'hero_enabled': True}).status_code == 409
+    assert client.put(ADMIN, headers=AUTH, json={'revision': 8, 'sections': []}).json()['hero_enabled'] is False
+    for invalid in [None, 0, 'false']:
+        assert client.put(ADMIN, headers=AUTH, json={**body, 'revision': 9, 'hero_enabled': invalid}).status_code == 422
+    assert client.put(ADMIN, headers=AUTH, json={**body, 'revision': 9, 'hero_enabled': True}).json()['hero_enabled'] is True
 
 
 @pytest.mark.parametrize('header', [{}, {'Authorization': 'Bearer wrong'}, {'Authorization': 'Basic test-only-key'}, {'Authorization': 'Bearer '}])

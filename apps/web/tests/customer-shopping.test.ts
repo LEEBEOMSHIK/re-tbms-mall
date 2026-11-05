@@ -19,3 +19,17 @@ test('customer avatars allow only HTTPS provider CDN images',()=>{
  assert.equal(safeCustomerAvatar('https://k.kakaocdn.net/photo'),'https://k.kakaocdn.net/photo');
  for(const value of ['http://lh3.googleusercontent.com/a','https://googleusercontent.com.evil.test/a','javascript:alert(1)','https://user:pass@lh3.googleusercontent.com/a','https://lh3.googleusercontent.com:444/a',null])assert.equal(safeCustomerAvatar(value),null);
 });
+
+test('request timeout aborts a stalled write and reports unknown without retrying it',async(t)=>{
+ const controller=new AbortController();let timeout=0,calls=0;
+ t.mock.method(AbortSignal,'timeout',(ms:number)=>{timeout=ms;return controller.signal;});
+ const body={quantity:2,version:0,request_id:'same-key'};
+ const result=customerRequest('/cart/items/s1',parseCart,{method:'PUT',body},async(_url,init)=>{
+  calls++;assert.ok(init?.signal,'writes must be bounded');
+  assert.equal(init.body,JSON.stringify(body));
+  return new Promise<Response>((_resolve,reject)=>init.signal!.addEventListener('abort',()=>reject(new Error('timeout')),{once:true}));
+ });
+ controller.abort();
+ assert.deepEqual(await result,{ok:false,reason:'unknown'});
+ assert.equal(timeout,20000);assert.equal(calls,1);
+});

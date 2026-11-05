@@ -1,0 +1,38 @@
+@font-face {
+  font-family: 'Shop Pretendard';
+  src: url('../fonts/PretendardVariable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Shop Gmarket Sans';
+  src: url('../fonts/GmarketSansMedium.otf') format('opentype');
+  font-weight: 500;
+  font-display: swap;
+}
+
+/* The shop header identifies customer routes, including dialogs mounted on body. */
+body:has(.customer-header) {
+  --shop-font-body: 'Shop Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  font-family: var(--shop-font-body);
+}
+
+body:has(.customer-header) :is(input, select, textarea, button) {
+  font-family: inherit;
+}
+
+body:has(.customer-header) :is(
+  .home-promotion h2,
+  .shop-home .shop-intro h1,
+  .shop-home .section-heading h2,
+  .shop-editorial-heading h1,
+  .brand-title,
+  .brand-philosophy-title,
+  .brand-section-title,
+  .brand-topic-title
+) {
+  font-family: 'Shop Gmarket Sans', var(--shop-font-body);
+  font-weight: 500;
+  letter-spacing: -.035em;
+}

@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+from typing import Annotated
 import re
 import secrets
 import sqlite3
@@ -15,9 +16,10 @@ from uuid import UUID, uuid4
 
 from dotenv import dotenv_values
 from fastapi import Depends, Header, HTTPException, Response
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, field_validator
 from app.config import SERVICE_DIR
 from app.public_catalog import PublicCatalog
+from app.shipping_policy import BASE_FEE, FREE_THRESHOLD
 
 PROVIDERS = {
     'google': ('https://accounts.google.com/o/oauth2/v2/auth', 'https://oauth2.googleapis.com/token', 'https://openidconnect.googleapis.com/v1/userinfo'),
@@ -60,6 +62,25 @@ class Mutation(BaseModel):
 
 class PutItem(Mutation):
     quantity: int=Field(ge=1,le=99)
+
+
+def distinct_skus(ids):
+    if len(set(ids)) != len(ids):
+        raise ValueError('Each SKU may be selected only once.')
+    return sorted(ids)
+
+
+SkuId = Annotated[str, Field(min_length=1, max_length=128)]
+SkuSelection = Annotated[list[SkuId], Field(min_length=1, max_length=100), AfterValidator(distinct_skus)]
+
+
+class RemoveSelection(Mutation):
+    sku_ids: SkuSelection
+
+
+class ChangeOption(Mutation):
+    sku_id: SkuId
+    target_sku_id: SkuId
 
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self,*args,**kwargs):
@@ -211,7 +232,7 @@ class CustomerStore:
         if row is None: raise HTTPException(401,'Customer login required.')
         return self.public_customer(row)
 
-    def item(self,catalog_db,sku_id,quantity):
+    def item(self,catalog_db,sku_id,quantity,*,now=None):
         result={'sku_id':sku_id,'product_id':'','name':'구매할 수 없는 상품','color':'','size':'','quantity':quantity,'price':None,'discount_price':None,'effective_price':None,'image':None,'available_quantity':0,'available':False,'unavailable_reason':'상품을 구매할 수 없습니다.','line_total':None}
         sku=catalog_db.execute('SELECT * FROM skus WHERE id=? AND is_active=1',(sku_id,)).fetchone()
         if sku is None: return result
@@ -220,23 +241,30 @@ class CustomerStore:
             if exc.status_code==404: return result
             raise
         result.update({k:product[k] for k in ['name','price','discount_price','effective_price','image']})
-        result.update(product_id=product['id'],color=sku['color'],size=sku['size'],available_quantity=max(0,sku['on_hand']))
+        from app.order_reservations import held_quantity
+        available_quantity = max(0, sku['on_hand'] - held_quantity(catalog_db, sku_id, now))
+        result.update(product_id=product['id'],color=sku['color'],size=sku['size'],available_quantity=available_quantity)
         if product['effective_price'] is None: result['unavailable_reason']='가격이 아직 정해지지 않았습니다.'
-        elif sku['on_hand']<quantity: result['unavailable_reason']='현재 재고가 부족합니다.'
+        elif available_quantity<quantity: result['unavailable_reason']='현재 재고가 부족합니다.'
         else: result.update(available=True,unavailable_reason=None,line_total=quantity*product['effective_price'])
         return result
 
     def cart_result(self,db,catalog_db,customer_id):
         row=db.execute('SELECT version FROM carts WHERE customer_id=?',(customer_id,)).fetchone()
         items=[self.item(catalog_db,r['sku_id'],r['quantity']) for r in db.execute('SELECT sku_id,quantity FROM cart_items WHERE customer_id=? ORDER BY rowid',(customer_id,))]
-        return {'version':row['version'] if row else 0,'items':items,'item_count':sum(i['quantity'] for i in items),'total':sum(i['line_total'] or 0 for i in items),'has_unavailable':any(not i['available'] for i in items)}
+        return {'version':row['version'] if row else 0,'items':items,'item_count':sum(i['quantity'] for i in items),'total':sum(i['line_total'] or 0 for i in items),'has_unavailable':any(not i['available'] for i in items),
+                'shipping_policy': {'base_fee': BASE_FEE, 'free_threshold': FREE_THRESHOLD}}
 
     def cart(self,customer_id):
         with self.transaction() as db, self.catalog.transaction() as catalog_db:
             return self.cart_result(db,catalog_db,customer_id)
 
-    def mutate(self,customer_id,sku_id,body,delete=False):
-        payload=json.dumps({'sku_id':sku_id,'delete':delete,**body.model_dump()},sort_keys=True)
+    def mutate(self,customer_id,body,*,sku_id=None,delete=False):
+        fields = body.model_dump()
+        if sku_id is not None:
+            # Retain stored payload signatures for legacy item requests.
+            fields.update(sku_id=sku_id, delete=delete)
+        payload=json.dumps(fields,sort_keys=True)
         with self.transaction() as db, self.catalog.transaction() as catalog_db:
             previous=db.execute('SELECT payload FROM cart_requests WHERE customer_id=? AND request_id=?',(customer_id,body.request_id)).fetchone()
             if previous:
@@ -244,7 +272,13 @@ class CustomerStore:
                 return self.cart_result(db,catalog_db,customer_id)
             current=self.cart_result(db,catalog_db,customer_id)
             if current['version']!=body.version: raise HTTPException(409,'Cart changed. Reload before saving.')
-            if delete: db.execute('DELETE FROM cart_items WHERE customer_id=? AND sku_id=?',(customer_id,sku_id))
+            if isinstance(body, RemoveSelection):
+                selected_cart_items(current['items'], body.sku_ids)
+                db.executemany('DELETE FROM cart_items WHERE customer_id=? AND sku_id=?',
+                               [(customer_id, selected) for selected in body.sku_ids])
+            elif isinstance(body, ChangeOption):
+                self.change_option(db, catalog_db, customer_id, current['items'], body)
+            elif delete: db.execute('DELETE FROM cart_items WHERE customer_id=? AND sku_id=?',(customer_id,sku_id))
             else:
                 item=self.item(catalog_db,sku_id,body.quantity)
                 if not item['available']: raise HTTPException(409,item['unavailable_reason'])
@@ -253,6 +287,29 @@ class CustomerStore:
             db.execute('INSERT INTO carts VALUES(?,?) ON CONFLICT(customer_id) DO UPDATE SET version=excluded.version',(customer_id,body.version+1))
             db.execute('INSERT INTO cart_requests VALUES(?,?,?)',(customer_id,body.request_id,payload))
             return self.cart_result(db,catalog_db,customer_id)
+
+    def change_option(self, db, catalog_db, customer_id, items, body):
+        source, = selected_cart_items(items, [body.sku_id])
+        if body.sku_id == body.target_sku_id:
+            raise HTTPException(409, 'Select a different option.')
+        existing = next((item['quantity'] for item in items if item['sku_id'] == body.target_sku_id), 0)
+        quantity = existing + source['quantity']
+        target = self.item(catalog_db, body.target_sku_id, quantity)
+        if not target['available'] or not source['product_id'] or source['product_id'] != target['product_id']:
+            raise HTTPException(409, 'Select an available option of the same product.')
+        if quantity > 99:
+            raise HTTPException(409, 'Combined quantity exceeds 99.')
+        db.execute('DELETE FROM cart_items WHERE customer_id=? AND sku_id=?', (customer_id, body.sku_id))
+        db.execute('INSERT INTO cart_items VALUES(?,?,?) ON CONFLICT(customer_id,sku_id) DO UPDATE SET quantity=excluded.quantity',
+                   (customer_id, body.target_sku_id, quantity))
+
+
+def selected_cart_items(items, sku_ids):
+    selected = set(sku_ids)
+    result = [item for item in items if item['sku_id'] in selected]
+    if len(result) != len(selected):
+        raise HTTPException(409, 'Cart selection changed. Reload before continuing.')
+    return result
 
 def register_customer_routes(app,store):
     from app.checkout import register_checkout_routes
@@ -279,6 +336,10 @@ def register_customer_routes(app,store):
     @app.get(prefix+'/cart',dependencies=dependencies)
     def cart(who=Depends(customer)): return store.cart(who['id'])
     @app.put(prefix+'/cart/items/{sku_id}',dependencies=dependencies)
-    def put(sku_id:str,body:PutItem,who=Depends(customer)): return store.mutate(who['id'],sku_id,body)
+    def put(sku_id:str,body:PutItem,who=Depends(customer)): return store.mutate(who['id'],body,sku_id=sku_id)
     @app.delete(prefix+'/cart/items/{sku_id}',dependencies=dependencies)
-    def delete(sku_id:str,body:Mutation,who=Depends(customer)): return store.mutate(who['id'],sku_id,body,delete=True)
+    def delete(sku_id:str,body:Mutation,who=Depends(customer)): return store.mutate(who['id'],body,sku_id=sku_id,delete=True)
+    @app.post(prefix+'/cart/remove-selection',dependencies=dependencies)
+    def remove_selection(body:RemoveSelection,who=Depends(customer)): return store.mutate(who['id'],body)
+    @app.post(prefix+'/cart/change-option',dependencies=dependencies)
+    def change_option(body:ChangeOption,who=Depends(customer)): return store.mutate(who['id'],body)

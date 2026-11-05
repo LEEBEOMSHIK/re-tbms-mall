@@ -1,0 +1,58 @@
+.workspace { max-width: 72rem; }
+.heading, .visibility, .railHeading, .fieldHeading, .saveBar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.heading { margin-bottom: 1.25rem; }
+.heading h1 { font-weight: 700; }
+.visibility { padding: .85rem 1.15rem; background: var(--color-subtle); border-radius: .75rem; }
+.visibility h2, .railHeading h2, .fieldHeading h3 { font-size: 1rem; font-weight: 700; }
+.visibility p, .mode, .saveBar span { font-size: .8rem; color: var(--color-secondary); }
+.visibilityField { display: flex; align-items: center; gap: .75rem; }
+.visibilityField > :last-child { min-width: 7rem; }
+.workspace fieldset { min-width: 0; border: 0; margin: 0; padding: 0; }
+.workbench {
+  display: grid; grid-template-columns: minmax(12rem, .85fr) minmax(0, 2.35fr);
+  border: 1px solid var(--color-line); border-radius: .9rem;
+}
+.rail { background: var(--color-subtle); border-inline-end: 1px solid var(--color-line); border-radius: .9rem 0 0 .9rem; padding: 1.2rem; min-width: 0; }
+.railHeading { justify-content: start; gap: .5rem; }
+.railHeading > span { font-size: .75rem; font-weight: 700; padding: .1rem .45rem; border-radius: .4rem; background: var(--color-surface); }
+.mode { margin-block: .25rem 1rem; }
+.rail ol { display: grid; list-style: none; gap: .4rem; padding: 0; margin: 0 0 .8rem; }
+.rail li button {
+  display: flex; align-items: center; gap: .65rem; padding: .65rem; text-align: start; width: 100%;
+  background: transparent; border: 1px solid transparent; border-radius: .6rem; color: var(--color-text);
+}
+.rail li button:hover { background: var(--color-surface); }
+.rail li button[aria-pressed=true] { background: var(--color-surface); border-color: var(--ui-outline); box-shadow: inset 3px 0 var(--ui-accent); }
+.ordinal { font-size: .75rem; font-variant-numeric: tabular-nums; color: var(--ui-accent); }
+.rail li strong, .rail li small { display: block; }
+.rail li small { font-size: .75rem; color: var(--color-secondary); }
+.rail > button { width: 100%; border: 1px dashed var(--ui-outline); background: transparent; }
+.editor { min-width: 0; padding: clamp(1rem, 2vw, 1.7rem); }
+.preview { display: grid; grid-template-columns: 1.35fr 1fr; align-items: stretch; overflow: hidden; border-radius: .7rem; background: linear-gradient(120deg,#252331,#443951); color: #faf9ff; }
+.preview > div { min-width: 0; padding: clamp(1rem,2.2vw,2rem); align-self: center; }
+.preview small { color: #e0d6f4; font-size: .7rem; font-weight: 650; }
+.preview h3 { margin: .5rem 0 .3rem; font-size: clamp(1.15rem,2vw,1.75rem); font-weight: 700; line-height: 1.25; }
+.preview p, .preview > span { color: #e4deea; font-size: .8rem; }
+.preview > span { margin: auto; }
+.preview img { width: 100%; height: 100%; min-height: 8rem; max-height: 12rem; object-fit: cover; }
+.fieldHeading { padding-top: .25rem; }
+.destination { display: flex; align-items: baseline; gap: .65rem; flex-wrap: wrap; font-size: .85rem; }
+.destination small { color: var(--color-secondary); }
+.destination a { color: var(--ui-accent); font-weight: 650; text-underline-offset: .2rem; }
+.destination a:hover { text-decoration: underline; }
+.editor :global(.button-row) { border-top: 1px solid var(--color-line); padding-top: .75rem; display: flex; gap: .45rem; }
+.editor :global(.button-row) button { background: transparent; color: var(--color-text); border-color: var(--color-line); }
+.editor :global(.button-row) button:last-child { margin-inline-start: auto; color: var(--color-error); }
+.workspace fieldset > div:last-child { margin-top: 1rem; }
+.workspace fieldset > div:last-child p { margin-top: .3rem; }
+.saveBar { border-top: 1px solid var(--color-line); padding-top: 1rem; }
+@media (max-width: 760px) {
+  .workbench { grid-template-columns: minmax(0,1fr); }
+  .rail { border-inline-end: 0; border-bottom: 1px solid var(--color-line); border-radius: .9rem .9rem 0 0; padding: 1rem; }
+  .rail ol { max-height: 12rem; overflow: auto; padding: .25rem; }
+  .visibilityField { display: grid; gap: .15rem; }
+  .fieldHeading, .saveBar { flex-wrap: wrap; }
+  .preview img { min-height: 7rem; }
+}

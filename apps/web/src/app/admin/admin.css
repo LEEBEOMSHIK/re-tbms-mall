@@ -16,7 +16,7 @@
 .admin-sidebar nav{display:grid;gap:var(--space-1)}
 .admin-sidebar nav a{display:flex;align-items:center;min-height:44px;padding:var(--space-2) var(--space-3);font-size:var(--text-sm);border-radius:var(--radius-md);border-inline-start:3px solid transparent}
 .admin-sidebar nav a:hover{background:var(--color-subtle)}
-.admin-sidebar nav a[aria-current=page]{background:var(--color-subtle);border-inline-start-color:var(--color-text);font-weight:650}
+.admin-sidebar nav a[aria-current=page]{background:var(--ui-tint);border-inline-start-color:var(--ui-accent);font-weight:650}
 .admin-sidebar-actions{display:grid;gap:var(--space-2);border-top:1px solid var(--color-line);padding-top:var(--space-4);font-size:var(--text-sm)}
 .admin-sidebar-actions>a{display:flex;align-items:center;min-height:44px;padding-inline:var(--space-3)}
 .admin-menu-toggle{display:none}
@@ -30,11 +30,45 @@
 .admin-nav-group-toggle svg{width:16px;height:16px;flex:none;transform:rotate(-90deg)}.admin-nav-group-toggle svg.is-open{transform:none}
 .admin-nav-group>div:not([hidden]){display:grid;gap:2px;margin-inline-start:var(--space-3);padding-inline-start:var(--space-2);border-inline-start:1px solid var(--color-line)}
 .admin-nav-notice{font-size:var(--text-xs);color:var(--color-secondary)}.admin-nav-notice button{font-size:var(--text-xs);margin-top:var(--space-2)}
-.admin-sidebar-actions>a[aria-current=page]{background:var(--color-subtle);font-weight:650;border-radius:var(--radius-md)}
+.admin-sidebar-actions>a[aria-current=page]{background:var(--ui-tint);color:var(--ui-on-tint);font-weight:650;border-radius:var(--ui-control-radius)}
 @media(max-width:1023px){.admin-sidebar nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3);align-items:start}.admin-nav-group+.admin-nav-group{margin-top:0}}
 @media(max-width:639px){.admin-sidebar nav{grid-template-columns:1fr}.admin-sidebar-actions{grid-template-columns:1fr}}
 
 /* WB113: group headings and their indented child links have distinct hierarchy. */
 .admin-nav-group-toggle{color:var(--color-text);font-weight:650}
 .admin-sidebar .admin-nav-group a{border-inline-start:0;padding-inline:var(--space-3);font-size:var(--text-xs);color:var(--color-secondary);font-weight:400}
-.admin-sidebar .admin-nav-group a[aria-current=page]{color:var(--color-text);font-weight:650;box-shadow:inset 2px 0 0 var(--color-text)}
+.admin-sidebar .admin-nav-group a[aria-current=page]{color:var(--ui-on-tint);font-weight:650;box-shadow:inset 3px 0 0 var(--ui-accent)}
+
+/* WB160: short completion pages must not stretch the mobile header. */
+@media(max-width:1023px){.admin-workspace{grid-template-rows:auto 1fr}}
+
+/* Keep workspace controls in view while scrolling through the menu groups. */
+.admin-sidebar{display:flex;flex-direction:column;overscroll-behavior-y:contain}
+.admin-sidebar-brand,.admin-sidebar-menu>:not(nav){flex:none}
+.admin-sidebar-menu{flex:1;min-height:0}
+.admin-sidebar-menu>nav{flex:1;min-height:0;overflow-y:auto;overscroll-behavior-y:contain;scrollbar-gutter:stable;scroll-padding-block:var(--space-2)}
+@media(max-width:1023px){
+  .admin-sidebar:has(.admin-sidebar-menu.is-open){height:100dvh}
+  .admin-sidebar-menu.is-open>nav{align-content:start}
+}
+/* A very short viewport (including high zoom) still needs room for every control. */
+@media(max-height:560px){
+  .admin-sidebar{overflow-y:auto}
+  .admin-sidebar-menu>nav{min-height:88px}
+}
+
+.sidebar-width-control{display:none}
+@media(min-width:1024px){
+  .admin-workspace{grid-template-columns:auto minmax(0,1fr)}
+  .admin-sidebar{width:var(--sidebar-width,240px)}
+  .admin-sidebar-brand .wordmark,.admin-sidebar-brand .brand-logo{min-width:0;max-width:100%}
+  .admin-sidebar-menu>nav{margin-inline-end:calc(3px - var(--space-4))}
+  .sidebar-width-control{position:absolute;inset:0 -1px 0 auto;width:4px;display:block;cursor:col-resize;touch-action:none;user-select:none}
+  .sidebar-width-control:focus-visible{outline:0;box-shadow:inset -2px 0 var(--color-focus)}
+}
+.admin-sidebar-menu>nav{scrollbar-width:thin;scrollbar-color:var(--color-border) transparent}
+.dashboard-shortcuts .dashboard-md-link{background:var(--color-action);color:var(--color-on-action);border-color:var(--color-action)}
+.dashboard-shortcuts .dashboard-md-link:hover{background:var(--color-secondary);color:var(--color-on-action)}
+
+.admin-type { letter-spacing: -.01em; }
+.admin-type :where(input, textarea, select, button) { font-family: inherit; }

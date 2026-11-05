@@ -825,6 +825,10 @@ class CatalogStore:
         balance = sku['on_hand'] + body.delta
         if not 0 <= balance <= MAX_STOCK:
             raise HTTPException(409, 'Movement exceeds the available stock or stock limit.')
+        if body.delta < 0:
+            from app.order_reservations import held_quantity
+            if balance < held_quantity(db, body.sku_id):
+                raise HTTPException(409, 'Movement would use stock reserved for orders.')
         row = {'id': str(uuid4()), 'sku_id': body.sku_id, 'delta': body.delta, 'reason_code': body.reason_code,
                'supplier_id': body.supplier_id, 'supplier_name': supplier_name,
                'reason': body.reason, 'actor': 'local-admin',

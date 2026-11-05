@@ -65,7 +65,6 @@ export function FormSelect({ id, value, options, onChange, placeholder = '선택
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const list = useRef<HTMLUListElement>(null);
-  const measuredAnchor = useRef<{ top: number; left: number } | null>(null);
   const search = useRef({ text: '', time: 0 });
   const context = JSON.stringify({ value, options });
   const visible = open && !disabled && openedContext === context;
@@ -78,7 +77,6 @@ export function FormSelect({ id, value, options, onChange, placeholder = '선택
   function measure() {
     const rect = trigger.current?.getBoundingClientRect();
     if (!rect) return;
-    measuredAnchor.current = { top: rect.top, left: rect.left };
     const below = window.innerHeight - rect.bottom - 12;
     const above = rect.top - 12;
     const useAbove = below < 200 && above > below;
@@ -139,17 +137,27 @@ export function FormSelect({ id, value, options, onChange, placeholder = '선택
     if (!visible) return;
     const onOutside = (event: PointerEvent) => { if (!root.current?.contains(event.target as Node)) setOpen(false); };
     const onResize = () => measure();
+    const onScrollGesture = (event: Event) => {
+      if (!list.current?.contains(event.target as Node)) setOpen(false);
+    };
     const onScroll = (event: Event) => {
       if (list.current?.contains(event.target as Node)) return;
-      const rect = trigger.current?.getBoundingClientRect();
-      const measured = measuredAnchor.current;
-      // Click-to-focus may deliver a queued scroll after opening; its final position was already measured.
-      if (rect && measured && (Math.abs(rect.top - measured.top) > 1 || Math.abs(rect.left - measured.left) > 1)) setOpen(false);
+      // The list is anchored to its trigger. Keep it open when the browser
+      // scrolls an option into view during pointer selection.
+      measure();
     };
     document.addEventListener('pointerdown', onOutside);
+    window.addEventListener('wheel', onScrollGesture, { passive: true, capture: true });
+    window.addEventListener('touchmove', onScrollGesture, { passive: true, capture: true });
     window.addEventListener('resize', onResize);
     window.addEventListener('scroll', onScroll, true);
-    return () => { document.removeEventListener('pointerdown', onOutside); window.removeEventListener('resize', onResize); window.removeEventListener('scroll', onScroll, true); };
+    return () => {
+      document.removeEventListener('pointerdown', onOutside);
+      window.removeEventListener('wheel', onScrollGesture, true);
+      window.removeEventListener('touchmove', onScrollGesture, true);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('scroll', onScroll, true);
+    };
   }, [visible]);
 
   useEffect(() => {

@@ -8,7 +8,9 @@ export const MENU_ITEMS = [
   {id:'site',label:'사이트 관리',href:'/admin/site'},
   {id:'reviews',label:'리뷰 관리',href:'/admin/reviews'},
   {id:'payment-preparation',label:'PG 도입 준비',href:'/admin/payment-preparation'},
+  {id:'carrier-preparation',label:'택배사 선정 준비',href:'/admin/carrier-preparation'},
   {id:'workboard',label:'작업 보드',href:'/admin/workboard'},
+  {id:'design-system',label:'디자인 시스템',href:'/admin/design-system'},
 ] as const;
 export type MenuId = typeof MENU_ITEMS[number]['id'];
 export type AdminMenuItem = {id:MenuId;visible:boolean};
@@ -19,7 +21,7 @@ export const DEFAULT_ADMIN_MENU:AdminMenuState = {revision:0,groups:[
   group('operations','운영',['home','catalog','inventory','orders']),
   group('production','제작·협업',['factories','designs']),
   group('site-customer','사이트·고객',['site','reviews']),
-  group('project','프로젝트',['workboard','payment-preparation']),
+  group('project','프로젝트',['workboard','design-system','payment-preparation','carrier-preparation']),
 ]};
 function object(value:unknown,keys:string[]):Record<string,unknown> {
   if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Invalid menu object');
@@ -35,7 +37,7 @@ export function parseAdminMenu(value:unknown):AdminMenuState {
     const g=object(raw,['id','label','visible','items']);
     if(typeof g.id!=='string'||!/^[a-zA-Z0-9_-]{1,64}$/.test(g.id))throw Error('Invalid group ID');
     if(typeof g.label!=='string'||!g.label.trim()||[...g.label.trim()].length>40)throw Error('Invalid group label');
-    if(!Array.isArray(g.items)||g.items.length>10)throw Error('Invalid items');
+    if(!Array.isArray(g.items)||g.items.length>MENU_ITEMS.length)throw Error('Invalid items');
     const items=g.items.map(raw=>{
       const item=object(raw,['id','visible']);
       if(!MENU_ITEMS.some(known=>known.id===item.id))throw Error('Unknown menu');

@@ -13,8 +13,8 @@ from starlette.concurrency import run_in_threadpool
 
 DEFAULT_PATH = Path(__file__).resolve().parents[3] / '.local' / 'admin-navigation.sqlite3'
 MAX_BODY = 32 * 1024
-MENU_IDS = {'home', 'catalog', 'inventory', 'factories', 'designs', 'site', 'reviews', 'workboard', 'payment-preparation', 'orders'}
-MenuId = Literal['home', 'catalog', 'inventory', 'factories', 'designs', 'site', 'reviews', 'workboard', 'payment-preparation', 'orders']
+MENU_IDS = {'home', 'catalog', 'inventory', 'factories', 'designs', 'site', 'reviews', 'workboard', 'design-system', 'payment-preparation', 'orders', 'carrier-preparation'}
+MenuId = Literal['home', 'catalog', 'inventory', 'factories', 'designs', 'site', 'reviews', 'workboard', 'design-system', 'payment-preparation', 'orders', 'carrier-preparation']
 DEFAULT_GROUPS = [
     {'id': group_id, 'label': label, 'visible': True,
      'items': [{'id': item, 'visible': True} for item in items]}
@@ -22,7 +22,7 @@ DEFAULT_GROUPS = [
         ('operations', '운영', ['home', 'catalog', 'inventory', 'orders']),
         ('production', '제작·협업', ['factories', 'designs']),
         ('site-customer', '사이트·고객', ['site', 'reviews']),
-        ('project', '프로젝트', ['workboard', 'payment-preparation']),
+        ('project', '프로젝트', ['workboard', 'design-system', 'payment-preparation', 'carrier-preparation']),
     ]
 ]
 
@@ -40,7 +40,7 @@ class MenuGroup(StrictModel):
     id: str = Field(min_length=1, max_length=64, pattern=r'^[a-zA-Z0-9_-]+$')
     label: str = Field(min_length=1, max_length=40)
     visible: bool
-    items: list[MenuItem] = Field(max_length=10)
+    items: list[MenuItem] = Field(max_length=len(MENU_IDS))
 
     @field_validator('id', mode='before')
     @classmethod
@@ -67,12 +67,33 @@ class NavigationState(StrictModel):
         return groups
 
 
+class TwelveMenuItem(MenuItem):
+    id: MenuId | Literal['merchandising']
+
+
+class TwelveMenuGroup(MenuGroup):
+    items: list[TwelveMenuItem] = Field(max_length=12)
+
+
+class TwelveMenuNavigationState(NavigationState):
+    registered_menu_ids: ClassVar[set[str]] = (MENU_IDS - {'design-system'}) | {'merchandising'}
+    groups: list[TwelveMenuGroup] = Field(min_length=1, max_length=8)
+
+
+class ElevenMenuNavigationState(NavigationState):
+    registered_menu_ids: ClassVar[set[str]] = MENU_IDS - {'design-system'}
+
+
+class TenMenuNavigationState(NavigationState):
+    registered_menu_ids: ClassVar[set[str]] = MENU_IDS - {'design-system', 'carrier-preparation'}
+
+
 class PreviousNavigationState(NavigationState):
-    registered_menu_ids: ClassVar[set[str]] = MENU_IDS - {'orders'}
+    registered_menu_ids: ClassVar[set[str]] = MENU_IDS - {'design-system', 'orders', 'carrier-preparation'}
 
 
 class LegacyNavigationState(NavigationState):
-    registered_menu_ids: ClassVar[set[str]] = MENU_IDS - {'payment-preparation', 'orders'}
+    registered_menu_ids: ClassVar[set[str]] = MENU_IDS - {'design-system', 'payment-preparation', 'orders', 'carrier-preparation'}
 
 
 def failure(status, detail):
@@ -110,16 +131,29 @@ class AdminNavigationStore:
             return NavigationState.model_validate_json(row[0]).model_dump()
         except ValidationError:
             # Only the complete old registry is eligible; corrupt states still fail closed.
-            try:
-                legacy = PreviousNavigationState.model_validate_json(row[0]).model_dump()
-            except ValidationError:
-                legacy = LegacyNavigationState.model_validate_json(row[0]).model_dump()
-                project = next(group for group in legacy['groups']
-                               if any(item['id'] == 'workboard' for item in group['items']))
-                project['items'].append({'id': 'payment-preparation', 'visible': True})
-            operations = next(group for group in legacy['groups']
-                              if any(item['id'] == 'inventory' for item in group['items']))
-            operations['items'].append({'id': 'orders', 'visible': True})
+            for schema in (TwelveMenuNavigationState, ElevenMenuNavigationState, TenMenuNavigationState, PreviousNavigationState, LegacyNavigationState):
+                try:
+                    legacy = schema.model_validate_json(row[0]).model_dump()
+                    break
+                except ValidationError:
+                    continue
+            else:
+                raise
+
+            if schema is TwelveMenuNavigationState:
+                for group in legacy['groups']:
+                    group['items'] = [item for item in group['items'] if item['id'] != 'merchandising']
+
+            additions = [('payment-preparation', 'workboard'), ('orders', 'inventory'),
+                         ('carrier-preparation', 'payment-preparation'), ('design-system', 'workboard')]
+            for new_id, anchor in additions:
+                if new_id in schema.registered_menu_ids:
+                    continue
+                group = next(g for g in legacy['groups'] if any(i['id'] == anchor for i in g['items']))
+                index = len(group['items'])
+                if new_id in ('carrier-preparation', 'design-system'):
+                    index = next(n for n, item in enumerate(group['items']) if item['id'] == anchor) + 1
+                group['items'].insert(index, {'id': new_id, 'visible': True})
             # Preserve revision and all existing presentation choices; persist only on save.
             return NavigationState.model_validate(legacy).model_dump()
 

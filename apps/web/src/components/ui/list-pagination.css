@@ -3,6 +3,9 @@
 .ds-list-page-size {display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,140px);gap:var(--space-2);align-items:center;min-width:0}
 .ds-list-page-size .ds-form-label {margin:0}
 .ds-list-pagination {display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-6)}
-.ds-list-pagination button {min-width:44px;min-height:44px;border-radius:var(--radius-control)}
-.ds-list-pagination button[aria-current=page] {background:var(--color-action);color:var(--color-on-action);border-color:var(--color-action);font-weight:600}
+.ds-list-pagination button {min-width:44px;min-height:44px;border-radius:var(--ui-control-radius,var(--radius-control))}
+.ds-list-pagination button[aria-current=page] {background:var(--ui-tint,var(--color-subtle));color:var(--ui-on-tint,var(--color-text));border:2px solid var(--ui-accent,var(--color-text));font-weight:700}
 @media(max-width:767px){.ds-list-pagination-summary {flex-direction:column;align-items:stretch}.ds-list-page-size {grid-template-columns:minmax(0,1fr)}}
+
+.ds-list-pagination button:focus-visible{outline:2px solid var(--ui-accent,var(--color-focus));outline-offset:3px}
+@media(forced-colors:active){.ds-list-pagination button[aria-current=page]{border-color:Highlight;text-decoration:underline}}

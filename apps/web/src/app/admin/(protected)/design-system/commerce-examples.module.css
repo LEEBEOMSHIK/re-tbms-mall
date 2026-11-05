@@ -1,0 +1,15 @@
+.row,.taskMeta{display:flex;align-items:center;flex-wrap:wrap;gap:var(--space-2)}
+.name,.product h3,.priceCompare h3{margin:0;font-size:var(--text-sm);font-weight:650}
+.note,.taskMeta{font-size:var(--text-xs);color:var(--color-secondary)}
+.danger{border-color:var(--color-error);color:var(--color-error);background:var(--color-surface)}
+.icon{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--color-text)}
+.icon svg{width:18px;height:18px}.icon:hover,.icon:focus-visible{background:var(--color-subtle)}
+.task{padding:var(--space-4);border:1px solid var(--color-line);border-radius:var(--radius-panel)}
+.task summary{display:grid;gap:var(--space-2);cursor:pointer}
+.task summary:focus-visible{outline:2px solid var(--color-focus);outline-offset:3px}
+.taskMeta{justify-content:space-between}
+.task p{margin:var(--space-3) 0 0}
+.product{display:grid;gap:var(--space-3);max-width:270px}
+.illustration{width:100%;height:auto;border-radius:var(--radius-panel);background:var(--color-subtle)}
+.priceCompare{display:flex;flex-wrap:wrap;gap:var(--space-6)}
+.priceCompare>div{display:grid;align-content:start;gap:var(--space-2)}

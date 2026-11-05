@@ -16,7 +16,11 @@ PublicProduct `{id,name,category_id,description,price:number|null,image:string,c
 GET `/api/v1/products/{pid}/images/{iid}` → 검증된 PNG/JPEG/WebP bytes, no-store/nosniff. 매번 공개상품조건 및 이미지 product/kind 일치를 검사한다. 게시중지/내부시안/다른상품이미지404. 이미지 URL은 위 API 상대경로이며 data_url은 응답에 포함하지 않는다.
 
 ## 홈 진열
-기존 `/api/v1/storefront`, 관리자 GET/PUT `/api/v1/admin/storefront` envelope `{revision,categories,products,sections}` 유지. products는 실제 PublicProduct이며 관리자만 unpublished 포함 및 `publication_status` 추가. 없는 고객이미지는 관리자 image='' 가능. 공개는 공개조건충족 상품만, 진열 sections.product_ids도 공개가능 ID만 남기며 빈/비활성 section 제외한다.
+기존 `/api/v1/storefront`, 관리자 GET/PUT `/api/v1/admin/storefront` envelope `{revision,hero_enabled,hero_slides,categories,products,sections}` 반환. products는 실제 PublicProduct이며 관리자만 unpublished 포함 및 `publication_status` 추가. 없는 고객이미지는 관리자 image='' 가능. 공개는 공개조건충족 상품만, 진열 sections.product_ids도 공개가능 ID만 남기며 빈/비활성 section 제외한다.
+
+WB182에서 추가한 `hero_slides`는 기존 파일에서 `null`로 읽는다. `null`은 기존 섹션 기반 광고를 사용한다. 배열은 광고의 표시 순서를 직접 정하며 빈 배열이면 표시할 광고가 없다. 항목은 `{id,section_id,product_id,title,subtitle,enabled}`이다. 상품 사진은 대상 상품의 대표 이미지를 사용한다. `id`와 `section_id`는 영문/숫자로 시작하는 1~64자의 영문·숫자·`_`·`-`이고, `product_id`는 최대 80자다. 제목은 공백뿐일 수 없으며 1~80자, 부제는 0~200자다. `enabled`는 boolean이다. 배열은 최대 20개이며 슬라이드 `id`는 고유해야 한다.
+
+PUT 본문에 `hero_slides`가 있으면 같은 본문의 `sections`에서 섹션과 소속 상품을 확인한다. 참조 오류는 422이고 이전 revision은 409다. 이 필드를 생략한 섹션 저장은 기존 광고를 보존한다. 이후 연결이 끊긴 광고도 관리자 GET에서는 다시 편집할 수 있다. 공개 GET은 광고 영역이 켜져 있고 슬라이드와 섹션이 활성인 항목 중 현재 해당 섹션에 속한 공개 상품의 대표 이미지가 있는 항목만 순서대로 반환한다.
 과거 JSON 설정은 읽기 때 변경하지 않고 제목/순서를 보존한다. 과거 샘플 ID는 응답에서 제외해 관리자 재선택/저장 가능하며 신규저장에는 실제 상품 ID만 허용한다. revision충돌409·원자적 파일교체 유지.
 
 ## 저장소

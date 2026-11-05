@@ -8,11 +8,13 @@ const groups:[string,string[]][]=[
  ['#476c4c',['초록','초록색','그린','green']],['#70734c',['카키','khaki']],['#efce4c',['노랑','노란색','옐로우','yellow']],
  ['#e58aab',['분홍','분홍색','핑크','pink']],['#9266ad',['보라','보라색','퍼플','purple']],
  ['#e1833d',['주황','주황색','오렌지','orange']],['#a6d2bd',['민트','mint']],['#742e40',['버건디','burgundy']],
+ ['#d9cbb3',['오트밀','oatmeal']],['#cfb792',['샌드베이지','sandbeige']],
+ ['#825f4c',['모카','mocha']],['#364666',['인디고','indigo']],
  ['#b99572',['카멜','camel']],['#858870',['올리브','olive']],['#c4b2d4',['라벤더','lavender']],
 ];
 export function colorChipValue(name:string):string|null{
  const normalized=name.trim().toLowerCase().replace(/\s+/g,'');
  return groups.find(([,names])=>names.includes(normalized))?.[0]??null;
 }
-const labels:Record<string,string>={'#c54436':'Red','#171717':'Black','#ffffff':'White','#eee7d6':'Ivory','#20324f':'Navy','#3972b8':'Blue','#9fc7df':'Sky Blue','#8b8b8b':'Grey','#41454b':'Charcoal','#d4bc97':'Beige','#78543e':'Brown','#476c4c':'Green','#70734c':'Khaki','#efce4c':'Yellow','#e58aab':'Pink','#9266ad':'Purple','#e1833d':'Orange','#a6d2bd':'Mint','#742e40':'Burgundy','#b99572':'Camel','#858870':'Olive','#c4b2d4':'Lavender'};
+const labels:Record<string,string>={'#d9cbb3':'Oatmeal','#cfb792':'Sand Beige','#825f4c':'Mocha','#364666':'Indigo','#c54436':'Red','#171717':'Black','#ffffff':'White','#eee7d6':'Ivory','#20324f':'Navy','#3972b8':'Blue','#9fc7df':'Sky Blue','#8b8b8b':'Grey','#41454b':'Charcoal','#d4bc97':'Beige','#78543e':'Brown','#476c4c':'Green','#70734c':'Khaki','#efce4c':'Yellow','#e58aab':'Pink','#9266ad':'Purple','#e1833d':'Orange','#a6d2bd':'Mint','#742e40':'Burgundy','#b99572':'Camel','#858870':'Olive','#c4b2d4':'Lavender'};
 export function colorChipLabel(name:string){const normalized=name.trim().toLowerCase().replace(/\s+/g,'');if(normalized==='크림'||normalized==='cream')return 'Cream';const color=colorChipValue(name);return color?labels[color]??name:name;}

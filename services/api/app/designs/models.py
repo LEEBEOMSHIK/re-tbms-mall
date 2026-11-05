@@ -153,4 +153,4 @@ class AssetRequest(RequestModel):
     data_url: str
 
 def initial_document(template):
-    return dict(schema_version=2, template_id=template,template_version=1,material_id='cotton',material_version=1,base_color='#e8e5df',gloss=.15,decorations=[], studio=dict(version=2,settings=dict(garment=template,garmentFit='unisex',garmentSize='M',hoodFabric='terry',fabric='cotton',color='#e8e5df',background='#f0eee9',wrinkles=True,ruler=False,light='studio',auto=False),designs=[],activeId=None,editSide='front'))
+    return dict(schema_version=2, template_id=template,template_version=1,material_id='cotton',material_version=1,base_color='#e8e5df',gloss=.15,decorations=[], studio=dict(version=2,settings=dict(garment=template,garmentFit='unisex',garmentSize='M',hoodFabric='terry',fabric='cotton',color='#e8e5df',background='#f0eee9',wrinkles=False,ruler=False,light='studio',auto=False),designs=[],activeId=None,editSide='front'))

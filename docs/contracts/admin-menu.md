@@ -3,19 +3,23 @@
 사용자 승인: 관리자 GNB 그룹화, 그룹 이름/순서·메뉴 배치/순서·그룹/메뉴 표시/숨김 관리. 범위 관리자만, 숨김은 권한 차단 아님. 그룹 접기/펼치기는 사이드바 로컬 UI 상태. 새 권한체계/고객 메뉴/외부 URL 없음.
 
 ## 단일 계약
-GET/PUT /api/v1/admin/navigation (기존 require_admin). 응답/PUT은 {revision: integer 0..9_007_199_254_740_990, groups: Group[1..8]}. Group={id: 영숫자_- 1..64, label: trim된 비공백 1..40, visible:boolean, items:Item[0..9]}. Item={id:MenuId,visible:boolean}. 모든 필드 strict, 추가필드 거부. group id 중복 금지, 9개 MenuId는 전체에 정확히 한번씩. 메뉴 삭제는 숨김으로 하고 그룹 삭제는 비어있는 그룹만 가능. revision 낙관잠금409, 성공+1, 쓰기 원자적, no-store. 요청 최대32KiB 서버/BFF 양쪽. 저장소 별도 .local/admin-navigation.sqlite3; create_app admin_navigation_path 주입 지원, catalog_path가 있으면 그 부모 아래 별도 파일. 기본값은 Python/TS에 동일한 4그룹. 영속화 이전 기본 revision0.
+GET/PUT /api/v1/admin/navigation (기존 require_admin). 응답/PUT은 {revision: integer 0..9_007_199_254_740_990, groups: Group[1..8]}. Group={id: 영숫자_- 1..64, label: trim된 비공백 1..40, visible:boolean, items:Item[0..12]}. Item={id:MenuId,visible:boolean}. 모든 필드 strict, 추가필드 거부. group id 중복 금지, 12개 MenuId는 전체에 정확히 한번씩. 메뉴 삭제는 숨김으로 하고 그룹 삭제는 비어있는 그룹만 가능. revision 낙관잠금409, 성공+1, 쓰기 원자적, no-store. 요청 최대32KiB 서버/BFF 양쪽. 저장소 별도 .local/admin-navigation.sqlite3; create_app admin_navigation_path 주입 지원, catalog_path가 있으면 그 부모 아래 별도 파일. 기본값은 Python/TS에 동일한 4그룹. 영속화 이전 기본 revision0.
 
 MenuId→label→href:
 - home / 관리자 홈 / /admin
 - catalog / 상품 관리 / /admin/catalog
 - inventory / 재고 관리 / /admin/catalog/inventory
+- orders / 주문 관리 / /admin/orders
 - factories / 공장 협업 / /admin/factories
 - designs / 의류 디자인 / /admin/designs
 - site / 사이트 관리 / /admin/site
 - reviews / 리뷰 관리 / /admin/reviews
+- payment-preparation / PG 도입 준비 / /admin/payment-preparation
+- carrier-preparation / 택배사 선정 준비 / /admin/carrier-preparation
 - workboard / 작업 보드 / /admin/workboard
+- design-system / 디자인 시스템 / /admin/design-system
 
-기본 그룹: operations/운영 [home,catalog,inventory], production/제작·협업 [factories,designs], site-customer/사이트·고객 [site,reviews], project/프로젝트 [workboard], 모두 visible=true.
+기본 그룹: operations/운영 [home,catalog,inventory,orders], production/제작·협업 [factories,designs], site-customer/사이트·고객 [site,reviews], project/프로젝트 [workboard,design-system,payment-preparation,carrier-preparation], 모두 visible=true.
 
 ## 프런트 계약 및 화면
 lib/admin-menu.ts: MenuId 및 상수 MENU_ITEMS(배열 {id,label,href}), DEFAULT_ADMIN_MENU={revision:0,groups}, parseAdminMenu(value) 엄격 검증, 타입 AdminMenuState, AdminMenuGroup, AdminMenuItem. 모듈 소유 frontend. Next BFF GET/PUT /api/admin/navigation: 기존 session/Origin 보호, 인증 토큰 클라이언트 노출 없음. 오류 401/409/413/422/503 구분.
@@ -31,3 +35,11 @@ WB114: 고정 복구 영역에 /admin/guide 사용 가이드 링크 추가. 그�
 
 ## WB119 확장
 payment-preparation / PG 도입 준비 / /admin/payment-preparation을 기본 프로젝트 그룹에 추가. 기존 정확한8개 legacy 문서는 구조검증 후 workboard소속 그룹에 visible true로 추가하여 읽으며 그룹숨김/순서/버전/DB원문을 보존한다. 조회만으로 DB를 수정하지 않는다. 신규 저장은9개 전체가 필수이며 구8개 PUT는422로 거부하여 최신조회 필요. 화면은 관리자 인증이 필요한 읽기전용 안내이며 작업 상태는 작업보드 링크로 확인한다.
+
+## WB174 홈 진열 관리 진입 경로
+
+홈 진열 목록·등록·수정은 사이트 관리에서 진입하고 사이드바는 사이트 관리를 활성화한다. 독립 메뉴 ID `merchandising`을 포함했던 WB171의 12개 저장 설정은 전체 구조와 ID 집합을 검증한 뒤 해당 항목만 제외해 조회한다. 다른 메뉴의 표시·순서, 그룹 순서·이름·숨김, 빈 그룹과 revision을 보존한다. 조회로 저장 원문을 변경하지 않는다. WB174 당시 명시적 저장 형식은 11개였다. 예전 12개 형식 PUT는 422이며 최신 조회 후 다시 저장한다. 기존 8·9·10개 설정의 읽기 호환도 유지한다.
+
+## WB176 디자인 시스템
+
+기본 프로젝트 그룹의 작업 보드 다음에 `design-system`을 표시한다. 이전 설정에서 작업 보드가 다른 그룹으로 이동했으면 그 위치 바로 뒤에 디자인 시스템을 추가한다. 새 메뉴의 기본 표시는 켜짐이고, 그룹 숨김과 기존 모든 항목의 순서·표시 설정은 보존한다. WB171의 12개 설정은 구형 홈 진열 ID를 제거한 후 새 ID를 넣으며, 현재 12개와는 전체 ID 집합으로 구별한다. 8~11개 설정도 호환한다. GET은 원문과 revision을 유지하며 PUT에는 현재 12개 ID가 각각 한 번씩 필요하다.

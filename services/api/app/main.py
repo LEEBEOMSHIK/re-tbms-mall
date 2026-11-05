@@ -11,6 +11,7 @@ from starlette.concurrency import run_in_threadpool
 
 from app.config import load_admin_token, load_cors_origins
 from app.dashboard import sample_dashboard
+from app.brand_library import register_brand_library_routes, DEFAULT_PATH as DEFAULT_LIBRARY_PATH
 from app.brand_about import register_brand_about_routes, DEFAULT_PATH as DEFAULT_BRAND_ABOUT_PATH
 from app.admin_navigation import register_admin_navigation_routes, DEFAULT_PATH as DEFAULT_ADMIN_NAVIGATION_PATH
 from app.inventory import CatalogStore, CategoryCreate, CategoryUpdate, ProductCreate, ProductUpdate, ProductDelete, SkuCreate, SkuBatchCreate, SelectedSkuBatchCreate, OptionValueCreate, OptionValueUpdate, MovementCreate, DEFAULT_CATALOG_PATH
@@ -63,6 +64,7 @@ def create_app(*, env_file: Path | None = None, storefront_path: Path | None = N
     register_customer_routes(application, customers)
     register_sales_order_routes(application, catalog, customers, require_admin)
     register_factory_routes(application, catalog, require_admin)
+    register_brand_library_routes(application, catalog, require_admin, catalog_path.with_name(catalog_path.stem + "-brand-library.sqlite3") if catalog_path is not None else DEFAULT_LIBRARY_PATH)
     from app.shipments import register_shipment_routes
     register_shipment_routes(application, catalog, require_admin)
 

@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {isCartSku,validSkuSelection,parseCheckoutEntry} from './checkout-selection.ts';
 import {safeCustomerAvatar} from './customer-shopping.ts';
 export const CUSTOMER_COOKIE='tbms_customer_session';
 const SESSION_SECONDS=7*24*60*60;
@@ -8,7 +9,12 @@ const providers:Provider[]=['google','kakao'];
 const secret=(value:unknown):value is string=>typeof value==='string'&&/^[A-Za-z0-9_-]{32,256}$/.test(value);
 export function safeCustomerReturn(value:unknown):string {
  if(typeof value!=='string'||value.length>2048||/[\\\x00-\x1f\x7f]/.test(value)||!value.startsWith('/')||value.startsWith('//'))return '/cart';
- try{const url=new URL(value,'https://local.invalid');if(url.origin!=='https://local.invalid'||!/^\/(?:cart|orders|account(?:\/(?:profile|addresses(?:\/(?:new|[a-f0-9-]{36}\/edit))?))?|checkout(?:\/[A-Za-z0-9_-]+)?|products(?:\/[A-Za-z0-9_-]+)?)$/.test(url.pathname)||url.hash)return '/cart';
+ try{const url=new URL(value,'https://local.invalid');if(url.origin!=='https://local.invalid'||!/^\/(?:cart|orders|account(?:\/(?:orders(?:\/[a-f0-9-]{36})?|profile|addresses(?:\/(?:new|[a-f0-9-]{36}\/edit))?))?|checkout(?:\/[A-Za-z0-9_-]+)?|products(?:\/[A-Za-z0-9_-]+)?)$/.test(url.pathname)||url.hash)return '/cart';
+  if(url.searchParams.has('sku_id')||url.searchParams.has('cart_version')){
+   if(url.pathname!=='/checkout'||[...url.searchParams.keys()].some(key=>!['sku_id','cart_version'].includes(key))||
+    parseCheckoutEntry({sku_id:url.searchParams.getAll('sku_id'),cart_version:url.searchParams.getAll('cart_version').length===1?url.searchParams.get('cart_version')!:undefined}).kind!=='selected')return '/cart';
+   return url.pathname+url.search;
+  }
   for(const [key,val] of url.searchParams){if(!['color','size','quantity','category','search','page','season','sku'].includes(key)||/[\\\x00-\x1f\x7f]/.test(val)||/https?:|\/\//i.test(val))return '/cart';}
   return url.pathname+url.search;
  }catch{return '/cart';}
@@ -31,8 +37,8 @@ function publicCustomer(value:unknown){
  if(v.profile_available!==undefined&&typeof v.profile_available!=='boolean')throw Error('Invalid profile');
  return {id:v.id,display_name:v.display_name,provider:v.provider,...(v.avatar_url===undefined?{}:{avatar_url:safeCustomerAvatar(v.avatar_url)}),...(v.email===undefined?{}:{email:v.email}),...(v.profile_available===undefined?{}:{profile_available:v.profile_available})};
 }
-async function readBody(request:Request){
- const raw=await request.text();if(raw.length>4096)throw Error('Body too large');
+async function readBody(request:Request, limit=4096){
+ const raw=await request.text();if(raw.length>limit)throw Error('Body too large');
  if(request.headers.get('content-type')?.includes('application/x-www-form-urlencoded'))return Object.fromEntries(new URLSearchParams(raw));
  const value=JSON.parse(raw||'{}');if(!value||Array.isArray(value)||typeof value!=='object')throw Error('Invalid body');return value as Record<string,unknown>;
 }
@@ -85,22 +91,60 @@ export async function customerRoute(request:Request,path:string[],options:Option
    const result=await call('/logout',token,{});if(!result.ok&&result.status!==401)return failure(result.status);
    const response=reply({ok:true});response.headers.append('Set-Cookie',setCookie(CUSTOMER_COOKIE,'',0,'/',production));return response;
   }
+  const sessionGuard=createHash('sha256').update('cart-session:'+token).digest('hex');
+  const uuid=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+  if(path[0]==='sales-orders'&&path.length===3&&uuid.test(path[1])&&path[2]==='cancel'&&method==='POST'){
+   if(request.headers.get('x-cart-session')!==sessionGuard)return failure(409);
+   let body;try{body=await readBody(request);}catch{return failure(422);}
+   if(Object.keys(body).length!==1||typeof body.request_id!=='string'||!uuid.test(body.request_id))return failure(422);
+   const result=await call('/'+path.join('/'),token,{request_id:body.request_id});if(!result.ok)return failure(result.status);
+   const {parseOrderDetail}=await import('./sales-orders.ts');
+   const order=parseOrderDetail(await result.json());
+   if(order.id!==path[1]||!['cancelled','expired'].includes(order.status))return failure(503);
+   return reply({...order,session_guard:sessionGuard});
+  }
   if(path[0]==='sales-orders'&&method==='GET'&&(path.length===1||(path.length===2&&/^[a-f0-9-]{36}$/.test(path[1])))){
    const {parseSalesOrders,parseOrderDetail}=await import('./sales-orders.ts');const q=new URLSearchParams();const source=new URL(request.url).searchParams;for(const key of ['cursor','status','date_from','date_to','payment_status','fulfillment_status','q']){const value=source.get(key);if(value)q.set(key,value)}
-   const result=await call('/'+path.join('/')+(path.length===1?'?'+q:''),token);if(!result.ok)return failure(result.status);return reply((path.length===1?parseSalesOrders:parseOrderDetail)(await result.json()));
+   const result=await call('/'+path.join('/')+(path.length===1?'?'+q:''),token);if(!result.ok)return failure(result.status);const raw=await result.json();if(path.length===1)return reply(parseSalesOrders(raw));const detail=parseOrderDetail(raw);if(detail.id!==path[1])return failure(503);return reply({...detail,session_guard:sessionGuard});
   }
   const isCart=path.length===1&&path[0]==='cart'&&method==='GET';
   const isItem=path.length===3&&path[0]==='cart'&&path[1]==='items'&&/^[A-Za-z0-9_-]{1,128}$/.test(path[2])&&['PUT','DELETE'].includes(method);
+  const cartAction=path.length===2&&path[0]==='cart'&&method==='POST'&&['change-option','remove-selection'].includes(path[1]);
   const isCheckout=path[0]==='checkouts'&&((path.length===1&&['GET','POST'].includes(method))||(path.length===2&&/^[a-f0-9-]{36}$/.test(path[1])&&['GET','PUT'].includes(method))||(path.length===3&&/^[a-f0-9-]{36}$/.test(path[1])&&path[2]==='payment'&&method==='POST'));
   const isAccount=(path.length===1&&path[0]==='account'&&['GET','PUT'].includes(method))||(path[0]==='addresses'&&((path.length===1&&method==='POST')||(path.length===2&&/^[a-f0-9-]{36}$/.test(path[1])&&['PUT','DELETE'].includes(method))));
-  if(!isCart&&!isItem&&!isCheckout&&!isAccount)return failure(404);
-  const sessionGuard=createHash('sha256').update('cart-session:'+token).digest('hex');
-  if((isItem||((isCheckout||isAccount)&&method!=='GET'))&&request.headers.get('x-cart-session')!==sessionGuard)return failure(409);
-  let body;try{if(isItem||((isCheckout||isAccount)&&method!=='GET'))body=await readBody(request);}catch{return failure(422);}
+  if(!isCart&&!isItem&&!cartAction&&!isCheckout&&!isAccount)return failure(404);
+  let body:Record<string,unknown>|undefined;
+  if(method!=='GET'){
+   if(request.headers.get('x-cart-session')!==sessionGuard)return failure(409);
+   const checkoutCreate=isCheckout&&path.length===1&&method==='POST';
+   try{body=await readBody(request,cartAction||checkoutCreate||path[2]==='payment'?32768:4096);}catch{return failure(422);}
+   if(cartAction){
+    if(!Number.isSafeInteger(body.version)||Number(body.version)<0||typeof body.request_id!=='string'||!uuid.test(body.request_id))return failure(422);
+    if(path[1]==='remove-selection'){
+     if(Object.keys(body).length!==3||!validSkuSelection(body.sku_ids))return failure(422);
+    }else if(Object.keys(body).length!==4||!isCartSku(body.sku_id)||!isCartSku(body.target_sku_id)||body.sku_id===body.target_sku_id)return failure(422);
+   }
+   if(checkoutCreate&&'sku_ids' in body&&(Object.keys(body).length!==4||body.source!=='cart'||
+      !validSkuSelection(body.sku_ids)||!Number.isSafeInteger(body.cart_version)||Number(body.cart_version)<0||
+      typeof body.request_id!=='string'||!uuid.test(body.request_id)))return failure(422);
+  }
   const result=await call('/'+path.join('/'),token,body,method);if(!result.ok)return failure(result.status);
   const cart=await result.json();
+  if(isCheckout && path[2]==='payment'){
+   const {parseOrderDetail}=await import('./sales-orders.ts');
+   return reply(parseOrderDetail(cart),result.status);
+  }
   if(isAccount){const {parseAccount}=await import('./customer-account.ts');return reply({...parseAccount(cart),session_guard:sessionGuard});}
-  if(isCheckout){const {parseCheckout,parseCheckouts}=await import('./customer-checkout.ts');return path.length===1&&method==='GET'?reply({checkouts:parseCheckouts(cart).map(c=>({...c,session_guard:sessionGuard}))}):reply({...parseCheckout(cart),session_guard:sessionGuard});}
+  if(isCheckout){
+   const {parseCheckout,parseCheckouts}=await import('./customer-checkout.ts');
+   if(path.length===1&&method==='GET')return reply({checkouts:parseCheckouts(cart).map(c=>({...c,session_guard:sessionGuard}))});
+   const checkout=parseCheckout(cart);
+   if(path.length===1&&method==='POST'&&Array.isArray(body?.sku_ids)){
+    const selected=new Set(body.sku_ids);
+    if(checkout.items.length!==selected.size||checkout.items.some(item=>!selected.has(item.sku_id)))return failure(503);
+   }
+   return reply({...checkout,session_guard:sessionGuard});
+  }
   // Public cart parsing is supplied by the shared UI contract; never expose arbitrary upstream data.
   const {parseCart}=await import('./customer-shopping.ts');return reply({...parseCart(cart),session_guard:sessionGuard});
  }catch{return failure(503);}
