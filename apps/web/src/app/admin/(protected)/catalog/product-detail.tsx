@@ -15,7 +15,7 @@ import {AdminReviewList} from '../reviews/review-pages';
 
 const detailTabs = [
   {id:'product-basic',label:'기본정보'},
-  {id:'product-pricing',label:'가격·할인'},
+  {id:'product-pricing',label:'판매 설정'},
   {id:'product-options',label:'색상·사이즈'},
   {id:'product-stock',label:'재고'},
   {id:'product-reviews',label:'리뷰 관리'},
@@ -53,7 +53,6 @@ export function ProductDetail({catalog,product,savedImageId='',refresh,onProduct
         <span className="catalog-note">상품 운영 상태</span>
         <StatusBadge kind={product.publication_status==='published'&&product.publication_visible?'stock_healthy':'unpublished'}>{product.publication_status==='published'?(product.publication_visible?'게시 중':'게시 설정 · 고객 화면 제외'):product.publication_status==='paused'?'게시 중지':product.publication_status==='draft'?'준비 중':'상태 확인 필요'}</StatusBadge>
         <Tooltip label="상품 운영 상태 안내" trigger={<span className="catalog-help-icon" aria-hidden="true">?</span>}><p>상품 운영 상태는 고객 화면 공개 설정입니다. 시안 진행 상태와 재고 상태는 별도로 관리합니다. 게시 중이어도 공개 필수 조건이 없어지면 고객 화면에서 제외됩니다.</p>{product.publication_reasons?.map(reason=><p key={reason}>{reason}</p>)}</Tooltip>
-        <button type="button" className="catalog-link-button" onClick={()=>selectTab('product-pricing',true)}>가격·할인·공개 설정</button>
       </div>
     </header>
     <KeyFacts label="상품 재고 요약" items={[{label:'현재 보유 재고',value:`${stock.onHand.toLocaleString('ko-KR')}개`},{label:'등록 색상·사이즈',value:`${stock.count}개`},{label:'부족 옵션',value:`${skus.filter(sku=>sku.on_hand<=sku.reorder_point).length}개`,note:'사용 안 함 옵션도 재고에 포함'}]}/>

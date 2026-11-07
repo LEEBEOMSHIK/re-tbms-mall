@@ -79,7 +79,7 @@ def test_v4_preserves_original_payload_and_legacy_retry(tmp_path):
     assert store.move(MovementCreate(**payload)) == after['movements'][0]
     assert store.move(MovementCreate(**payload, reason_code='legacy')) == after['movements'][0]
     with sqlite3.connect(path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 17
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 18
         assert [r[:-3] for r in db.execute('SELECT * FROM movements')] == before
         assert [row[:-1] for row in db.execute('SELECT * FROM skus')] == skus
         assert all(row[0] == 1 for row in db.execute('SELECT is_active FROM skus'))

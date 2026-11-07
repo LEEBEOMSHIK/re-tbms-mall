@@ -104,7 +104,7 @@ export function AdminMenuManager({mode}:{mode:'status'|'edit'}){
               </li>)}</ul></>:<p className="menu-manager-note">아직 메뉴가 없습니다. 다른 그룹에서 메뉴의 소속 그룹을 변경해 옮길 수 있습니다.</p>}
           </section>
         </div>
-        <div className="menu-editor-footer"><p className="small-label">편집 기준 버전 {saved.revision} · 저장하면 사이드바에 반영됩니다.</p><div className="button-row">
+        <div className="menu-editor-footer admin-save-bar"><p className="small-label">편집 기준 버전 {saved.revision} · 저장하면 사이드바에 반영됩니다.</p><div className="button-row">
           <button type="button" onClick={()=>{const defaults=structuredClone(DEFAULT_ADMIN_MENU.groups);setSelectedId(defaults[0].id);pendingFocus.current='menu-group-name-'+defaults[0].id;change(defaults);setNotice('기본 구성을 입력에 불러왔습니다. 저장 전까지 현재 메뉴는 바뀌지 않습니다.');}}>기본 구성 불러오기</button>
           <button className="button" type="submit" disabled={blocked}>{busy?'처리 중…':'메뉴 구성 저장'}</button></div></div>
       </fieldset>

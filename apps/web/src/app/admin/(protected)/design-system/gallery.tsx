@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { ColorChip } from '@/components/ui/color-chip';
-import { FormChoice, FormLabel, FormRequiredHint, FormSelect } from '@/components/ui/form-controls';
+import { FormSwitch, FormChoice, FormLabel, FormRequiredHint, FormSelect } from '@/components/ui/form-controls';
 import { KeyFacts, ValueStatus } from '@/components/ui/key-facts';
 import { SaveResult } from '@/components/ui/save-result';
 import { StatusBadge } from '@/components/ui/status-badge';
@@ -97,6 +97,20 @@ export function Gallery() {
           <div className={'ds-form ' + styles.stack}><div><FormLabel htmlFor="ds-visibility">공개 상태</FormLabel>
             <FormSelect id="ds-visibility" value={visibility} onChange={setVisibility} options={[{value:'public',label:'공개'},{value:'private',label:'비공개'}]}/></div>
             <FormChoice id="ds-featured" label="추천 상품으로 표시" checked={featured} onChange={e => setFeatured(e.target.checked)}/></div>
+        </Example>
+        <Example title="설정 스위치" source="상품 판매 설정 · 할인" usage="제목·설명 옆에서 기능을 켜거나 끕니다. Tab과 Space로 조작하며 비활성 상태는 변경할 수 없습니다."><div className={styles.row}><FormSwitch id="ds-switch-off" label="할인 설정 예시"/><FormSwitch id="ds-switch-on" label="켜진 설정 예시" defaultChecked/><FormSwitch id="ds-switch-disabled" label="변경 불가 설정 예시" disabled/></div></Example>
+        <Example title="짧은 값의 다중 선택" source="상품 기본정보 · 계절 선택" usage="짧은 이름은 큰 카드 대신 선택 버튼으로 묶습니다. 선택한 값만 채운 배경과 체크로 구분합니다.">
+          <div className="ds-form ds-choice-pills">{['봄','여름','가을','겨울'].map((label,index)=><FormChoice key={label} id={`gallery-season-${index}`} variant="pill" label={label} defaultChecked={index===0||index===2}/>)}</div>
+        </Example>
+        <Example title="체크박스와 라디오 상태" source="장바구니 · 배송 정보 · 관리 설정" usage="빈 상태·선택·부분 선택·비활성 상태를 비교합니다. Tab으로 이동하고 Space로 선택할 수 있습니다.">
+          <div className={'ds-form '+styles.row}>
+            <label className={styles.controlLabel}><input type="checkbox"/>미선택</label>
+            <label className={styles.controlLabel}><input type="checkbox" defaultChecked/>선택됨</label>
+            <label className={styles.controlLabel}><input type="checkbox" ref={element=>{if(element)element.indeterminate=true;}}/>부분 선택</label>
+            <label className={styles.controlLabel}><input type="checkbox" defaultChecked disabled/>사용 불가</label>
+            <label className={styles.controlLabel}><input type="radio" name="ds-radio-detail" defaultChecked/>기본</label>
+            <label className={styles.controlLabel}><input type="radio" name="ds-radio-detail"/>다른 선택</label>
+          </div>
         </Example>
         <Example title="여러 줄 입력과 읽기 전용 필드" source="브랜드 소개 편집 · 택배사 견적 준비" usage="직접 작성하는 본문과 복사용으로 제공되는 문구의 차이를 확인합니다.">
           <div className={'ds-form '+styles.stack}><div><FormLabel htmlFor="ds-story">브랜드 소개</FormLabel><textarea id="ds-story" rows={2} defaultValue="관심사를 옷에 담습니다."/></div>

@@ -208,3 +208,28 @@ def test_unattributed_cancellation_is_not_a_customer_receipt(engine):
     assert 'release_reason' not in orders.detail(order['id'])['reservation']
     with pytest.raises(HTTPException, match='409'):
         cancel_order(orders, order['id'], draft['customer_id'], str(uuid4()))
+
+
+def test_admin_catalog_availability_snapshot(engine, monkeypatch):
+    from app.order_reservations import cancel_order
+    orders, now, sku, start, make = engine
+    monkeypatch.setattr('app.order_reservations.time.time', lambda: now[0])
+    def snapshot():
+        row = next(s for s in orders.catalog.get()['skus'] if s['id'] == sku['id'])
+        return row['on_hand'], row['reserved_quantity'], row['available_quantity']
+    assert snapshot() == (4, 0, 4)
+    draft = make()
+    first = start(draft, str(uuid4()))
+    assert snapshot() == (4, 4, 0)
+    now[0] += 599.999
+    assert snapshot() == (4, 4, 0)
+    now[0] += .001
+    assert snapshot() == (4, 0, 4)  # no expiration job or order read needed
+    second = start(draft, str(uuid4()))
+    cancel_order(orders, second['id'], draft['customer_id'], str(uuid4()))
+    assert snapshot() == (4, 0, 4)
+    third = start(make(), str(uuid4()))
+    with orders.transaction() as db:
+        db.execute("UPDATE sales_orders SET payment_status='unknown' WHERE id=?", (third['id'],))
+    now[0] += 601
+    assert snapshot() == (4, 4, 0)

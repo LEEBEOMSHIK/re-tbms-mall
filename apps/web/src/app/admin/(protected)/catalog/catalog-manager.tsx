@@ -19,7 +19,7 @@ const titles: Record<Mode, string> = {
   'option-values': '색상·사이즈 기준정보', 'category-new': '카테고리 등록', 'category-edit': '카테고리 수정', 'option-value-new': '색상·사이즈 기준정보 등록', 'option-value-edit': '색상·사이즈 기준정보 수정',
 };
 
-export function CatalogManager({ mode = 'list', productId = '', entityId = '', categoryKind = 'root', optionKind = 'color', savedMovementId = '', savedImageId = '', inventoryFlow = '', stockFilter = 'all' }: { mode?: Mode; productId?: string; entityId?: string; categoryKind?: 'root'|'child'; optionKind?: 'color'|'size'; savedMovementId?: string; savedImageId?: string; inventoryFlow?: string; stockFilter?: StockFilter }) {
+export function CatalogManager({ mode = 'list', productId = '', entityId = '', categoryKind = 'root', optionKind = 'color', savedMovementId = '', savedImageId = '', inventoryFlow = '', skuId = '', stockFilter = 'all' }: { mode?: Mode; productId?: string; entityId?: string; categoryKind?: 'root'|'child'; optionKind?: 'color'|'size'; savedMovementId?: string; savedImageId?: string; inventoryFlow?: string; skuId?: string; stockFilter?: StockFilter }) {
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [loading, setLoading] = useState(true);
   const [failure, setFailure] = useState<CatalogFailure | null>(null);
@@ -113,7 +113,7 @@ export function CatalogManager({ mode = 'list', productId = '', entityId = '', c
           {productId && <section className="catalog-inventory-product-scope" aria-label="재고 조회 상품"><div>{product ? <><strong>{product.name}</strong><p className="catalog-note">{product.internal_name} · 이 상품의 재고와 입출고 기록만 표시합니다.</p></> : <p role="alert">선택한 상품을 찾을 수 없습니다. 다른 상품의 재고를 대신 표시하지 않습니다.</p>}</div><Link className="catalog-link-button" href={allInventoryHref}>전체 재고 보기</Link></section>}
           {(!productId || product) && <MovementHistory key={`${productId}:${stockFilter}`} initialStockFilter={stockFilter} catalog={inventoryCatalog} productScoped={!!productId} savedMovement={!failure ? inventoryCatalog.movements.find(item => item.id === savedMovementId) : undefined} missingSaved={!failure && !!savedMovementId && !inventoryCatalog.movements.some(item => item.id === savedMovementId)} />}
         </>}
-        {mode === 'inventory-new' && <InventoryForm productId={productId} key={inventoryFlow + productId} catalog={catalog} refresh={refreshAfterChange} initialFlow={inventoryFlow} />}
+        {mode === 'inventory-new' && <InventoryForm skuId={skuId} productId={productId} key={inventoryFlow + productId + skuId} catalog={catalog} refresh={refreshAfterChange} initialFlow={inventoryFlow} />}
         {['categories','category-new','category-edit'].includes(mode) && <CategoryManager key={mode + entityId + categoryKind} catalog={catalog} refresh={refreshAfterChange} mode={mode === 'categories' ? 'list' : mode === 'category-new' ? 'new' : 'edit'} categoryId={entityId} categoryKind={categoryKind} />}
         {['option-values','option-value-new','option-value-edit'].includes(mode) && <OptionValueManager key={mode + entityId + optionKind} catalog={catalog} refresh={refreshAfterChange} mode={mode === 'option-values' ? 'list' : mode === 'option-value-new' ? 'new' : 'edit'} valueId={entityId} initialKind={optionKind} />}
       </>}

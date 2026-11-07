@@ -90,7 +90,7 @@ function SupplierForm({ initial, countryCodes }: { initial?: Supplier; countryCo
       <SupplierAddress value={details} countryCodes={countryCodes} disabled={busy} onChange={patch => setDetails(current => ({ ...current, ...patch }))} />
       <section className="supplier-form-group" aria-labelledby="supplier-memo-title"><h2 id="supplier-memo-title">메모</h2><div className="supplier-field"><FormLabel htmlFor="supplier-memo" hint="선택">메모</FormLabel><textarea id="supplier-memo" aria-labelledby="supplier-memo-label" maxLength={1000} rows={4} value={details.memo} onChange={event => setDetails({ ...details, memo: event.target.value })} /></div></section>
       <div className="supplier-state"><FormChoice id="supplier-active" label="사용 중" className="ds-choice-compact" checked={active} onChange={event => setActive(event.target.checked)} /><p className="catalog-note">사용 중지하면 새 입고에서 선택할 수 없습니다. 기존 입고 내역은 유지됩니다.</p></div>
-      <div className="catalog-actions"><button type="submit" className="catalog-primary">{busy ? '저장 중…' : initial ? '수정 저장' : '공급처 등록'}</button><Link className="catalog-link-button" href="/admin/catalog/suppliers">취소하고 목록으로</Link></div>
+      <div className="catalog-actions admin-save-bar"><button type="submit" className="catalog-primary">{busy ? '저장 중…' : initial ? '수정 저장' : '공급처 등록'}</button><Link className="catalog-link-button" href="/admin/catalog/suppliers">취소하고 목록으로</Link></div>
     </fieldset>
   </form></section>;
 }

@@ -40,7 +40,7 @@ function Cards(){
       <KeyFacts label="예시 재고 요약" items={[{label:'전체 옵션',value:'6개'},{label:'부족 옵션',value:<StatusBadge kind="low_stock">2개 부족</StatusBadge>}]}/>
     </GalleryExample>
     <GalleryExample title="상품 선택 카드" usage="카드 전체를 눌러 상품을 선택하거나 해제합니다. 체크 표시와 함께 상품의 게시 상태를 확인할 수 있습니다." source="관리자 · 홈 진열 섹션 수정">
-      <FormChoice id="gallery-commerce-selection" label="데일리 코튼 티셔츠" caption="아이보리 · 게시 중" checked={picked} onChange={event=>setPicked(event.target.checked)}/>
+      <FormChoice variant="row" id="gallery-commerce-selection" label="데일리 코튼 티셔츠" caption="아이보리 · 게시 중" checked={picked} onChange={event=>setPicked(event.target.checked)}/>
     </GalleryExample>
     <GalleryExample title="공장 작업 카드" usage="상품명과 내부 작업명으로 작업을 구별하고, 진행 상태를 확인한 뒤 상세를 엽니다." source="공장 · 대시보드의 진행할 시안">
       <details className={styles.task}><summary><strong>데일리 코튼 티셔츠</strong><span className={styles.note}>봄 샘플 02</span><span className={styles.taskMeta}><ValueStatus tone="info">샘플 작업 중</ValueStatus><span>시안 상세</span></span></summary><p>예시 작업 지시 · 소매 길이와 넥라인을 확인합니다.</p></details>

@@ -88,7 +88,7 @@ export default function HeroEditor(){
       <fieldset disabled={busy}><legend className="sr-only">개별 광고 구성</legend><HeroSlideFields data={base} slides={slides} automatic={wantsAuto||(base.hero_slides==null&&!slidesChanged)} onChange={updated=>{setWantsAuto(false);setEditedSlides(updated);}} activeId={activeId} onSelect={setActiveId}/>{!wantsAuto&&(base.hero_slides!=null||slidesChanged)&&<div><button type="button" onClick={()=>{setEditedSlides(null);setWantsAuto(true);setActiveId('');}}>진열 섹션 자동 구성으로 전환</button><p className="small-label">저장하면 개별 광고 구성이 섹션 순서와 첫 상품 사진을 따르는 자동 구성으로 바뀝니다.</p></div>}</fieldset>
       {issue&&<div role={needsRead?'alert':'status'} className={needsRead?'merchandising-error':'admin-note'}><p>{issue}</p>
         {auth&&<Link className="text-link" href="/admin/login">다시 로그인</Link>}{needsRead&&<button type="button" disabled={busy} onClick={()=>void refresh()}>최신 진열 확인 · 선택 유지</button>}</div>}
-      <div className={styles.saveBar}><span role="status">{dirty?'저장하지 않은 변경사항':'저장된 설정과 일치합니다'}</span><button className="button" disabled={busy||needsRead||!dirty}>{busy?'처리 중…':'상단 광고 설정 저장'}</button></div>
+      <div className={`${styles.saveBar} admin-save-bar`}><span role="status">{dirty?'저장하지 않은 변경사항':'저장된 설정과 일치합니다'}</span><button className="button" disabled={busy||needsRead||!dirty}>{busy?'처리 중…':'상단 광고 설정 저장'}</button></div>
     </form>:issue?<section role="alert"><p>{issue}</p>{auth&&<Link className="text-link" href="/admin/login">다시 로그인</Link>}<button onClick={()=>{setIssue('');setAuth(false);setBusy(true);setAttempt(n=>n+1);}}>다시 조회</button></section>:<p role="status">설정을 불러오고 있습니다.</p>}
   </main>;
 }

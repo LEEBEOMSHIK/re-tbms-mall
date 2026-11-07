@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from app.countries import COUNTRY_CODES
 from app.factory import migrate_factory, migrate_factory_progress
 from app.shipments import migrate_shipments
-from app.public_catalog import migrate_publication, migrate_discount, PublicCatalog
+from app.public_catalog import migrate_publication, migrate_discount, migrate_discount_basis, PublicCatalog
 from app.reviews import migrate_reviews
 from app.product_details import ProductDetails
 
@@ -387,6 +387,10 @@ class CatalogStore:
             connection.row_factory = sqlite3.Row
             connection.execute('PRAGMA foreign_keys=ON')
             connection.execute('PRAGMA busy_timeout=5000')
+            if connection.execute('PRAGMA user_version').fetchone()[0] == 17:
+                backup_path = self.path.with_name(self.path.name + '.pre-v18-' + str(uuid4()) + '.bak')
+                with sqlite3.connect(backup_path) as backup:
+                    connection.backup(backup)
             # A v12 file is backed up before additive shipment migration; never overwrite a backup.
             if connection.execute('PRAGMA user_version').fetchone()[0] == 12:
                 backup_path = self.path.with_name(self.path.name + '.pre-v13-' + str(uuid4()) + '.bak')
@@ -484,7 +488,10 @@ class CatalogStore:
                 connection.execute("ALTER TABLE products ADD COLUMN details TEXT NOT NULL DEFAULT '{}'")
                 connection.execute('PRAGMA user_version=17')
                 version = 17
-            if version != 17:
+            if version == 17:
+                migrate_discount_basis(connection)
+                version = 18
+            if version != 18:
                 raise HTTPException(503, 'Unsupported catalogue storage version.')
             yield connection
             connection.commit()
@@ -498,6 +505,12 @@ class CatalogStore:
 
     def get(self) -> dict:
         with self.transaction() as db:
+            from app.order_reservations import held_quantities
+            skus = [category_response(row) for row in db.execute(f'SELECT {SKU_COLUMNS} FROM skus ORDER BY rowid')]
+            reserved = held_quantities(db, [sku['id'] for sku in skus])
+            for sku in skus:
+                sku['reserved_quantity'] = reserved.get(sku['id'], 0)
+                sku['available_quantity'] = max(0, sku['on_hand'] - sku['reserved_quantity'])
             readiness = []
             for aggregate in db.execute('''SELECT p.id AS product_id, COUNT(s.id) AS sku_count,
                     COALESCE(SUM(CASE WHEN s.on_hand>0 THEN 1 ELSE 0 END),0) AS stocked_sku_count,
@@ -523,7 +536,7 @@ class CatalogStore:
                 'country_codes': COUNTRY_CODES,
                 'categories': [category_response(row) for row in db.execute('SELECT * FROM categories ORDER BY sort_order,rowid')],
                 'products': [self.product_with_publication(db, row) for row in db.execute(f'SELECT {PRODUCT_COLUMNS} FROM products ORDER BY rowid')],
-                'skus': [category_response(row) for row in db.execute(f'SELECT {SKU_COLUMNS} FROM skus ORDER BY rowid')],
+                'skus': skus,
                 'movements': [dict(row) for row in db.execute(f'SELECT {MOVEMENT_COLUMNS} FROM movements ORDER BY rowid DESC')],
             }
 

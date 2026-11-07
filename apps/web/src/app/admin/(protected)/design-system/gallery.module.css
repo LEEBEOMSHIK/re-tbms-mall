@@ -40,3 +40,4 @@
 .index h3 { font-size: var(--text-base); }
 .index p, .index li details { font-size: var(--text-sm); line-height: 1.6; color: var(--color-secondary); }
 .index li a { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-link-action); text-decoration: underline; text-underline-offset: 3px; }
+.controlLabel { display:inline-flex; align-items:center; gap:.6rem; min-height:44px; padding:.25rem .5rem; cursor:pointer; font-size:.875rem; }

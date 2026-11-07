@@ -74,7 +74,7 @@ def test_schema15_additive_discount_preserves_prices_history_and_inventory(setup
     assert values(after['history'][0])==[12345,None,12345,None]
     assert snapshot(client)==before
     with sqlite3.connect(path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0]==17
+        assert db.execute('PRAGMA user_version').fetchone()[0]==18
         assert [r[:-1] for r in db.execute('SELECT * FROM product_publications')]==publication_before
         assert [r[:-1] for r in db.execute('SELECT * FROM publication_history')]==history_before
     backups=list(path.parent.glob(path.name+'.pre-v16-*.bak'));assert backups

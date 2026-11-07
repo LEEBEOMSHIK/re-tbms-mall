@@ -9,3 +9,5 @@
   .ds-save-result { padding: var(--space-4); }
   .ds-save-result-actions > button, .ds-save-result-actions > a { width: 100%; }
 }
+
+.ds-save-result-actions > :is(button,a){display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:48px;line-height:1.5;text-align:center;}

@@ -94,7 +94,7 @@ def test_schema16_backup_and_additive_migration(setup):
     assert after['products'][0]['details'] == EMPTY
     assert after == before
     with sqlite3.connect(path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 17
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 18
         assert [r[:-1] for r in db.execute('SELECT * FROM products')] == old['products']
         for table in ['skus','movements','product_publications','publication_history']:
             assert db.execute('SELECT * FROM '+table).fetchall() == old[table]

@@ -1,4 +1,5 @@
 'use client';
+import {productSizeLabel} from '@/lib/product-option-labels';
 import {ColorChip} from '@/components/ui/color-chip';
 import {stockMatches,type StockFilter} from '@/lib/inventory-overview';
 import {KeyFacts} from '@/components/ui/key-facts';
@@ -228,6 +229,8 @@ export function MovementHistory({ catalog, savedMovement, missingSaved = false, 
   const pageStatus=useRef<HTMLParagraphElement>(null);
   useEffect(() => { if (savedMovement) { resultHeading.current?.focus(); resultHeading.current?.scrollIntoView({ block: 'start' }); } }, [savedMovement]);
   const rows = inventorySummary(catalog);
+  const [totalsId,setTotalsId]=useState<string|null>(null);
+  const totalsRow=rows.find(row=>row.sku.id===totalsId);
   const visibleRows = rows.filter(row => inventoryMatches(row, query) && (view!=='stock'||stockMatches(row.low,stockFilter)));
   const matchedIds = new Set(visibleRows.map(row => row.sku.id));
   const reasonAllowed = (code: string) => view === 'receipt' ? code === 'receipt' : view === 'out' ? ['sale', 'gift', 'disposal', 'other_out'].includes(code) : ['adjust_in', 'adjust_out', 'legacy'].includes(code);
@@ -269,7 +272,7 @@ export function MovementHistory({ catalog, savedMovement, missingSaved = false, 
     <p className="catalog-note catalog-inventory-summary-note">요약카드는 {productScoped?'선택 상품':'전체 상품'}의 전체 기록 기준이며 검색 조건에 따라 바뀌지 않습니다.</p>
     <div id="inventory-view-content" className="catalog-inventory-view">
     <header className="catalog-inventory-list-heading"><h2 aria-live="polite">{title}</h2><Tooltip label={`${title} 조회 기준 도움말`} trigger={<span className="catalog-help-icon" aria-hidden="true">?</span>}>
-      <p>현재 재고는 시스템에 저장된 수량입니다. 입고 누계에는 옵션 등록 시 초기 입고가 포함됩니다. 기존 미분류 기록은 입고·출고로 추정하지 않습니다.</p>
+      <p>보유는 실제 재고, 주문 확보는 결제 대기·결과 확인 등을 위해 해제되지 않은 수량입니다. 판매 가능은 보유에서 주문 확보를 뺀 재고 기준 수량이며, 상품 게시·옵션 사용 여부와는 별개입니다. 부족 알림은 보유 수량 기준입니다. 입고 누계에는 옵션 등록 시 초기 입고가 포함됩니다. 기존 미분류 기록은 입고·출고로 추정하지 않습니다.</p>
       {view !== 'stock' && <p>{view === 'receipt' ? '공장·공급처 등에서 들어온 상품과 수량입니다. 입고처는 기록 당시 이름이며 연결되지 않은 기록은 입고처 미기록으로 표시합니다.' : view === 'out' ? '판매·증정·폐기·기타 출고 수량입니다. 실제 고객·배송·주문·결제 정보는 연결되지 않았습니다.' : '조정과 기존 미분류 기록입니다. 기존 기록의 입고·출고 유형을 임의로 추정하지 않습니다.'} 시각은 한국 시간 기준입니다.</p>}
     </Tooltip></header>
     <div className="ds-form catalog-inventory-filters" data-view={view} role="group" aria-label={`${title} 검색 조건`}>
@@ -285,8 +288,13 @@ export function MovementHistory({ catalog, savedMovement, missingSaved = false, 
     {view === 'stock' ? <div className="catalog-inventory-results">
       <p aria-live="polite">전체 {rows.length}개 옵션 중 {visibleRows.length}개</p>
       {!visibleRows.length ? <p className="catalog-empty-state">표시할 재고가 없습니다.</p> : <div className="catalog-table-scroll" tabIndex={0} role="region" aria-label="현재 보유 재고 목록"><table>
-        <thead><tr><th>상품명 / 내부 관리명</th><th>색상 / 사이즈</th><th>현재 재고</th><th>부족 상태 · 관리</th><th>입출고 누계</th></tr></thead>
-        <tbody>{pageRows.map(row => <tr key={row.sku.id} data-stock-sku-id={row.sku.id}><td>{row.product ? <Link className="catalog-product-name-link" href={`/admin/catalog/${encodeURIComponent(row.product.id)}`} aria-label={`${row.product.name} 상품 상세`}>{row.product.name}</Link> : '상품 정보 없음'}<small>{row.product?.internal_name}</small></td><td><ColorChip name={row.sku.color} showName/> / {row.sku.size}<small>{row.sku.code}</small><span className={`sku-usage-badge ${row.sku.is_active?'is-active':'is-inactive'}`}>{row.sku.is_active?'사용 중':'사용 안 함'}</span></td><td><strong className="catalog-table-key-value">{row.current}개</strong></td><td><StatusBadge kind={row.low ? 'low_stock' : 'stock_healthy'}>{row.low ? '부족' : '양호'}</StatusBadge><small>기준 {row.sku.reorder_point}개 이하일 때 표시</small><Link className="catalog-row-action" href={`/admin/catalog/options/${encodeURIComponent(row.sku.id)}/edit`} aria-label={`${row.product?.name||row.sku.code} ${row.sku.color} ${row.sku.size} 옵션 수정`}>옵션 수정</Link></td><td><details className="catalog-list-details"><summary aria-label={`${row.product?.name||row.sku.code} ${row.sku.color} ${row.sku.size} 입출고 누계`}>누계 보기</summary><dl><div><dt>입고</dt><dd>{row.received}개</dd></div><div><dt>판매 출고</dt><dd>{row.sold}개</dd></div><div><dt>기타 출고</dt><dd>{row.otherOut}개</dd></div><div><dt>조정 순증</dt><dd>{row.adjusted>0?'+':''}{row.adjusted}개</dd></div></dl></details></td></tr>)}</tbody>
+        <thead><tr><th>상품 · 옵션</th><th>재고 수량</th><th>부족 알림</th><th>재고 관리</th></tr></thead>
+        <tbody>{pageRows.map(row => <tr key={row.sku.id} data-stock-sku-id={row.sku.id} className="inventory-stock-row">
+          <td><Link className="catalog-product-name-link" href={`/admin/catalog/${encodeURIComponent(row.sku.product_id)}`}>{row.product?.name||'상품 정보 없음'}</Link><div className="inventory-option-line"><ColorChip name={row.sku.color} showName/><span>{productSizeLabel(row.sku.size)}</span>{!row.sku.is_active&&<span className="sku-usage-badge is-inactive">사용 안 함</span>}</div><small>{row.sku.code}</small></td>
+          <td><div className="inventory-availability"><span className="inventory-availability-label">판매 가능</span><strong className="catalog-table-key-value">{row.sku.available_quantity===undefined?'—':row.sku.available_quantity.toLocaleString()}<small>개</small></strong><div className="inventory-availability-parts"><span>보유 <b>{row.current.toLocaleString()}</b></span><span>주문 확보 <b>{row.sku.reserved_quantity===undefined?'—':row.sku.reserved_quantity.toLocaleString()}</b></span></div>{row.sku.available_quantity===undefined&&<small>다시 조회해 주세요</small>}</div></td>
+          <td><StatusBadge kind={row.low?'low_stock':'stock_healthy'}>{row.low?'부족':'양호'}</StatusBadge><small>보유 {row.sku.reorder_point}개 이하</small><Link className="inventory-threshold-link" href={`/admin/catalog/options/${encodeURIComponent(row.sku.id)}/edit`}>기준·사용 설정</Link></td>
+          <td><div className="inventory-row-actions">{[['receipt','입고'],['out','출고'],['adjust','조정']].map(([flow,label])=><Link key={flow} href={`/admin/catalog/inventory/new?product_id=${encodeURIComponent(row.sku.product_id)}&sku_id=${encodeURIComponent(row.sku.id)}&flow=${flow}`} aria-label={`${row.product?.name||row.sku.code} ${row.sku.color} ${row.sku.size} ${label}`}>{label}</Link>)}</div><button type="button" className="inventory-totals-trigger" onClick={()=>setTotalsId(row.sku.id)}>누계 보기 <span aria-hidden="true">↗</span></button></td>
+        </tr>)}</tbody>
       </table></div>}
     </div> : <div className="catalog-inventory-results">
       <p aria-live="polite">조회 결과 {movements.length}건 · {view === 'receipt' ? `입고 수량 합계 ${movementTotal}개` : view === 'out' ? `출고 수량 합계 ${Math.abs(movementTotal)}개` : `변동 합계 ${movementTotal > 0 ? '+' : ''}${movementTotal}개 (미분류 포함)`}</p>
@@ -297,6 +305,7 @@ export function MovementHistory({ catalog, savedMovement, missingSaved = false, 
         </tr>; })}</tbody>
       </table></div>}
     </div>}
+    {totalsRow&&<InventoryTotalsDialog row={totalsRow} onClose={()=>setTotalsId(null)}/>}
     <nav className="catalog-pagination" aria-label={`${title} 페이지 이동`}>
       <button type="button" disabled={range.page<=1||!range.pages} onClick={()=>goToPage(range.page-1)}>이전</button>
       {pageButtons(range.page,range.pages).map((page,index)=>page==='gap'?<span key={`gap-${index}`} aria-hidden="true">…</span>:<button type="button" key={page} aria-label={`${page}페이지`} aria-current={page===range.page?'page':undefined} onClick={()=>goToPage(page)}>{page}</button>)}
@@ -310,3 +319,16 @@ export function MovementHistory({ catalog, savedMovement, missingSaved = false, 
 
 
 
+
+function InventoryTotalsDialog({row,onClose}:{row:ReturnType<typeof inventorySummary>[number];onClose:()=>void}) {
+  const dialog=useRef<HTMLDialogElement>(null);
+  const titleId=useId();
+  useEffect(()=>{const opener=document.activeElement as HTMLElement|null;dialog.current?.showModal();return()=>{opener?.focus({preventScroll:true});};},[]);
+  return <dialog ref={dialog} className="inventory-totals-dialog" aria-labelledby={titleId} onClose={onClose}>
+    <header><h2 id={titleId}>입출고 누계</h2><button type="button" aria-label="누계 닫기" onClick={()=>dialog.current?.close()}>×</button></header>
+    <p>{row.product?.name}</p><p className="catalog-note">{row.sku.color} / {row.sku.size}</p>
+    <dl>{[['판매 가능',row.sku.available_quantity??'—'],['보유 재고',row.current],['주문 확보',row.sku.reserved_quantity??'—'],['입고',row.received],['판매 출고',row.sold],['기타 출고',row.otherOut],['조정 순증',row.adjusted]].map(([label,value])=><div key={label}><dt>{label}</dt><dd>{typeof value==='number'?value.toLocaleString():value}개</dd></div>)}</dl>
+    <p className="catalog-note">입고 누계에는 초기 입고가 포함됩니다. 기존 미분류 기록은 입고·출고로 추정하지 않습니다.</p>
+    <button type="button" onClick={()=>dialog.current?.close()}>닫기</button>
+  </dialog>;
+}

@@ -13,6 +13,7 @@ import {PurchaseGuidanceDialog} from './purchase-guidance-dialog';
 import type {PurchaseGuidanceKind} from '@/lib/purchase-guidance';
 import {useShoppingCart} from './use-shopping-cart';
 import './customer-shopping.css';
+import './ui/form-controls.css';
 import styles from './cart-layout.module.css';
 
 function CartEmpty({login=false}:{login?:boolean}){return <div className="customer-cart-empty"><span className="customer-cart-empty-icon" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M5 7h14l1 14H4L5 7Zm3 0V5a4 4 0 0 1 8 0v2" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg></span><h2>{login?'내 장바구니를 확인해 보세요':'아직 담은 상품이 없어요'}</h2><p>{login?'로그인하면 담아 둔 상품을 확인할 수 있어요.':'마음에 드는 상품을 담아 한곳에서 살펴보세요.'}</p><Link className="customer-cart-cta" href={login?'/login?return_to=%2Fcart':'/products'}>{login?'로그인하기':'상품 둘러보기'}<span aria-hidden="true"> →</span></Link></div>}

@@ -26,7 +26,7 @@ def test_domains_unique_per_kind_and_rename_snapshots(tmp_path):
     color = next(v for v in store.get()['option_values'] if v['id'] == body.color_id)
     changed = store.update_option_value(color['id'], OptionValueUpdate(name='Ink', is_active=False, sort_order=5, version=0))
     assert changed['version'] == 1 and changed['code'] == 'BLK'
-    assert store.get()['skus'] == [sku]
+    assert store.get()['skus'] == [{**sku, 'reserved_quantity': 0, 'available_quantity': 0}]
     with pytest.raises(HTTPException) as error:
         store.create_sku(body)
     assert error.value.status_code == 422
@@ -64,7 +64,7 @@ def test_populated_migration_exact_public_data_and_ledger_preserved(tmp_path):
     assert [v['code'] for v in data['option_values']] == ['C000001', 'S000001']
     assert CatalogStore(path).get() == data
     with sqlite3.connect(path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 17
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 18
         assert db.execute('SELECT id,product_id,code,color,size,reorder_point,on_hand,version FROM skus ORDER BY rowid').fetchall() == before
         assert db.execute('SELECT id,sku_id,delta,reason,actor,created_at,balance_after,request_id,request_payload FROM movements').fetchall() == ledger
         assert db.execute('PRAGMA foreign_key_check').fetchall() == []

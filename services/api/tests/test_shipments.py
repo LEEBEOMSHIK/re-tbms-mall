@@ -180,4 +180,4 @@ def test_v12_migration_backup_preserves_data(setup):
     with sqlite3.connect(backups[0]) as db:
         assert db.execute('PRAGMA user_version').fetchone()[0]==12
         assert db.execute('SELECT id FROM skus').fetchone()[0]==sku['id']
-    with sqlite3.connect(store.path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==17
+    with sqlite3.connect(store.path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==18

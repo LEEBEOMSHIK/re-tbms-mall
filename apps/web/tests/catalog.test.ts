@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {parseCatalog,parseProduct,parseMovement,catalogRequest,movementRequest,toggleSeason,internalNamePreview,categoryPath} from '../src/lib/catalog.ts';
+import {parseSku,parseCatalog,parseProduct,parseMovement,catalogRequest,movementRequest,toggleSeason,internalNamePreview,categoryPath} from '../src/lib/catalog.ts';
 
 const categories=[{id:'tops',name:'상의',code:'TOP',parent_id:null,is_active:true,sort_order:0,version:0}];
 const season_options=[{code:'SP',label:'봄'},{code:'SU',label:'여름'},{code:'FA',label:'가을'},{code:'WI',label:'겨울'},{code:'ALL',label:'사계절'}];
@@ -80,4 +80,13 @@ test('catalog requests keep auth server-side and map actionable HTTP failures',a
   }
   assert.deepEqual(await catalogRequest('/api/admin/catalog',parseCatalog,{fetcher:async()=>new Response('{"mode":"production"}')}),{ok:false,reason:'unavailable'});
   assert.deepEqual(await catalogRequest('/api/admin/catalog',parseCatalog,{fetcher:async()=>{throw Error('offline');}}),{ok:false,reason:'unavailable'});
+});
+
+test('inventory availability requires a consistent pair; missing values stay unknown',()=>{
+  assert.equal(parseSku(sku).available_quantity,undefined);
+  for(const [reserved,available] of [[0,4],[2,2],[4,0],[5,0]]){
+    const row=parseSku({...sku,reserved_quantity:reserved,available_quantity:available});
+    assert.equal(row.available_quantity,available);assert.equal(row.reserved_quantity,reserved);
+  }
+  for(const fields of [{reserved_quantity:1},{available_quantity:3},{reserved_quantity:1,available_quantity:4},{reserved_quantity:-1,available_quantity:5},{reserved_quantity:0.5,available_quantity:3.5}])assert.throws(()=>parseSku({...sku,...fields}));
 });

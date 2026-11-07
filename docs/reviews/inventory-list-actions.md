@@ -1,0 +1,11 @@
+# WB217 재고 목록 및 재고 관리 진입
+- 요구: R107. 담당: 관리자 UI 및 독립 검증. 선행 WB216.
+- 목적: 상품·옵션 중복 표시 축소, 재고 변경 진입점 제공, 누계 확장으로 인한 행 변형 제거.
+- 변경: catalog-list.tsx, catalog.css, catalog-manager.tsx, catalog-forms.tsx, inventory/new/page.tsx, admin-guide.ts 및 캡처.
+- 계약: 기존 재고 API·금액·권한·저장 로직 유지. sku_id는 서버 페이지에서 문자열만 전달하고 입력 폼에서 상품 범위 내 일치 항목만 선택. 불일치시 빈 선택.
+- 검증: 1440/390 브라우저에서 누계 열기 전후 행 높이 동일, Escape 닫기, 전체 페이지 가로 넘침 없음, 3개 흐름 진입 확인. 실제 재고 쓰기 없음.
+- 가이드: inventory:0 새 목록 캡처/동작 설명 동기화.
+- 복구: 이번 변경 파일의 WB217 변경만 되돌림. 데이터 변경 없음.
+- 독립 검증: 별도 검증자 PC1440/320에서 세 흐름 exact SKU, invalid SKU 미선택, Escape/X/닫기 초점 복귀, 행 높이/전체 넘침 확인. 모달 배경 및 누계 열배치 지적 수정 후 시각 재검증 통과.
+- 정적 검사: TypeScript·변경 TSX ESLint 통과, 가이드/재고 테스트14 통과, git diff --check 통과.
+- 캡처: .local/wb217-list-1440.png, .local/wb217-modal-1440.png, .local/wb217-independent-320.png. 운영 데이터 변경·실제 저장은 미실행(조회/진입 UI 변경).

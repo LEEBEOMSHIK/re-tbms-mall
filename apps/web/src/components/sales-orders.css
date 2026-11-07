@@ -42,3 +42,6 @@
 @media(max-width:767px){.customer-order-filter-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.customer-order-query,.customer-order-filter-actions{grid-column:1/-1}.customer-order-query input{font-size:16px}}
 .sales-reservation{border-top:1px solid var(--color-line);margin-top:20px;padding-top:12px}.sales-reservation [role=timer]{font-variant-numeric:tabular-nums}
 .sales-cancel{margin-top:var(--space-4)}.sales-cancel h3{font-size:1rem}.sales-cancel-actions{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+
+/* Keep filter labels readable on narrow customer screens. */
+@media(max-width:380px){.customer-order-filter-fields{grid-template-columns:minmax(0,1fr)}}

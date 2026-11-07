@@ -98,3 +98,5 @@
   .menu-editor .checkbox-label input[type=checkbox] { appearance: auto; width: 18px; }
   .menu-editor .checkbox-label input::after { display: none; }
 }
+
+@container (max-width:360px){.menu-group-picker{grid-template-columns:minmax(0,1fr)}}

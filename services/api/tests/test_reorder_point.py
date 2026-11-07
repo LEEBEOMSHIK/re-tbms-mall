@@ -15,10 +15,12 @@ def test_reorder_point_changes_only_threshold_and_version(setup, value):
     result = client.put(url, headers=AUTH, json={'reorder_point': value, 'version': 1})
     assert result.status_code == 200
     updated = result.json()
-    original = before['skus'][0]
+    original = dict(before['skus'][0])
+    assert original.pop('reserved_quantity') == 0
+    assert original.pop('available_quantity') == 5
     assert updated == {**original, 'reorder_point': value, 'version': 2}
     after = store.get()
-    assert after == {**before, 'skus': [updated]}
+    assert after == {**before, 'skus': [{**updated, 'reserved_quantity': 0, 'available_quantity': 5}]}
     same = client.put(url, headers=AUTH, json={'reorder_point': value, 'version': 2})
     assert same.status_code == 200 and same.json()['version'] == 3
     assert client.put(url, headers=AUTH, json={'reorder_point': value, 'version': 2}).status_code == 409

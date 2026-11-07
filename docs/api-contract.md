@@ -213,3 +213,10 @@ BFF는 no-store 및 기존 관리자 세션을 사용하고 응답 형식/개수
 로고 자료 초안·게시·공장 최신 조회는 [브랜드 자료실 계약](contracts/brand-library.md)을 따른다(WB160/R108).
 
 WB174 홈 진열 관리는 사이트 관리에서 진입한다. WB176 디자인 시스템을 포함한 현재 12개 메뉴와 구형 8~12개 설정의 읽기 호환은 [관리자 메뉴 계약](contracts/admin-menu.md)을 따른다.
+
+## WB212 할인 기준 (2026-11-06)
+관리자 publication PUT/GET 및 history에 discount_mode(price|percent), discount_percent(null 또는 정수1~100)를 추가한다. 기존 클라이언트가 discount_price만 보내면 판매가 기준으로 전환한다. 할인 관련 필드를 모두 생략하면 저장된 기준을 유지한다. percent 기준은 서버에서 price*(100-percent)//100으로 할인 판매가를 계산하고, 함께 보낸 discount_price가 계산과 다르면422로 거절한다. price 기준에서 percent 값은 허용하지 않는다. 할인 해제는 price 기준/null 할인가/null 비율이다. 버전충돌409와 기존 관리자 권한 규칙을 유지한다. 고객 DTO의 discount_rate는 실제 금액으로 계산한 표시용 값이고, 관리자 discount_percent는 입력한 기준 값이다. 저가 상품의 원 미만 버림에서는 두 값이 다를 수 있다.
+카탈로그 스키마18은 두 테이블에 기준/비율 컬럼을 추가한다. 기존 행은 price/null이며 가격·재고 보존. v17은 pre-v18 고유 백업 후 이전한다. 복원은 서버 중단/변경 후 데이터 별도 보존 후 백업으로 수행한다.
+
+## WB218 관리자 catalog SKU 재고 가용 수량
+GET /api/v1/admin/catalog의 skus에 reserved_quantity, available_quantity 정수 필드를 추가한다. 동일 트랜잭션에서 held_quantities 일괄 조회. available_quantity=max(0,on_hand-reserved_quantity). 만료된 PRE_PROVIDER 확보는 정리 작업 전에도 제외하고, 해제되지 않은 결과 미확정 확보는 유지한다. SKU 사용/상품 게시와 무관한 재고 수량이다. 개별 SKU 쓰기 응답은 기존 계약 유지, 해당 필드가 없으면 클라이언트에서 추정하지 않는다. overview 대시보드 API는 변경하지 않는다.

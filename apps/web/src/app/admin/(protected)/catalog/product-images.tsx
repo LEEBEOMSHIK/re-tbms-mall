@@ -114,7 +114,7 @@ export function ProductImageUploader({productId,initialKind='model'}:{productId:
    <div className="catalog-field"><FormLabel htmlFor="product-image-name" required>이미지 이름</FormLabel><input id="product-image-name" required maxLength={120} value={name} onChange={event=>setName(event.target.value)}/></div>
    <div className="catalog-field"><FormLabel htmlFor="product-image-alt">이미지 설명</FormLabel><textarea id="product-image-alt" maxLength={240} rows={3} value={alt} onChange={event=>setAlt(event.target.value)}/><p className="catalog-note">필요한 경우 이미지의 특징을 적어 주세요. 설명이 없으면 이미지 이름을 대체 텍스트로 사용합니다.</p></div>
    <p className="catalog-note">{kind==='design'?'공유로 지정한 시안만 담당 공장에 제공됩니다.':'모델·의류 이미지는 게시 중인 상품의 고객 화면에도 반영됩니다.'}</p>
-   <div className="catalog-actions"><button className="catalog-primary" type="submit" disabled={busy||reading}>{busy?'등록 중…':'이미지 등록'}</button><Link className="catalog-link-button" href={returnPath}>취소하고 {returnLabel}</Link></div>
+   <div className="catalog-actions admin-save-bar"><button className="catalog-primary" type="submit" disabled={busy||reading}>{busy?'등록 중…':'이미지 등록'}</button><Link className="catalog-link-button" href={returnPath}>취소하고 {returnLabel}</Link></div>
   </fieldset></form></section>}
  </main>;
 }

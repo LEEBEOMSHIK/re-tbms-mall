@@ -1,5 +1,7 @@
 'use client';
 import {ColorChip} from '@/components/ui/color-chip';
+import {colorChipLabel} from '@/lib/color-chip';
+import {productSizeLabel} from '@/lib/product-option-labels';
 import {ProductDetailsFields} from './product-details-fields';
 import {ProductDetailsView} from '@/components/product-details-view';
 import {emptyProductDetails,parseProductDetails} from '@/lib/product-details';
@@ -20,7 +22,6 @@ import {
 
 type Refresh = () => Promise<Catalog | null>;
 const emptyProduct = { name: '', category_id: '', seasons: [] as SeasonCode[], description: '', details:emptyProductDetails() };
-const seasonCaptions: Record<SeasonCode, string> = { SP: 'Spring', SU: 'Summer', FA: 'Fall', WI: 'Winter', ALL: 'All seasons' };
 const messages: Record<CatalogFailure, string> = {
   auth: '로그인이 만료되었습니다. 다시 로그인해 주세요.',
   conflict: '다른 변경 또는 중복 값과 충돌했습니다. 최신 내용과 입력값을 확인해 주세요.',
@@ -194,16 +195,15 @@ export function ProductForm({ initial, categories, seasonOptions, refresh, embed
         <p id="classification-help" className="catalog-note">신규 등록하거나 분류·계절을 바꿀 때는 대분류·세부 카테고리·계절을 모두 선택해야 합니다. 기존 미지정 상품은 그대로 두고 이름만 수정할 수 있습니다.</p>
         <fieldset className="catalog-season-options">
           <legend><FormLabel as="span" htmlFor="product-seasons" required={classificationRequired} hint="변경 시 필수">계절</FormLabel></legend>
-          <p className="catalog-note">여러 계절을 선택할 수 있습니다. 사계절은 다른 계절과 함께 선택하지 않으며, 네 계절을 모두 고르면 사계절로 묶습니다.</p>
+          <p className="catalog-note" id="season-help">여러 계절을 선택할 수 있어요. 사계절을 선택하면 다른 계절은 해제됩니다.</p>
           {!product.seasons.length && initial && <p className="catalog-note">계절 미지정</p>}
-          <div className="ds-choice-grid">{seasonOptions.map(season => <FormChoice
+          <div className="ds-choice-pills">{seasonOptions.map(season => <FormChoice
             key={season.code}
             id={`season-${season.code}`}
             label={season.label}
-            caption={seasonCaptions[season.code]}
-            className={season.code === 'ALL' ? 'ds-choice-wide' : ''}
+            variant="pill"
             checked={product.seasons.includes(season.code)}
-            aria-describedby={inputError ? 'product-validation-error' : undefined}
+            aria-describedby={`season-help${inputError ? ' product-validation-error' : ''}`}
             onChange={() => setProduct({ ...product, seasons: toggleSeason(product.seasons, season.code) })}
           />)}</div>
         </fieldset>
@@ -213,7 +213,7 @@ export function ProductForm({ initial, categories, seasonOptions, refresh, embed
         <textarea id="product-description" aria-labelledby="product-description-label" maxLength={2000} rows={5} value={product.description} onChange={event => setProduct({ ...product, description: event.target.value })} />
         </div>
         <ProductDetailsFields value={product.details} onChange={details=>setProduct({...product,details})}/>
-        <div className="catalog-actions">
+        <div className="catalog-actions admin-save-bar">
           <button className="catalog-primary" type="submit" disabled={!!initial && (op.failure === 'conflict' || op.failure === 'unavailable')}>{op.busy ? (initial ? '저장 중…' : '등록 중…') : (initial ? '상품 수정 저장' : '상품 등록')}</button>
           {!embedded && <Link className="catalog-link-button ds-form-action" href={initial?`/admin/catalog/${encodeURIComponent(initial.id)}`:"/admin/catalog"}>{initial?'취소하고 상품 상세로':'취소하고 목록으로'}</Link>}
         </div>
@@ -325,7 +325,7 @@ export function OptionForm({ catalog, productId, refresh }: { catalog: Catalog; 
     <h2>판매할 색상과 사이즈</h2>
     {contextProduct&&<p className="catalog-note">등록 대상: <strong>{contextProduct.name}</strong> · {contextProduct.internal_name}</p>}
     <p className="catalog-note">색상과 사이즈를 선택한 뒤 등록할 조합과 초기 입고 수량을 지정하세요. 기존 옵션은 그대로 유지됩니다.</p>
-    <p className="catalog-notice">이 화면은 새 색상·사이즈 등록용입니다. 기존 옵션의 재고 부족 표시 기준은 <Link className="catalog-link-button" href={option.product_id?`/admin/catalog/${encodeURIComponent(option.product_id)}#product-options`:"/admin/catalog/inventory"}>{option.product_id?'상품 상세에서 수정':'재고 현황에서 수정'}</Link>하세요.</p>
+    <aside className="catalog-option-notice"><p>기존 옵션의 재고 부족 표시 기준은 {option.product_id?'상품 상세':'재고 현황'}에서 변경할 수 있습니다.</p><Link className="catalog-option-notice-link" href={option.product_id?`/admin/catalog/${encodeURIComponent(option.product_id)}#product-options`:"/admin/catalog/inventory"}>{option.product_id?'상품 상세로':'재고 현황으로'}<span aria-hidden="true"> →</span></Link></aside>
     {!catalog.products.length && <p>먼저 <Link href="/admin/catalog/new">상품을 등록해 주세요.</Link></p>}
     <div className="catalog-actions catalog-domain-tools"><button type="button" disabled={disabled} onClick={() => void refresh()}>기준정보 새로고침</button><Link href="/admin/catalog/option-values" target="_blank" rel="noopener noreferrer">기준정보 관리 (새 탭)</Link></div>
     <Feedback failure={op.failure} notice={op.notice} />
@@ -342,46 +342,53 @@ export function OptionForm({ catalog, productId, refresh }: { catalog: Catalog; 
           const available = values.filter(value => value.kind === kind && (value.is_active || option[key].includes(value.id))).sort((a, b) => a.sort_order - b.sort_order);
           return <fieldset key={kind} id={`batch-${kind}-group`} className="catalog-batch-group" tabIndex={-1} aria-describedby={inputError ? 'batch-input-error' : undefined}>
             <legend><FormLabel as="span" htmlFor={`batch-${kind}`} required>{label} 선택</FormLabel></legend>
-            <div className="catalog-actions"><button type="button" onClick={() => setOption(current => ({ ...current, [key]: available.filter(value => value.is_active).map(value => value.id) }))}>{label} 전체 선택</button><button type="button" onClick={() => setOption(current => ({ ...current, [key]: [] }))}>{label} 선택 해제</button></div>
+            <div className="catalog-option-tools"><span className="catalog-note">{option[key].length}개 선택</span><div><button type="button" aria-label={`${label} 전체 선택`} onClick={() => setOption(current => ({ ...current, [key]: available.filter(value => value.is_active).map(value => value.id) }))}>전체 선택</button><button type="button" aria-label={`${label} 선택 해제`} disabled={!option[key].length} onClick={() => setOption(current => ({ ...current, [key]: [] }))}>선택 해제</button></div></div>
             {!available.length && <p>등록된 {label}이 없습니다. 아래 빠른 추가를 이용하세요.</p>}
-            <div className="catalog-batch-choices">{available.map(value => <FormChoice key={value.id} id={`batch-${kind}-${value.id}`} label={value.name} caption={`${value.code}${value.is_active ? '' : ' · 사용 중지'}`} checked={option[key].includes(value.id)} onChange={() => toggle(kind, value.id)} />)}</div>
+            <div className={`catalog-option-picker catalog-option-picker-${kind}`}>{available.map(value => <span className="ds-choice" key={value.id}>
+              <input className="ds-choice-input" type="checkbox" id={`batch-${kind}-${value.id}`} checked={option[key].includes(value.id)} onChange={() => toggle(kind,value.id)} aria-label={`${value.name}${value.is_active?'':' · 사용 중지'}`}/>
+              <label className="catalog-option-choice" htmlFor={`batch-${kind}-${value.id}`} title={`${value.name} · ${value.code}${value.is_active?'':' · 사용 중지'}`}>
+                {kind==='color'?<><ColorChip name={value.name} iconOnly/><span>{colorChipLabel(value.name)}</span></>:<span>{productSizeLabel(value.name)}</span>}
+                {!value.is_active&&<small>사용 중지</small>}
+              </label>
+            </span>)}</div>
           </fieldset>;
         })}</div>
-    <section className="catalog-threshold-tools ds-form" aria-label="초기 입고 수량 일괄 적용">
-      <div className="catalog-tool-heading"><h3>실제 재고 · 초기 입고 수량</h3><Tooltip label="초기 입고 수량 도움말" trigger={<span className="catalog-help-icon" aria-hidden="true">?</span>}><p>등록할 각 조합의 초기 입고 수량을 같은 값으로 바꿉니다. 기존 입력에 더하지 않습니다. 예: 3개 조합에 10개씩 적용하면 총 30개입니다. 재고 부족 표시 기준은 바뀌지 않습니다.</p><p>제외·기존 옵션은 변경하지 않습니다. 적용 후 각 행에서 수정할 수 있고 이후 추가한 조합은 0으로 시작합니다. 실제 재고와 입고 이력은 아래 선택 조합 등록·저장을 눌러 저장합니다.</p></Tooltip></div>
-      <FormLabel htmlFor="common-stock">공통 초기 입고 수량</FormLabel>
+        <section className="catalog-batch-preview" aria-label="등록할 옵션과 초기 재고">
+          <h3>옵션별 재고 입력</h3><div className="catalog-quantity-guide"><p><strong>처음 등록할 재고</strong><span>지금 보유한 수량을 입력하세요. 아직 없으면 0개입니다.</span></p><p><strong>부족 알림 기준</strong><span>예: 3개 → 재고 3개 이하에서 부족 표시. 실제 재고는 바뀌지 않습니다.</span></p></div>
+          <p aria-live="polite">총 {total}개 · 등록 대상 {targets.length}개 · 제외 {excludedCount}개 · 기존 {existingCount}개</p>
+
+          <p className="catalog-note">색상·사이즈 각각 최대 50개, 총 200개까지입니다. 제외한 행은 등록하지 않습니다. 기존 옵션의 재고는 재고 관리에서 변경하세요.</p>
+          {targets.length>1&&<details className="catalog-bulk-entry"><summary>여러 옵션에 같은 값 입력 <span className="catalog-note">신규 {targets.length}개 대상</span></summary><div className="catalog-bulk-entry-grid">    <section className="catalog-threshold-tools ds-form" aria-label="초기 입고 수량 일괄 적용">
+      <p className="catalog-note">각 옵션에 같은 수량을 채웁니다. 기존 입력을 대체하며, 아직 저장되지 않습니다.</p>
+      <FormLabel htmlFor="common-stock">처음 등록할 재고 (개)</FormLabel>
       <input id="common-stock" aria-labelledby="common-stock-label" form="bulk-inputs" type="number" min={0} max={1000000} step={1} value={commonStock} disabled={disabled || !targets.length} onChange={event => { setCommonStock(event.target.value); setStockError(''); setStockNotice(''); }} />
       <p>적용 대상: 신규 등록 {targets.length}개 조합</p>
       <button type="button" disabled={disabled || !targets.length} onClick={() => {
         if (commonStock.trim() === '' || !Number.isInteger(Number(commonStock)) || Number(commonStock) < 0 || Number(commonStock) > 1000000) { setStockError('초기 입고 수량은 0부터 1,000,000까지의 정수로 입력해 주세요.'); setStockNotice(''); document.getElementById('common-stock')?.focus(); return; }
         setRowInputs(current => { const next = { ...current }; targets.forEach(item => { next[item.key] = { excluded: false, stock: commonStock, reorder: item.reorder }; }); return next; });
         setStockError(''); setStockNotice(`적용 당시 등록 대상 ${targets.length}개에 초기 입고 ${Number(commonStock)}개씩 입력했습니다. 총 ${targets.length * Number(commonStock)}개이며 아직 저장 전입니다.`);
-      }}>초기 입고 수량 일괄 적용</button>
+      }} aria-label="재고 수량을 아래 입력칸에 채우기">아래 입력칸에 채우기</button>
       {stockError && <p role="alert" className="admin-session-error">{stockError}</p>}
       <p role="status">{stockNotice}</p>
     </section>
     <section className="catalog-threshold-tools ds-form" aria-label="재고 부족 표시 기준 일괄 적용">
-      <div className="catalog-tool-heading"><h3>상태 표시 · 재고 부족 표시 기준</h3><Tooltip label="재고 부족 표시 기준 도움말" trigger={<span className="catalog-help-icon" aria-hidden="true">?</span>}><p>실제 입고 수량을 바꾸지 않습니다. 현재 재고가 기준 이하이면 확인 필요를 표시합니다. 0은 재고가 없을 때만 표시합니다. 값을 입력한 뒤 적용 버튼을 눌러야 현재 등록 대상에 반영됩니다. 제외·기존 옵션은 바뀌지 않으며 이후 추가하는 조합은 0으로 시작합니다. 각 행에서 다시 수정할 수 있습니다.</p></Tooltip></div>
-      <FormLabel htmlFor="common-reorder">공통 재고 부족 표시 기준</FormLabel>
+      <p className="catalog-note">재고가 이 수량 이하이면 부족으로 표시합니다. 실제 재고는 바뀌지 않습니다.</p>
+      <FormLabel htmlFor="common-reorder">부족 알림 기준 (개)</FormLabel>
       <input id="common-reorder" aria-labelledby="common-reorder-label" form="bulk-inputs" type="number" min={0} max={1000000} step={1} value={commonReorder} disabled={disabled || !targets.length} onChange={event => { setCommonReorder(event.target.value); setApplyNotice(''); setApplyError(''); }} />
       <p>일괄 적용 대상 {targets.length}개</p>
       <button type="button" disabled={disabled || !targets.length} onClick={() => {
         if (commonReorder.trim() === '' || !Number.isInteger(Number(commonReorder)) || Number(commonReorder) < 0 || Number(commonReorder) > 1000000) { setApplyError('0부터 1,000,000까지의 정수를 입력해 주세요.'); setApplyNotice(''); document.getElementById('common-reorder')?.focus(); return; }
         setRowInputs(current => { const next = { ...current }; targets.forEach(item => { next[item.key] = { excluded: false, stock: item.stock, reorder: commonReorder }; }); return next; });
-        setApplyError(''); setApplyNotice(`등록 대상 ${targets.length}개에 기준 ${Number(commonReorder)}개를 적용했습니다.`);
-      }}>부족 표시 기준 일괄 적용</button>
+        setApplyError(''); setApplyNotice(`등록 대상 ${targets.length}개에 기준 ${Number(commonReorder)}개를 입력했습니다. 아직 저장 전입니다.`);
+      }} aria-label="부족 기준을 아래 입력칸에 채우기">아래 입력칸에 채우기</button>
       {applyError && <p role="alert" className="admin-session-error">{applyError}</p>}
       <p role="status">{applyNotice}</p>
     </section>
 
-        <section className="catalog-batch-preview" aria-label="등록할 옵션과 초기 재고">
-          <h3>등록할 옵션과 초기 재고</h3>
-          <p aria-live="polite">총 {total}개 · 등록 대상 {targets.length}개 · 제외 {excludedCount}개 · 기존 {existingCount}개</p>
-          <p aria-live="polite">초기 입고 합계: {validStocks ? `${stockTotal}개` : '수량 입력 확인 필요'}</p>
-          <p className="catalog-note">색상·사이즈 각각 최대 50개, 총 200개까지입니다. 제외한 행은 등록하지 않습니다. 기존 옵션의 재고는 재고 관리에서 변경하세요.</p>
+</div></details>}
           {overLimit ? <p role="alert">등록 가능한 개수를 초과했습니다. 선택을 줄여 주세요.</p> : !selectedProduct ? <p>대상 상품을 선택해 주세요.</p> : !!combinations.length && <div className="catalog-table-scroll" tabIndex={0} role="region" aria-label="선택 조합 목록">
-            <table><thead><tr><th>색상</th><th>사이즈</th><th>옵션 관리 코드</th><th>등록 구분</th><th>초기 입고 수량 / 현재 재고</th><th>재고 부족 표시 기준</th><th>등록 대상 관리</th></tr></thead><tbody>{combinations.map(item => <tr key={item.key} data-combination-key={item.key} className={item.excluded && !item.existing ? 'catalog-batch-excluded' : undefined}>
-              <td><ColorChip name={item.color.name} showName/></td><td>{item.size.name}</td><td>{item.code}</td><td>{item.existing ? '기존 등록' : item.excluded ? '제외' : '등록 대상'}</td>
+            <table><thead><tr><th>색상</th><th>사이즈</th><th>옵션 관리 코드</th><th>등록 구분</th><th>처음 등록할 재고 (개)</th><th>부족 알림 기준 (개)</th><th>등록 대상 관리</th></tr></thead><tbody>{combinations.map(item => <tr key={item.key} data-combination-key={item.key} className={item.excluded && !item.existing ? 'catalog-batch-excluded' : undefined}>
+              <td><ColorChip name={item.color.name} showName/></td><td>{productSizeLabel(item.size.name)}</td><td>{item.code}</td><td>{item.existing ? '이미 등록됨' : item.excluded ? '제외' : '등록 대상'}</td>
               <td>{item.existing ? <span>현재 재고 {item.existing.on_hand}개</span> : <><label className="catalog-stock-label" htmlFor={`initial-stock-${item.key}`}>{item.color.name} / {item.size.name} 초기 입고 수량</label><input id={`initial-stock-${item.key}`} className="catalog-initial-stock" type="number" min={0} max={1000000} step={1} required={!item.excluded} disabled={item.excluded} value={item.stock} onChange={event => setRowInputs(current => ({ ...current, [item.key]: { excluded: item.excluded, stock: event.target.value, reorder: item.reorder } }))} /></>}</td>
               <td>{item.existing ? <span>현재 기준 {item.existing.reorder_point}개</span> : <><label className="catalog-stock-label" htmlFor={`reorder-point-${item.key}`}>{item.color.name} / {item.size.name} 재고 부족 표시 기준</label><input id={`reorder-point-${item.key}`} className="catalog-initial-stock" type="number" min={0} max={1000000} step={1} required={!item.excluded} disabled={item.excluded} value={item.reorder} onChange={event => setRowInputs(current => ({ ...current, [item.key]: { excluded: item.excluded, stock: item.stock, reorder: event.target.value } }))} /></>}</td>
               <td>{item.existing ? <Link className="catalog-link-button" href={`/admin/catalog/options/${encodeURIComponent(item.existing.id)}/edit`}>옵션 수정</Link> : <button type="button" aria-label={`${item.color.name} / ${item.size.name} ${item.excluded ? '복원' : '제외'}`} onClick={() => setRowInputs(current => ({ ...current, [item.key]: { stock: item.stock, reorder: item.reorder, excluded: !item.excluded } }))}>{item.excluded ? '복원' : '제외'}</button>}</td>
@@ -389,7 +396,7 @@ export function OptionForm({ catalog, productId, refresh }: { catalog: Catalog; 
           </div>}
           {!overLimit && selectedProduct && !targets.length && <p role="status">저장할 신규 조합이 없습니다. 색상과 사이즈를 선택하거나 제외한 조합을 복원해 주세요. 기존 옵션 수정은 상품 상세의 색상·사이즈 현황에서 진행합니다.</p>}
         </section>
-        <div className="catalog-actions"><button className="catalog-primary" type="submit" disabled={overLimit || !targets.length}>{op.busy ? '등록 중…' : '선택 조합 등록·저장'}</button><Link className="catalog-link-button ds-form-action" href={option.product_id?`/admin/catalog/${encodeURIComponent(option.product_id)}`:"/admin/catalog"}>{option.product_id?'취소하고 상품 상세로':'취소하고 목록으로'}</Link></div>
+<div className="catalog-registration-footer admin-save-bar"><div aria-live="polite"><strong>새 옵션 {targets.length}개 · 등록할 재고 총 {validStocks ? `${stockTotal}개` : '수량 확인 필요'}</strong><p className="catalog-note">등록 버튼을 눌러야 실제 재고에 반영됩니다.</p></div><div className="catalog-actions"><button className="catalog-primary" type="submit" disabled={overLimit || !targets.length}>{op.busy ? '등록 중…' : '옵션 및 초기 재고 등록'}</button><Link className="catalog-link-button ds-form-action" href={option.product_id?`/admin/catalog/${encodeURIComponent(option.product_id)}`:"/admin/catalog"}>{option.product_id?'취소하고 상품 상세로':'취소하고 목록으로'}</Link></div></div>
       </fieldset>
     </form>
     <div className="catalog-quick-options"><div className="catalog-actions">
@@ -406,7 +413,7 @@ export function OptionForm({ catalog, productId, refresh }: { catalog: Catalog; 
     </section>}</div>
   </section>;
 }
-export function InventoryForm({ catalog, refresh, initialFlow = '', productId = '' }: { catalog: Catalog; refresh: Refresh; initialFlow?: string; productId?: string }) {
+export function InventoryForm({ catalog, refresh, initialFlow = '', productId = '', skuId = '' }: { catalog: Catalog; refresh: Refresh; initialFlow?: string; productId?: string; skuId?: string }) {
   const router = useRouter();
   const [savedId, setSavedId] = useState('');
   const scopedSkus=productId?catalog.skus.filter(sku=>sku.product_id===productId):catalog.skus;
@@ -414,7 +421,7 @@ export function InventoryForm({ catalog, refresh, initialFlow = '', productId = 
   const [supplierId,setSupplierId]=useState('');
   const suppliers=(catalog.suppliers||[]).filter(s=>s.is_active);
   const initial = inventoryFlowConfig(initialFlow);
-  const [movement, setMovement] = useState({ sku_id: productId?(scopedSkus[0]?.id||''):'', delta: '', reason: '', reason_code: initial.reason });
+  const [movement, setMovement] = useState({ sku_id: skuId ? (scopedSkus.some(sku=>sku.id===skuId)?skuId:'') : productId?(scopedSkus[0]?.id||''):'', delta: '', reason: '', reason_code: initial.reason });
   const [flow, setFlow] = useState(initial.flow);
   const flowTitle = inventoryFlows.find(item=>item.value===flow)?.title || '';
   const quantityLabel = flow === 'receipt' ? '입고 수량' : flow === 'out' ? '출고 수량' : '조정 수량';
@@ -489,7 +496,7 @@ export function InventoryForm({ catalog, refresh, initialFlow = '', productId = 
             return { value: option.id, label: `${product?.internal_name} · ${product?.name} · ${option.color} / ${option.size} · ${option.code}` };
           })} />
         </div>
-        
+
         <div className="catalog-field">
         <FormLabel htmlFor="movement-delta" required>{quantityLabel}</FormLabel>
         <input id="movement-delta" aria-labelledby="movement-delta-label" type="number" required min={1} max={1000000} step={1} value={movement.delta} onChange={event => setMovement({ ...movement, delta: event.target.value })} />
@@ -506,7 +513,7 @@ export function InventoryForm({ catalog, refresh, initialFlow = '', productId = 
         <FormLabel htmlFor="movement-reason" hint="선택">상세 사유</FormLabel>
         <textarea id="movement-reason" aria-labelledby="movement-reason-label" maxLength={300} rows={3} value={movement.reason} onChange={event => setMovement({ ...movement, reason: event.target.value })} />
         </div>
-        <div className="catalog-actions">
+        <div className="catalog-actions admin-save-bar">
           <button className="catalog-primary" type="submit" disabled={!selected || !validQuantity || !supplierReady || !reasonReady}>{op.busy ? '기록 중…' : flow === 'receipt' ? '입고 기록' : flow === 'out' ? '출고 기록' : '조정 기록'}</button>
           {productId&&<Link className="catalog-link-button" href={`/admin/catalog/${encodeURIComponent(productId)}`}>취소하고 상품 상세로</Link>}
           <button type="button" onClick={() => void op.run(async () => { await refresh(); })}>현재 재고 새로고침</button>

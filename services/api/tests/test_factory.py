@@ -204,7 +204,7 @@ def test_v9_migration_preserves_images_catalog_and_rollback(setup):
         db.execute('PRAGMA user_version=9')
     assert store.get()==before
     with sqlite3.connect(store.path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0]==17
+        assert db.execute('PRAGMA user_version').fetchone()[0]==18
         assert db.execute('SELECT id FROM product_images').fetchone()[0]==image['id']
         assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
         for table in FACTORY_TABLES:db.execute(f'DROP TABLE {table}')

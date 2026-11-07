@@ -155,7 +155,7 @@ def test_schema14_backup_and_existing_business_rows_preserved(context):
     assert client.get(BASE+'/catalog',headers=AUTH).json()==before
     backups=list(path.parent.glob(path.name+'.pre-v15-*.bak'));assert backups
     with sqlite3.connect(backups[0]) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==14
-    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==17
+    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==18
 
 
 def test_verifier_failure_is_closed(context):

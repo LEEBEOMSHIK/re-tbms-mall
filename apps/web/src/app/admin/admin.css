@@ -72,3 +72,20 @@
 
 .admin-type { letter-spacing: -.01em; }
 .admin-type :where(input, textarea, select, button) { font-family: inherit; }
+
+/* Shared administrator form actions; modal and one-shot actions opt out. */
+.admin-workspace .admin-save-bar { position:sticky; bottom:0; z-index:10; grid-column:1/-1; display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:24px; padding:16px 0 calc(16px + env(safe-area-inset-bottom,0px)); border-top:1px solid var(--color-line); background:var(--color-surface); box-shadow:0 -12px 20px -20px rgb(20 15 40 / .35); }
+.admin-workspace form:has(.admin-save-bar) :is(input,textarea,[role="combobox"]) { scroll-margin-bottom:180px; }
+.admin-save-bar > :is(.catalog-actions,.button-row) { margin:0; }
+@media(max-width:640px) {
+ .admin-workspace .admin-save-bar { gap:8px; padding-top:12px; padding-bottom:calc(12px + env(safe-area-inset-bottom,0px)); }
+ .admin-save-bar > button:not([type="button"]),.admin-save-bar > :is(.catalog-actions,.button-row) > button:not([type="button"]) { flex:1 1 100%; min-height:48px; }
+ .admin-save-bar > :is(.catalog-actions,.button-row) { width:100%; }
+ .admin-save-bar .catalog-note { margin:4px 0 0; }
+}
+@media(max-height:500px) { .admin-workspace .admin-save-bar { position:static; } }
+
+/* Links and buttons share the same action geometry, including wrapped rows. */
+.admin-workspace .admin-save-bar > :is(button,a),
+.admin-save-bar > :is(.catalog-actions,.button-row) > :is(button,a){display:inline-flex;align-items:center;justify-content:center;min-height:48px;line-height:1.5;text-align:center;box-sizing:border-box;}
+@media(max-width:1023px){.admin-menu-toggle{white-space:nowrap;flex-shrink:0;padding-inline:12px}}

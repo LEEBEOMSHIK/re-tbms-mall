@@ -19,7 +19,7 @@ def test_settings_disable_stock_reenable_and_legacy_threshold(setup):
     assert after['products'][0]['publication_can_publish'] is False
     for data in (before,after):
         data['products']=[{k:v for k,v in p.items() if not k.startswith('publication_')} for p in data['products']]
-    assert after=={**before,'skus':[disabled]}
+    assert after=={**before,'skus':[{**disabled,'reserved_quantity':0,'available_quantity':0}]}
     legacy=client.put(f"/api/v1/admin/skus/{sku['id']}/reorder-point",headers=AUTH,json={'reorder_point':0,'version':1})
     assert legacy.status_code==200 and legacy.json()['is_active'] is False
     movement=client.post('/api/v1/admin/inventory/movements',headers=AUTH,json={'sku_id':sku['id'],'delta':5,'reason_code':'receipt','version':2,'request_id':str(uuid4())})
@@ -67,7 +67,7 @@ def test_schema11_migration_preserves_values_and_activates_existing(setup):
         old=db.execute('SELECT * FROM skus').fetchall()
     assert store.get()==before
     with sqlite3.connect(store.path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0]==17
+        assert db.execute('PRAGMA user_version').fetchone()[0]==18
         rows=db.execute('SELECT * FROM skus').fetchall()
         assert [r[:-1] for r in rows]==old and all(r[-1]==1 for r in rows)
         assert db.execute('PRAGMA foreign_key_check').fetchall()==[]
@@ -76,13 +76,15 @@ def test_schema11_migration_preserves_values_and_activates_existing(setup):
 def test_existing_inactive_batch_is_not_reactivated(setup):
     store,sku,client=setup
     client.put(f"/api/v1/admin/skus/{sku['id']}/settings",headers=AUTH,json={'is_active':False,'reorder_point':4,'version':0})
-    expected=store.get()['skus'][0]
+    expected=dict(store.get()['skus'][0])
+    assert expected.pop('reserved_quantity') == 0
+    assert expected.pop('available_quantity') == 0
     for path,body in [('/api/v1/admin/skus/batch',{'product_id':sku['product_id'],'color_ids':[sku['color_id']],'size_ids':[sku['size_id']],'reorder_point':2}),('/api/v1/admin/skus/selected-batch',{'product_id':sku['product_id'],'items':[{'color_id':sku['color_id'],'size_id':sku['size_id'],'initial_stock':3,'reorder_point':2}]})]:
         response=client.post(path,headers=AUTH,json=body)
         assert response.status_code==200
         assert response.json()=={'created':[],'existing':[expected]}
         assert response.json()['existing'][0]['is_active'] is False
-    assert store.get()['skus'][0]==expected and store.get()['movements']==[]
+    assert store.get()['skus'][0]=={**expected,'reserved_quantity':0,'available_quantity':0} and store.get()['movements']==[]
 
 
 def test_schema11_column_conflict_rolls_back(setup):

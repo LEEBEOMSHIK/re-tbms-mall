@@ -115,7 +115,7 @@ def test_schema13_backup_preserves_original_rows_and_no_auto_publish(setup):
     assert client.get('/api/v1/products').json()['products']==[]
     backups=list(path.parent.glob(path.name+'.pre-v14-*.bak'));assert backups
     with sqlite3.connect(backups[0]) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==13
-    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==17
+    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==18
 
 def test_publication_concurrent_versions_allow_one_writer(setup):
     from concurrent.futures import ThreadPoolExecutor

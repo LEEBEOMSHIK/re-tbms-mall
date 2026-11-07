@@ -12,6 +12,8 @@ class PublicationUpdate(BaseModel):
     status: Literal['draft', 'published', 'paused']
     price: int | None = Field(default=None, ge=0, le=1_000_000_000)
     discount_price: int | None = Field(default=None, ge=0, le=1_000_000_000)
+    discount_mode: Literal['price', 'percent'] | None = None
+    discount_percent: int | None = Field(default=None, ge=1, le=100)
     version: int = Field(ge=0, le=2_147_483_647)
 
 
@@ -36,6 +38,38 @@ def pricing(price, discount_price):
             'discount_rate':((price-discount_price)*100)//price if discount_price is not None else None}
 
 
+def migrate_discount_basis(db):
+    for table in ('product_publications', 'publication_history'):
+        columns = {r['name'] for r in db.execute(f'PRAGMA table_info({table})')}
+        if 'discount_mode' not in columns:
+            db.execute(f"ALTER TABLE {table} ADD COLUMN discount_mode TEXT NOT NULL DEFAULT 'price' CHECK(discount_mode IN ('price','percent'))")
+        if 'discount_percent' not in columns:
+            db.execute(f'ALTER TABLE {table} ADD COLUMN discount_percent INTEGER CHECK(discount_percent BETWEEN 1 AND 100)')
+    db.execute('PRAGMA user_version=18')
+
+
+def resolve_discount(body, current):
+    fields = body.model_fields_set
+    if 'discount_mode' in fields and body.discount_mode is None:
+        raise HTTPException(422, 'Select a discount basis.')
+    mode = body.discount_mode or ('price' if 'discount_price' in fields else current['discount_mode'])
+    percent = body.discount_percent if 'discount_percent' in fields else (current['discount_percent'] if mode == current['discount_mode'] else None)
+    if mode == 'percent':
+        if percent is None or body.price is None or body.price <= 0:
+            raise HTTPException(422, 'A positive base price and percentage are required.')
+        discount = body.price * (100-percent) // 100
+        if 'discount_price' in fields and body.discount_price != discount:
+            raise HTTPException(422, 'Discount price does not match the percentage.')
+    else:
+        if 'discount_percent' in fields and body.discount_percent is not None:
+            raise HTTPException(422, 'Percentage is only allowed for percentage discounts.')
+        percent = None
+        discount = body.discount_price if 'discount_price' in fields else current['discount_price']
+    if discount is not None and (body.price is None or body.price <= 0 or discount >= body.price):
+        raise HTTPException(422, 'Discount price must be lower than a positive base price.')
+    return mode, percent, discount
+
+
 class PublicCatalog:
     def __init__(self, catalog): self.catalog = catalog
 
@@ -44,7 +78,7 @@ class PublicCatalog:
         p = db.execute('SELECT * FROM products WHERE id=?', (product_id,)).fetchone()
         if p is None: raise HTTPException(404, 'Product not found.')
         publication = db.execute('SELECT * FROM product_publications WHERE product_id=?', (product_id,)).fetchone()
-        state = dict(publication) if publication else {'product_id': product_id, 'status':'draft','price':None,'discount_price':None,'version':0}
+        state = dict(publication) if publication else {'product_id': product_id, 'status':'draft','price':None,'discount_price':None,'discount_mode':'price','discount_percent':None,'version':0}
         images = [dict(r) for r in db.execute("SELECT id,kind,name,alt FROM product_images WHERE product_id=? AND kind IN ('model','garment') ORDER BY rowid", (product_id,))]
         options = [dict(r) for r in db.execute('SELECT id,color,size,on_hand FROM skus WHERE product_id=? AND is_active=1 ORDER BY rowid', (product_id,))]
         category = db.execute('SELECT c.is_active,p.is_active AS parent_active FROM categories c LEFT JOIN categories p ON p.id=c.parent_id WHERE c.id=?',(p['category_id'],)).fetchone()
@@ -60,7 +94,7 @@ class PublicCatalog:
         p,state,images,options,reasons=cls.source(db,product_id)
         public_visible=state['status']=='published' and not reasons
         if not any(o['on_hand']>0 for o in options): reasons.append('사용 중인 옵션에 재고를 입고해 주세요.')
-        return {**state,**pricing(state['price'],state['discount_price']),'product_name':p['name'],'internal_name':p['internal_name'],'public_visible':public_visible,'can_publish':not reasons,'reasons':reasons,'history':[{**dict(r),**pricing(r['price'],r['discount_price'])} for r in db.execute('SELECT status,price,discount_price,created_at FROM publication_history WHERE product_id=? ORDER BY id DESC',(product_id,))]}
+        return {**state,**pricing(state['price'],state['discount_price']),'product_name':p['name'],'internal_name':p['internal_name'],'public_visible':public_visible,'can_publish':not reasons,'reasons':reasons,'history':[{**dict(r),**pricing(r['price'],r['discount_price'])} for r in db.execute('SELECT status,price,discount_price,discount_mode,discount_percent,created_at FROM publication_history WHERE product_id=? ORDER BY id DESC',(product_id,))]}
 
     def get_publication(self,product_id):
         with self.catalog.transaction() as db: return self.admin_state(db,product_id)
@@ -69,14 +103,14 @@ class PublicCatalog:
         with self.catalog.transaction() as db:
             current=self.admin_state(db,product_id)
             if current['version']!=body.version: raise HTTPException(409,'Publication changed. Reload before saving.')
-            discount=body.discount_price if 'discount_price' in body.model_fields_set else current['discount_price']
-            if discount is not None and (body.price is None or body.price<=0 or discount>=body.price):
-                raise HTTPException(422,'Discount price must be lower than a positive base price.')
+            mode,percent,discount=resolve_discount(body,current)
             # A published sold-out product can retain its state; re-publication must satisfy readiness.
             if body.status=='published' and current['status']!='published' and not current['can_publish']:
                 raise HTTPException(422, current['reasons'])
             db.execute('INSERT INTO product_publications(product_id,status,price,discount_price,version) VALUES(?,?,?,?,?) ON CONFLICT(product_id) DO UPDATE SET status=excluded.status,price=excluded.price,discount_price=excluded.discount_price,version=excluded.version',(product_id,body.status,body.price,discount,body.version+1))
             db.execute('INSERT INTO publication_history(product_id,status,price,discount_price,created_at) VALUES(?,?,?,?,?)',(product_id,body.status,body.price,discount,datetime.now(timezone.utc).isoformat()))
+            db.execute('UPDATE product_publications SET discount_mode=?,discount_percent=? WHERE product_id=?',(mode,percent,product_id))
+            db.execute('UPDATE publication_history SET discount_mode=?,discount_percent=? WHERE id=last_insert_rowid()',(mode,percent))
             return self.admin_state(db,product_id)
 
     @classmethod

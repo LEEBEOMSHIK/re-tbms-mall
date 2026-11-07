@@ -120,7 +120,7 @@ def test_v8_migration_preserves_all_rows(setup):
         db.execute('PRAGMA user_version=8')
     assert CatalogStore(store.path).get()==before
     with sqlite3.connect(store.path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0]==17
+        assert db.execute('PRAGMA user_version').fetchone()[0]==18
         assert db.execute('SELECT COUNT(*) FROM product_images').fetchone()[0]==0
 
 @pytest.mark.parametrize('size', [(4096, 4096), (5000, 1)])

@@ -8,12 +8,13 @@ type FormChoiceProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'chi
   label: string;
   caption?: string;
   className?: string;
+  variant?: 'pill' | 'row';
 };
 
-/** A native checkbox with a full-card label. Captions are decorative, not extra accessible names. */
-export function FormChoice({ id, label, caption, className = '', ...inputProps }: FormChoiceProps) {
+/** Native checkbox: compact pill for short values, wrapping row for descriptive choices. */
+export function FormChoice({ id, label, caption, className = '', variant = 'pill', ...inputProps }: FormChoiceProps) {
   return (
-    <span className={`ds-choice ${className}`}>
+    <span className={`ds-choice ds-choice-${variant} ${className}`}>
       <input {...inputProps} id={id} type="checkbox" className="ds-choice-input" aria-labelledby={inputProps['aria-labelledby'] || `${id}-label`} />
       <label className="ds-choice-label" htmlFor={id}>
         <span className="ds-choice-copy">
@@ -26,6 +27,10 @@ export function FormChoice({ id, label, caption, className = '', ...inputProps }
       </label>
     </span>
   );
+}
+
+export function FormSwitch({id,label,...props}:Omit<InputHTMLAttributes<HTMLInputElement>,'type'|'role'|'className'> & {id:string;label:string}) {
+  return <span className="ds-switch"><input {...props} id={id} type="checkbox" role="switch" aria-label={label}/><label htmlFor={id}><span className="ds-switch-track" aria-hidden="true"/></label></span>;
 }
 
 export function FormLabel({ htmlFor, required = false, hint, children, as = 'label' }: {

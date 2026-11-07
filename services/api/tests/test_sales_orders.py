@@ -99,7 +99,7 @@ def test_invalid_queries(orders, query):
 def test_constraints_and_backup(orders):
     _, store, _, _, first_id, _ = orders
     with store.catalog.transaction() as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 17
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 18
     add_order(store, first_id)
     backups = list(store.catalog.path.parent.glob('catalog.sqlite3.pre-sales-orders-*.bak'))
     assert len(backups) == 1
