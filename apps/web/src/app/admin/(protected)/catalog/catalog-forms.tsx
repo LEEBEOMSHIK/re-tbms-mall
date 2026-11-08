@@ -1,4 +1,5 @@
 'use client';
+import {useFeedbackFocus} from '@/components/ui/use-feedback-focus';
 import {ColorChip} from '@/components/ui/color-chip';
 import {colorChipLabel} from '@/lib/color-chip';
 import {productSizeLabel} from '@/lib/product-option-labels';
@@ -49,9 +50,10 @@ export function useOperation() {
 }
 
 export function Feedback({ failure, notice }: { failure: CatalogFailure | null; notice: string }) {
+  const feedbackRef=useFeedbackFocus(failure);
   return <>
     <div aria-live="polite">{notice && <p className="catalog-notice">{notice}</p>}</div>
-    {failure && <div role="alert" className="admin-session-error">
+    {failure && <div ref={feedbackRef} tabIndex={-1} role="alert" className="admin-session-error">
       {messages[failure]} {failure === 'auth' && <Link href="/admin/login">관리자 로그인</Link>}
     </div>}
   </>;

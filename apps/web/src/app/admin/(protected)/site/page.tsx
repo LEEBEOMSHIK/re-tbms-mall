@@ -43,6 +43,19 @@ export default function SiteManagement() {
             </Link>
           </div>
         </section>
+        <section aria-labelledby="faq-tools">
+          <h2 id="faq-tools" className={styles.groupTitle}>고객 안내</h2>
+          <div className={styles.customerLinks}>
+            <Link href="/admin/faq" className={styles.row} aria-labelledby="faq-title">
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 2-2.5 2-2.5 4m0 3h.01"/></svg>
+              <div><h3 id="faq-title">자주 묻는 질문 관리</h3><p>질문·답변과 공개 여부, 노출 순서 관리</p></div><Arrow/>
+            </Link>
+            <Link href="/admin/inquiries" className={styles.row} aria-labelledby="inquiries-title">
+              <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H3l1.5-4A8.5 8.5 0 1 1 21 11.5Z M8 9h8M8 13h5"/></svg>
+              <div><h3 id="inquiries-title">1:1 문의 관리</h3><p>고객 문의 확인과 답변 등록·수정</p></div><Arrow/>
+            </Link>
+          </div>
+        </section>
         <section aria-labelledby="admin-tools">
           <h2 id="admin-tools" className={styles.groupTitle}>관리자 설정</h2>
           <Link href="/admin/navigation" className={styles.row} aria-labelledby="menu-title">

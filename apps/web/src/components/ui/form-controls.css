@@ -251,3 +251,7 @@
 .ds-switch>input:disabled+label{opacity:.5;cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){.ds-switch-track,.ds-switch-track::after{transition:none}}
 @media(forced-colors:active){.ds-switch-track{border-color:ButtonText}.ds-switch>input:checked+label .ds-switch-track{background:Highlight}.ds-switch-track::after{background:ButtonText}.ds-switch>input:checked+label .ds-switch-track::after{background:HighlightText}}
+
+/* A selected pill uses the action surface: secondary copy must use its foreground. */
+.ds-choice-pill .ds-choice-input:checked + .ds-choice-label .ds-choice-caption,
+.ds-choice-pill .ds-choice-input:not(:disabled) + .ds-choice-label:hover .ds-choice-caption { color: inherit; }

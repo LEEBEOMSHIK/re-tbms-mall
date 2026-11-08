@@ -36,7 +36,7 @@ def safe_return(value):
         or '://' in decoded or '//' in decoded):
         raise ValueError('Invalid return path.')
     parsed=urlsplit(decoded)
-    if parsed.fragment or not re.fullmatch(r'/(cart|orders|account(?:\/(?:profile|addresses(?:\/(?:new|[a-f0-9-]{36}\/edit))?))?|checkout(?:/[A-Za-z0-9_-]+)?|products(?:/[A-Za-z0-9_-]+)?)', parsed.path):
+    if parsed.fragment or not re.fullmatch(r'/(cart|orders|account(?:\/(?:profile|inquiries(?:\/(?:new|[a-f0-9-]{36}))?|claims(?:\/(?:new|[a-f0-9-]{36}))?|addresses(?:\/(?:new|[a-f0-9-]{36}\/edit))?))?|checkout(?:/[A-Za-z0-9_-]+)?|products(?:/[A-Za-z0-9_-]+)?)', parsed.path):
         raise ValueError('Invalid return path.')
     return value
 

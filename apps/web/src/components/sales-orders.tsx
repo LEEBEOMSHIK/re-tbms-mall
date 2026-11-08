@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {parseSalesOrders,parseOrderDetail,orderStatuses,paymentStatuses,fulfillmentStatuses,type SalesOrder,type OrderDetail} from '@/lib/sales-orders';
+import {CustomerOrderClaims} from './customer-order-claims';
 import {OrderCancellation} from './order-cancellation';
 import {ReservationNotice} from './reservation-notice';
 import {ColorChip} from './ui/color-chip';
@@ -28,11 +29,14 @@ export function SalesOrders({admin=false,id}:{admin?:boolean;id?:string}){
  },[]);
  function reload(){setError('');setDetail(null);setRows([]);setLoading(true);setAttempt(n=>n+1)}
  return <section className={`sales-orders ${admin?'sales-orders-admin':''}`}><header className="sales-orders-heading"><div><p className="eyebrow">{admin?'ORDER MANAGEMENT':'MY ORDERS'}</p><h1>{id?'주문 상세':admin?'주문 관리':'주문 내역'}</h1><p>{id?'주문 당시 상품과 배송 정보를 확인하세요.':'주문의 결제·배송 상태를 한곳에서 확인하세요.'}</p></div><Link className="sales-action" href={id?root:admin?'/admin':'/account'}>{id?'목록으로':admin?'관리자 홈':'마이페이지'}</Link></header>
+ {!id&&<div className="sales-note"><Link className="sales-action" href={admin?'/admin/orders/claims':'/account/claims'}>반품·교환 내역 →</Link></div>}
  {!admin&&!id&&<p className="sales-note">작성 중인 주문서는 <Link href="/orders">내 주문서</Link>에서 이어서 작성할 수 있어요.</p>}
  {!id&&admin&&<AdminOrderSearch applied={search} loading={loading} onSearch={value=>{setSearch(value);setCursor('');reload()}}/>}
  {!id&&!admin&&<CustomerOrderSearch loading={loading} onSearch={value=>{setCustomerSearch(value);setCursor('');reload()}}/>}
  {!id&&admin&&!loading&&!error&&<p className="sales-muted" role="status">현재 페이지 {rows.length}건 · 적용한 검색 조건의 결과입니다.</p>}
  {loading?<p className="sales-empty" role="status">주문 정보를 불러오고 있어요.</p>:error?<div className="sales-empty" role="alert"><h2>{error}</h2><button className="sales-action" onClick={reload}>다시 조회</button><Link className="sales-action" href={admin?'/admin/login':'/login?return_to='+encodeURIComponent(root+(id?'/'+id:''))}>로그인 확인</Link></div>:id&&detail?<OrderContent order={detail} notice={<>
+ {admin?<div className="sales-note"><Link className="sales-action" href={'/admin/orders/claims?order_id='+detail.id}>반품·교환 내역</Link></div>:<CustomerOrderClaims key={'claims:'+detail.id+guard} order={detail}/>}
+
  {admin&&detail.reservation?.release_reason&&<dl className="sales-facts" aria-label="재고 해제 정보"><div><dt>재고 해제 사유</dt><dd>{detail.reservation.release_reason==='customer_cancelled'?'고객 직접 취소':'결제 기한 자동 만료'}</dd></div></dl>}
  {!admin&&<OrderCancellation key={detail.id+guard} order={detail} guard={guard} onResult={updated=>{revision.current++;setDetail(updated);}} onReload={reload}>{detail.reservation&&<ReservationNotice key={detail.reservation.server_now} reservation={detail.reservation} orderStatus={detail.status} checkingPayment={detail.payment_status==='unknown'} onExpire={checkExpiry} onReload={reload}/>}</OrderCancellation>}</>}/>:!id?<>{rows.length===0?<div className="sales-empty"><h2>표시할 주문이 없습니다.</h2><p>{admin?'검색어와 조건을 변경하거나 초기화해 주세요.':Object.keys(customerSearch).length?'조건을 변경하거나 초기화해 주세요.':'구매한 주문이 생기면 여기에서 확인할 수 있어요.'}</p>{!admin&&<Link className="sales-action" href="/products">상품 둘러보기</Link>}</div>:<div className="sales-order-list">{rows.map(o=><Link className="sales-order-row" key={o.id} href={`${root}/${o.id}`}><div><span className="sales-order-number">{o.number}</span><p className="sales-muted">{time(o.created_at)}</p><h2>{o.summary}</h2><span className="sales-muted">총 {o.item_count}개</span>{o.is_demo&&<span className="sales-demo">테스트 주문 · 실제 결제 없음</span>}</div><div className="sales-row-end"><OrderStatusBadge order={o}/><strong>{money(o.grand_total)}</strong><span className="sales-muted">상세 보기 →</span></div></Link>)}</div>}<nav className="sales-pagination" aria-label="주문 목록 페이지"><button className="sales-action" disabled={!cursor} onClick={()=>{setCursor('');setLoading(true)}}>처음으로</button><button className="sales-action" disabled={!next} onClick={()=>{setCursor(next||'');setLoading(true)}}>다음</button></nav></>:null}</section>;
 }

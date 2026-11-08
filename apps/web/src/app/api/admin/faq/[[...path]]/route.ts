@@ -1,0 +1,8 @@
+import {adminApiBase,getAdminSession} from '@/lib/admin-session';
+import {sameOrigin} from '@/lib/admin-session-core';
+import {readBrandBody} from '@/lib/brand-about';
+import {parseFaq,parseFaqList} from '@/lib/faq';
+export const dynamic='force-dynamic';
+const reply=(body:unknown,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store'}});
+async function proxy(request:Request,context:{params:Promise<{path?:string[]}>}){const session=await getAdminSession();if(!session)return reply({error:'관리자 로그인이 필요합니다.'},401);const {path=[]}=await context.params;if(path.length>1||(path.length===1&&!/^[a-f0-9-]{36}$/.test(path[0])))return reply({error:'없는 경로입니다.'},404);if(request.method==='PUT'&&(!path.length||!sameOrigin(request)))return reply({error:'허용하지 않는 요청입니다.'},403);let body:string|undefined;try{if(request.method==='PUT')body=new TextDecoder().decode(await readBrandBody(request,32768));}catch{return reply({error:'입력 크기를 확인해 주세요.'},413);}try{const r=await fetch(adminApiBase()+'/api/v1/admin/faq'+(path.length?'/'+path[0]:''),{method:request.method,body,cache:'no-store',signal:AbortSignal.timeout(15000),headers:{Authorization:'Bearer '+session.token,...(body?{'Content-Type':'application/json'}:{})}});if(!r.ok)return reply({error:r.status===409?'다른 변경이 있습니다. 입력 내용을 보관한 뒤 최신 내용을 확인해 주세요.':r.status===422?'입력 길이·순서·카테고리와 등록 한도(500개)를 확인해 주세요.':'저장 또는 조회에 실패했습니다. 입력 내용을 유지했어요.'},[401,403,404,409,422].includes(r.status)?r.status:503);const data=await r.json();return reply(path.length?parseFaq(data):{items:parseFaqList(data)});}catch{return reply({error:'응답을 확인하지 못했어요. 같은 내용으로 다시 저장해 주세요.'},503);}}
+export const GET=proxy;export const PUT=proxy;

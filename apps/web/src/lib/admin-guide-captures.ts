@@ -1,5 +1,7 @@
 export type GuideCapture = {file:string;width:number;height:number;alt:string;caption:string;markers:{x:number;y:number;width:number;height:number;label:string}[]};
 export const GUIDE_CAPTURES: Record<string, GuideCapture> = {
+  "faq:1": {file:"faq-editor.jpg",width:1583,height:815,alt:"합성 FAQ의 카테고리·질문·답변 편집과 하단 저장 버튼",caption:"질문과 답변을 작성하고 공개 여부를 정한 뒤 질문 저장을 누릅니다.",markers:[{label:"질문 저장",x:81.3,y:89.9,width:5.7,height:5.8}]},
+  "claims:1": {"width": 1137, "height": 1088, "markers": [{"label": "접수 처리", "x": 83.04199648197009, "y": 18.51420504, "width": 7.951297273526825, "height": 4.04249061}], "file": "order-claims-detail.jpg", "alt": "합성 반품 접수의 고객 원문·회수주소·처리 이력과 접수 처리 버튼", "caption": "신청 내용과 진행 내역을 확인하고 접수 처리에서 다음 단계를 기록합니다. 합성 검증 화면입니다."},
   "carrier-preparation:1": {"file": "carrier-inquiry.jpg", "width": 1089, "height": 473, "alt": "택배사 계약 견적 문의문과 복사 버튼", "caption": "문의문 복사를 누른 뒤 출고지와 예상 물량을 입력해 후보 업체에 보내세요.", "markers": [{"label": "문의문 복사", "x": 0, "y": 79.63, "width": 10.88, "height": 9.55}]},
   "pg-preparation:1": {
     "file": "pg-preparation.jpg",
@@ -370,6 +372,7 @@ export const GUIDE_CAPTURES: Record<string, GuideCapture> = {
       }
     ]
   },
+  "brand:1": {"width": 1137, "height": 278, "markers": [{"label": "계속 편집", "x": 15.02858399296394, "y": 73.69369369369369, "width": 8.208278364116095, "height": 17.2972972972973}], "file": "brand-save-result.jpg", "alt": "합성 브랜드 초안 저장 완료와 계속 편집 버튼", "caption": "저장 완료에서 관리 화면으로 이동하거나 계속 편집합니다. 초안 저장만으로 고객 화면은 변경되지 않습니다."},
   "brand:4": {
     "file": "brand-library.jpg",
     "width": 1425,
@@ -622,5 +625,6 @@ export const GUIDE_CAPTURES: Record<string, GuideCapture> = {
         "y": 1.1505273250239694
       }
     ]
-  }
+  },
+  "inquiries:2": {"file":"inquiry-detail.jpg","width":1599,"height":823,"alt":"합성 고객 문의와 관리자 답변 수정 버튼","caption":"고객 내용을 확인하고 답변 작성 또는 답변 수정을 누릅니다.","markers":[{"x":83.9,"y":68.8,"width":5.7,"height":5.7,"label":"답변 수정"}]}
 };

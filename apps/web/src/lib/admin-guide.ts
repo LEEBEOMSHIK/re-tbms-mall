@@ -7,6 +7,32 @@ export type AdminGuide = {
 };
 export const ADMIN_GUIDES: AdminGuide[] = [
   {
+    id:'faq',title:'자주 묻는 질문 관리하기',summary:'고객이 스스로 안내를 찾도록 질문·답변과 공개 여부를 관리합니다.',updatedAt:'2026-11-07',
+    prerequisites:['관리자 로그인이 필요합니다. 개인 주문 상담이나 개인정보는 FAQ에 입력하지 않습니다.'],
+    steps:[
+      {title:'질문 목록 열기',description:'사이트·고객 → 사이트 관리 → 자주 묻는 질문 관리로 이동합니다. 검색과 카테고리로 질문을 찾고 질문 등록 또는 수정을 선택합니다.',href:'/admin/faq',linkLabel:'FAQ 관리 열기'},
+      {title:'질문과 답변 작성',description:'카테고리·노출 순서·질문·답변을 입력합니다. 작은 순서가 먼저 표시됩니다. 고객에게 공개를 켜고 저장하면 고객 FAQ에 표시됩니다. 끄면 숨겨집니다.',href:'/admin/faq/new',linkLabel:'질문 등록'},
+      {title:'저장 결과 확인',description:'저장 완료에서 서버가 확정한 질문·공개 여부·노출 순서를 확인합니다. 실패하면 입력을 유지합니다. 충돌 안내가 나오면 최신 내용을 새 창에서 확인하고 보관한 입력과 비교하여 수정합니다.'},
+    ],
+    completion:'고객 FAQ에서 카테고리를 선택하고 공개한 질문의 답변을 펼쳐 확인합니다. 숨긴 항목은 고객에게 표시되지 않습니다.',
+    notes:['일대일 문의 접수 기능과 별개인 공통 안내입니다.','최대 500개를 관리합니다. HTML은 일반 텍스트로 표시됩니다. 삭제 대신 숨김으로 관리합니다.'],
+    relatedPaths:['apps/web/src/components/faq.tsx','apps/web/src/components/faq.css','apps/web/src/lib/faq.ts','services/api/app/faq.py','apps/web/src/app/admin/(protected)/site/page.tsx'],
+  },
+
+  {
+    id:'claims',title:'반품·교환 접수 처리하기',summary:'고객 신청 상품·수량·사유·사진과 회수주소를 확인하고 처리 단계를 기록합니다.',updatedAt:'2026-11-07',
+    prerequisites:['고객이 결제·배송된 본인 주문에서 신청한 접수가 있어야 합니다.'],
+    steps:[
+      {title:'접수 목록에서 요청 확인',description:'주문 관리의 반품·교환 내역을 엽니다. 상태로 좁히고 상품과 신청 수량을 확인한 뒤 상세를 엽니다.',href:'/admin/orders/claims',linkLabel:'반품·교환 내역 열기'},
+      {title:'고객 내용 확인 후 접수 처리',description:'상세에서 고객 신청 내용·수령일·회수주소·사진과 진행 내역을 확인합니다. 사진은 누르면 모달로 확대됩니다. 접수 처리를 눌러 별도 처리 화면에서 다음 단계와 고객에게 안내할 내용을 입력합니다. 회수 확인 다음에는 검수 완료를 기록해야 합니다.'},
+      {title:'저장 결과 확인과 다음 단계',description:'저장 완료 안내에서 접수 상세를 확인합니다. 실패하면 입력이 유지됩니다. 충돌은 최신 상태 확인 후, 응답 불확실은 같은 요청 결과 확인으로 진행합니다. 교환품을 이미 회수한 후 반품으로 전환해도 회수·검수 단계는 유지됩니다.'},
+    ],
+    completion:'서버가 확정한 접수 상태와 고객에게 공개되는 처리 이력이 의도한 내용인지 확인합니다.',
+    notes:['고객은 내 계정 → 주문 내역 → 주문 상세의 강조된 반품·교환 신청 버튼으로 접수합니다. 기존 접수가 있으면 이 주문의 신청 현황에서 상태와 상세를 확인합니다. 전체 접수 내역은 주문 목록에서 확인합니다. 고객 신청 화면은 신청→내용 확인→방문 수거→도착·검수의 아이콘 안내와 반품 환불/교환 출고 분기를 제공합니다. 외부 환불·택배·교환 출고 연동은 준비 중으로 구분합니다.','환불 처리 대기·교환 출고 대기는 실제 실행 완료가 아닙니다. PG 환불·택배 수거·배송비 결제·재고 반영은 연결되지 않았습니다.','입력 수령일은 고객 진술입니다. 신청 기간·상품 상태·배송비는 기존 정책에 따라 관리자가 확인합니다. 접수 건수대로 배송비를 자동 부과하지 않습니다.','교환 품절은 반품 전환 요청 후 고객 동의를 받습니다. 이미 회수한 상품의 접수는 고객이 철회할 수 없습니다.','사진과 회수주소는 본인 고객과 관리자만 확인합니다. 내부 정보나 결제 인증정보를 안내 내용에 입력하지 마세요.'],
+    relatedPaths:['apps/web/src/components/claim-request-guide.tsx','apps/web/src/components/customer-order-claims.tsx','apps/web/src/components/order-claims.tsx','apps/web/src/components/order-claims.css','apps/web/src/lib/order-claims.ts','services/api/app/order_claims.py','apps/web/src/app/admin/(protected)/orders/claims/page.tsx'],
+  },
+
+  {
     id:'start', title:'관리자 화면 처음 사용하기', summary:'로그인 후 메뉴를 찾고 화면 크기를 조정하는 순서입니다.', updatedAt:'2026-11-05',
     prerequisites:['관리자 로그인 권한이 필요합니다. 현재 관리자는 접근 키를 사용하는 세션 방식입니다.'],
     steps:[
@@ -19,7 +45,7 @@ export const ADMIN_GUIDES: AdminGuide[] = [
     relatedPaths:['apps/web/src/app/admin/admin-navigation.tsx','apps/web/src/components/site-settings-content.tsx','apps/web/src/components/text-size-control.tsx','apps/web/src/app/admin/(protected)/dashboard-view.tsx','apps/web/src/app/admin/(protected)/inventory-overview.tsx'],
   },
   {
-    id:'sales-orders',title:'고객 주문 내역 확인하기',summary:'주문 목록을 상태별로 조회하고 주문 상세의 상품·금액·배송 정보·이력을 확인합니다.',updatedAt:'2026-11-05',
+    id:'sales-orders',title:'고객 주문 내역 확인하기',summary:'주문 목록을 상태별로 조회하고 주문 상세의 상품·금액·배송 정보·이력을 확인합니다.',updatedAt:'2026-11-07',
     prerequisites:['관리자 로그인 권한이 필요합니다. 조회할 주문이 등록되어 있어야 하며, 주문이 없으면 빈 목록이 표시됩니다.'],
     steps:[
       {title:'주문 목록 열기',description:'왼쪽 운영 그룹의 주문 관리를 엽니다. 목록에서 주문 상태와 금액을 확인합니다. 대기는 노랑·시계, 확인 필요는 주황·주의, 준비/배송은 파랑·상자/트럭, 완료는 초록·체크, 취소/만료는 회색·종료 아이콘으로 구분합니다. 색상과 상태 문구를 함께 확인합니다.',href:'/admin/orders',linkLabel:'주문 관리 열기'},
@@ -28,11 +54,11 @@ export const ADMIN_GUIDES: AdminGuide[] = [
       {title:'재고 해제 사유 구분',description:'상세 상단에서 재고 해제 사유를 확인합니다. 고객 직접 취소는 고객이 기한 전에 취소한 주문이고, 결제 기한 자동 만료는 미결제로 확보 기한에 도달한 주문입니다. 조회를 마치면 목록으로 돌아갑니다.'},
     ],
     completion:'선택한 주문의 상태와 상품·금액·배송 정보·이력을 확인하고 목록으로 돌아왔는지 확인합니다.',
-    notes:['테스트 주문 · 실제 결제 없음 표시가 있는 주문은 합성 검증 자료입니다. 번호 형식이 같아도 실제 결제·배송 주문이 아닙니다.','현재 주문 관리는 조회 전용입니다. 결제 승인·취소·환불·배송 처리 버튼은 제공하지 않습니다.','PG 연동이나 주문 상태 변경이 완료된 기능으로 해석하지 않습니다.','주문·배송 정보에는 개인정보가 포함될 수 있으므로 필요한 업무 범위에서만 확인합니다.'],
+    notes:['주문 관리 또는 주문 상세의 반품·교환 내역에서 고객 접수와 처리 이력을 확인할 수 있습니다.','테스트 주문 · 실제 결제 없음 표시가 있는 주문은 합성 검증 자료입니다. 번호 형식이 같아도 실제 결제·배송 주문이 아닙니다.','현재 주문 관리는 조회 전용입니다. 결제 승인·취소·환불·배송 처리 버튼은 제공하지 않습니다.','PG 연동이나 주문 상태 변경이 완료된 기능으로 해석하지 않습니다.','주문·배송 정보에는 개인정보가 포함될 수 있으므로 필요한 업무 범위에서만 확인합니다.'],
     relatedPaths:['apps/web/src/components/sales-orders.tsx','apps/web/src/components/admin-order-search.tsx','apps/web/src/lib/sales-orders.ts','apps/web/src/app/admin/(protected)/orders/page.tsx'],
   },
   {
-    id:'catalog',title:'상품 등록부터 고객 화면 공개까지',summary:'상품을 등록하고 상세 화면에서 정보·이미지·옵션·가격을 준비한 뒤 공개합니다.',updatedAt:'2026-11-06',
+    id:'catalog',title:'상품 등록부터 고객 화면 공개까지',summary:'상품을 등록하고 상세 화면에서 정보·이미지·옵션·가격을 준비한 뒤 공개합니다.',updatedAt:'2026-11-07',
     prerequisites:['상품명과 분류, 고객에게 보여줄 이미지·설명 및 판매할 색상·사이즈를 준비합니다.'],
     steps:[
       {title:'상품 등록',description:'상품 관리에서 상품 등록을 열어 기본정보를 입력하고 저장합니다. 이후 수정은 상품 목록에서 해당 상품의 상세 화면으로 들어갑니다.',href:'/admin/catalog',linkLabel:'상품 관리 열기'},
@@ -42,7 +68,7 @@ export const ADMIN_GUIDES: AdminGuide[] = [
       {title:'가격·할인·공개 설정 저장',description:'상품 상세의 판매 설정 탭에서 기본 판매 가격을 입력합니다. 할인 설정 오른쪽의 할인 적용 스위치를 켜고 할인 기준을 선택합니다. 판매가(원)는 기본가보다 낮은 금액을, 할인율(%)은 1~100 사이 정수를 입력합니다. 할인율 기준은 기본가 변경 시 비율을 유지하며 판매가의 원 미만은 버립니다. 할인 적용을 켰을 때 표시되는 미리보기에서 최종 판매가를 확인합니다. 할인 적용을 끄면 입력 영역과 미리보기가 함께 숨겨집니다. 게시 전 확인할 항목을 해결한 뒤 상품 운영 상태를 게시로 저장합니다.'},
     ],
     completion:'입력 화면의 하단 저장 영역에서 실행합니다. 화면 높이가 낮으면 맨 아래에 일반 배치됩니다. 서버 확정 저장 결과와 상품 운영 상태를 확인하고 쇼핑몰에서 상품 노출·가격·옵션을 확인합니다.',
-    notes:['기본정보와 가격·할인·공개 설정은 별도로 저장합니다. 탭 이동만으로 입력이 저장되지는 않습니다.','고객용 이미지·사용 중 옵션·분류가 없으면 게시 설정이어도 고객 화면에서 제외될 수 있습니다. 재고 소진은 품절로 표시됩니다.','상품 공개는 실제 주문·결제 연동을 완료했다는 뜻이 아닙니다.'],
+    notes:['상품 기본정보·판매 설정 저장 실패 시 오류 안내로 초점과 화면이 이동합니다. 입력은 유지되므로 오류를 확인하고 수정하세요.','기본정보와 가격·할인·공개 설정은 별도로 저장합니다. 탭 이동만으로 입력이 저장되지는 않습니다.','고객용 이미지·사용 중 옵션·분류가 없으면 게시 설정이어도 고객 화면에서 제외될 수 있습니다. 재고 소진은 품절로 표시됩니다.','상품 공개는 실제 주문·결제 연동을 완료했다는 뜻이 아닙니다.'],
     relatedPaths:['apps/web/src/app/admin/(protected)/catalog/product-detail.tsx','apps/web/src/app/admin/(protected)/catalog/publication-editor.tsx','apps/web/src/app/admin/(protected)/catalog/catalog-forms.tsx','apps/web/src/app/admin/(protected)/catalog/product-images.tsx'],
   },
   {
@@ -83,7 +109,7 @@ export const ADMIN_GUIDES: AdminGuide[] = [
     relatedPaths:['apps/web/src/app/admin/(protected)/factories/factory-admin.tsx','apps/web/src/components/shipments/shipment-page.tsx','apps/web/src/components/product-progress.tsx'],
   },
   {
-    id:'merchandising',title:'쇼핑몰 홈 진열 구성하기',summary:'홈 상단 광고별 문구·상품 사진·표시 순서와 진열 섹션을 관리합니다.',updatedAt:'2026-11-06',
+    id:'merchandising',title:'쇼핑몰 홈 진열 구성하기',summary:'홈 상단 광고별 문구·상품 사진·표시 순서와 진열 섹션을 관리합니다.',updatedAt:'2026-11-07',
     prerequisites:['고객에게 공개할 상품이 준비되어 있어야 합니다.'],
     steps:[
       {title:'홈 진열 관리 열기',description:'사이트 관리의 홈 진열 관리 카드에서 상품 섹션을 편집하려면 진열 목록 열기, 광고를 편집하려면 상단 광고 설정을 누릅니다. 두 화면 상단의 상품 진열과 상단 광고 메뉴 중 강조된 항목으로 현재 위치를 확인합니다.',href:'/admin/merchandising',linkLabel:'홈 진열 관리 열기'},
@@ -93,15 +119,15 @@ export const ADMIN_GUIDES: AdminGuide[] = [
       {title:'사이트 관리에서 관련 작업 찾기',description:'홈 진열 관리 카드에서 상단 광고 설정과 진열 목록 열기 중 필요한 업무를 선택합니다. 브랜드 콘텐츠에서 소개 관리 또는 자료실을 선택하고, 관리자 설정에서는 메뉴 그룹과 표시 여부를 관리합니다.',href:'/admin/site',linkLabel:'사이트 관리 열기'},
     ],
     completion:'저장된 섹션의 순서·공개 여부가 맞고 고객 홈에 의도한 상품이 표시되는지 확인합니다.',
-    notes:['긴 입력 화면에서는 하단 저장 영역에서 저장합니다. 화면 높이가 낮으면 맨 아래에 일반 배치됩니다. 저장 후 완료 안내를 확인하고, 실패하면 입력을 유지한 채 오류를 수정합니다.','진열에 상품을 선택해도 상품 자체가 공개되는 것은 아닙니다. 게시 중인 상품만 고객 화면에 표시됩니다.','섹션 자동 구성에서는 전체 표시 여부만 바꾸면 기존 자동 구성이 유지됩니다. 개별 광고를 수정해 저장하면 섹션과 별도로 관리합니다. 모든 광고를 삭제해 저장하면 배너는 표시되지 않습니다. 자동 방식으로 돌아가려면 진열 섹션 자동 구성으로 전환을 누른 뒤 저장하세요.','상단 광고 저장 충돌이나 결과 확인 실패 시 최신 진열 확인 · 선택 유지를 누릅니다. 현재 저장본의 값과 선택을 비교하고 다를 때만 다시 저장합니다.'],
+    notes:['상품 진열 섹션 저장 실패 시 오류 안내로 초점과 화면이 이동합니다. 입력은 유지되므로 오류를 확인하고 수정하세요.','긴 입력 화면에서는 하단 저장 영역에서 저장합니다. 화면 높이가 낮으면 맨 아래에 일반 배치됩니다. 저장 후 완료 안내를 확인하고, 실패하면 입력을 유지한 채 오류를 수정합니다.','진열에 상품을 선택해도 상품 자체가 공개되는 것은 아닙니다. 게시 중인 상품만 고객 화면에 표시됩니다.','섹션 자동 구성에서는 전체 표시 여부만 바꾸면 기존 자동 구성이 유지됩니다. 개별 광고를 수정해 저장하면 섹션과 별도로 관리합니다. 모든 광고를 삭제해 저장하면 배너는 표시되지 않습니다. 자동 방식으로 돌아가려면 진열 섹션 자동 구성으로 전환을 누른 뒤 저장하세요.','상단 광고 저장 충돌이나 결과 확인 실패 시 최신 진열 확인 · 선택 유지를 누릅니다. 현재 저장본의 값과 선택을 비교하고 다를 때만 다시 저장합니다.'],
     relatedPaths:['apps/web/src/app/admin/(protected)/merchandising/merchandising-list.tsx','apps/web/src/app/admin/(protected)/merchandising/merchandising-editor.tsx','apps/web/src/app/admin/(protected)/merchandising/hero/hero-editor.tsx','apps/web/src/app/admin/(protected)/merchandising/hero/hero-slides.tsx','apps/web/src/app/admin/(protected)/merchandising/hero/page.tsx','apps/web/src/app/admin/(protected)/merchandising/merchandising-nav.tsx','apps/web/src/app/admin/(protected)/site/page.tsx'],
   },
   {
-    id:'brand',title:'브랜드 소개 편집하고 게시하기',summary:'소개 문구·브랜드 철학과 예시 이미지를 초안으로 저장한 뒤 미리보기하고 게시합니다.',updatedAt:'2026-11-06',
+    id:'brand',title:'브랜드 소개 편집하고 게시하기',summary:'소개 문구·브랜드 철학과 예시 이미지를 초안으로 저장한 뒤 미리보기하고 게시합니다.',updatedAt:'2026-11-07',
     prerequisites:['고객에게 보여줄 문구·이미지와 대체텍스트를 준비합니다.'],
     steps:[
       {title:'현재 소개 확인 후 편집',description:'버전 숫자 대신 게시되지 않은 변경 여부를 확인합니다. 브랜드 소개 관리에서 저장된 초안과 게시본 상태를 확인하고 편집 화면으로 이동합니다.',href:'/admin/brand-about',linkLabel:'브랜드 소개 관리 열기'},
-      {title:'문구·이미지 수정 후 초안 저장',description:'소개 다음 브랜드 철학 제목·본문을 함께 입력합니다. 둘 다 비우면 철학 영역이 숨겨지며, 본문은 빈 줄로 문단을 구분합니다. 대표 이미지와 주제별 내용도 수정할 수 있습니다. 이미지 업로드만으로 소개 전체가 저장되지는 않으므로 초안 저장 완료까지 확인합니다.'},
+      {title:'문구·이미지 수정 후 초안 저장',description:'소개 다음 브랜드 철학 제목·본문을 함께 입력합니다. 둘 다 비우면 철학 영역이 숨겨지며, 본문은 빈 줄로 문단을 구분합니다. 대표 이미지와 주제별 내용도 수정할 수 있습니다. 이미지 업로드만으로 소개 전체가 저장되지는 않으므로 초안 저장 완료까지 확인합니다. 저장되면 입력 폼 대신 완료 안내가 나타납니다. 계속 편집을 누르면 저장된 내용을 유지한 채 편집 화면으로 돌아옵니다.'},
       {title:'저장된 초안 미리보기',description:'미리보기에서 문구·사진·대체텍스트와 모바일 구성을 확인합니다. 이 단계는 고객 공개와 구분됩니다.',href:'/admin/brand-about/preview',linkLabel:'저장된 초안 미리보기'},
       {title:'저장된 초안 게시',description:'관리 상태 화면으로 돌아가 저장된 초안을 게시하고 게시 상태와 완료 안내를 확인합니다.'},
       {title:'로고 자료실의 게시 상태 확인',description:'사이트 관리의 브랜드 자료실에서 현재 게시 버전과 미게시 변경 여부를 확인합니다. 공장 담당자는 최신 게시본만 확인합니다. 자료실 게시가 쇼핑몰 헤더 로고를 자동 변경하지는 않습니다.',href:'/admin/brand-library',linkLabel:'브랜드 자료실 열기'},
@@ -109,7 +135,7 @@ export const ADMIN_GUIDES: AdminGuide[] = [
       {title:'로고 초안 확인 후 게시',description:'미리보기에서 원본·용도·규격을 확인하고 자료실로 돌아가 초안 게시를 누릅니다. 게시 완료 버전을 확인한 뒤 공장 자료실에서 최신 자료 새로 확인을 누릅니다. 오류·충돌 시 입력을 유지한 채 최신 상태를 확인하고 다시 저장합니다. 인쇄 제작 승인은 별도입니다.',href:'/admin/brand-library/preview',linkLabel:'로고 초안 미리보기'},
     ],
     completion:'고객 브랜드 소개와 공장 브랜드 자료실에서 각각 의도한 게시 버전이 표시되는지 확인합니다.',
-    notes:['긴 입력 화면에서는 하단 저장 영역에서 저장합니다. 화면 높이가 낮으면 맨 아래에 일반 배치됩니다. 저장 후 완료 안내를 확인하고, 실패하면 입력을 유지한 채 오류를 수정합니다.','초안 저장과 게시를 구분합니다. 초안 수정만으로 고객 공개본은 바뀌지 않습니다.','디자인 콘셉트 예시는 실제 판매 상품과 구별해 표시됩니다.'],
+    notes:['저장 실패 시 오류 안내로 초점과 화면이 이동합니다. 입력은 유지되므로 오류를 확인하고 수정하세요.','긴 입력 화면에서는 하단 저장 영역에서 저장합니다. 화면 높이가 낮으면 맨 아래에 일반 배치됩니다. 저장 후 완료 안내를 확인하고, 실패하면 입력을 유지한 채 오류를 수정합니다.','초안 저장과 게시를 구분합니다. 초안 수정만으로 고객 공개본은 바뀌지 않습니다.','디자인 콘셉트 예시는 실제 판매 상품과 구별해 표시됩니다.'],
     relatedPaths:['apps/web/src/app/admin/(protected)/brand-about/brand-admin.tsx','apps/web/src/components/brand-about-view.tsx','services/api/app/brand_about.py','apps/web/src/components/brand-library.tsx','apps/web/src/components/brand-library-manager.tsx','services/api/app/brand_library.py','apps/web/src/app/admin/(protected)/site/page.tsx','apps/web/src/app/factory/factory-navigation.tsx'],
   },
   {
@@ -125,7 +151,7 @@ export const ADMIN_GUIDES: AdminGuide[] = [
     relatedPaths:['apps/web/src/app/admin/(protected)/navigation/menu-manager.tsx','apps/web/src/app/admin/admin-navigation.tsx','apps/web/src/lib/admin-menu.ts','services/api/app/admin_navigation.py'],
   },
   {
-    id:'reviews',title:'리뷰 공개 상태와 답변 관리하기',summary:'리뷰를 확인하고 사유와 함께 숨김·복원 또는 답변을 저장합니다.',updatedAt:'2026-11-06',
+    id:'reviews',title:'리뷰 공개 상태와 답변 관리하기',summary:'리뷰를 확인하고 사유와 함께 숨김·복원 또는 답변을 저장합니다.',updatedAt:'2026-11-07',
     prerequisites:['대상 상품과 리뷰 내용을 먼저 확인합니다.'],
     steps:[
       {title:'리뷰 찾기',description:'상단에서 전체·답변 대기·공개·숨김 수를 확인합니다. 상품·리뷰 검색, 공개 상태와 답변 상태 필터를 조합해 대상을 찾고 리뷰 확인을 누릅니다. 답변 대기·완료 필터에서는 삭제된 리뷰를 제외합니다. 목록에서는 고객 리뷰 내용이 먼저 표시되고 모바일은 리뷰별 카드로 표시됩니다. 상세 화면에서 고객 리뷰 원문 아래 연결선으로 이어진 RE:TAG 답변을 확인하세요. 모바일 상세에서는 수정과 상품 상세 버튼이 세로로 배치됩니다. 관리 기록은 하단에서 펼치며 고객에게 공개되지 않습니다. 20건 이하의 기록에는 페이지 선택이 없습니다.',href:'/admin/reviews',linkLabel:'리뷰 관리 열기'},
@@ -133,7 +159,7 @@ export const ADMIN_GUIDES: AdminGuide[] = [
       {title:'저장 후 결과와 이력 확인',description:'리뷰 관리 저장을 누르고 목록의 완료 안내를 확인합니다. 상세에서 공개 상태·답변·관리 이력을 대조합니다.'},
     ],
     completion:'의도한 공개 상태와 답변이 저장되고 변경 사유가 관리 이력에 남았는지 확인합니다.',
-    notes:['긴 입력 화면에서는 하단 저장 영역에서 저장합니다. 화면 높이가 낮으면 맨 아래에 일반 배치됩니다. 저장 후 완료 안내를 확인하고, 실패하면 입력을 유지한 채 오류를 수정합니다.','관리자는 고객의 리뷰 내용과 평점을 변경하지 않습니다.','삭제된 리뷰는 수정할 수 없습니다. 처리 사유는 고객 화면에 표시되지 않습니다.'],
+    notes:['저장 실패 시 오류 안내로 초점과 화면이 이동합니다. 입력은 유지되므로 오류를 확인하고 수정하세요.','긴 입력 화면에서는 하단 저장 영역에서 저장합니다. 화면 높이가 낮으면 맨 아래에 일반 배치됩니다. 저장 후 완료 안내를 확인하고, 실패하면 입력을 유지한 채 오류를 수정합니다.','관리자는 고객의 리뷰 내용과 평점을 변경하지 않습니다.','삭제된 리뷰는 수정할 수 없습니다. 처리 사유는 고객 화면에 표시되지 않습니다.'],
     relatedPaths:['apps/web/src/app/admin/(protected)/reviews/review-pages.tsx'],
   },
   {
@@ -172,4 +198,10 @@ export const ADMIN_GUIDES: AdminGuide[] = [
     relatedPaths:['apps/web/src/app/admin/(protected)/design-system/gallery.tsx','apps/web/src/app/admin/(protected)/design-system/gallery.module.css','docs/design-system.md'],
   },
 
+  {id:'inquiries',title:'1:1 문의 확인하고 답변하기',summary:'비공개 고객 문의와 답변을 관리합니다.',updatedAt:'2026-11-08',
+    prerequisites:['관리자 로그인이 필요합니다. 고객은 로그인 후 헤더의 1:1 문의에서 접수합니다.'],
+    steps:[{title:'문의 목록 열기',description:'사이트·고객 → 사이트 관리 → 고객 안내 → 1:1 문의 관리에서 접수된 문의를 확인합니다. 검색어(제목·내용), 문의 유형, 답변 상태를 고른 뒤 검색을 누릅니다. 초기화로 전체 목록을 다시 확인합니다.',href:'/admin/inquiries',linkLabel:'1:1 문의 관리 열기'},{title:'고객 내용 확인',description:'문의 카드를 눌러 본문과 기존 답변을 확인합니다. 고객은 본인 문의만 볼 수 있습니다.'},{title:'답변 작성과 저장',description:'답변 작성 또는 답변 수정을 눌러 별도 입력 화면에서 답변을 저장합니다. 완료 안내 후 상세에서 확정 내용을 확인합니다. 충돌 시 입력은 유지되며 최신 문의를 새 창에서 확인합니다.'}],
+    completion:'답변 저장 완료와 고객 문의 상세의 답변 표시를 확인합니다.',
+    notes:['고객 원문은 변경하지 않습니다. 외부 알림이나 이메일은 발송하지 않습니다.','조회 실패 시 다시 확인을 누릅니다. 저장 완료 이후 조회 실패는 저장 실패가 아닙니다.'],
+    relatedPaths:['apps/web/src/components/inquiries.tsx','apps/web/src/app/admin/(protected)/site/page.tsx','apps/web/src/components/shop-shell.tsx']},
 ];

@@ -24,6 +24,9 @@ from app.reviews import PurchaseVerifier, ReviewStore, register_review_routes
 from app.designs import register_design_routes
 from app.customer import CustomerStore, DEFAULT_CUSTOMER_PATH, register_customer_routes
 from app.sales_orders import register_sales_order_routes
+from app.order_claims import register_order_claim_routes
+from app.faq import register_faq_routes
+from app.inquiries import register_inquiry_routes
 
 
 class HealthResponse(BaseModel):
@@ -63,6 +66,9 @@ def create_app(*, env_file: Path | None = None, storefront_path: Path | None = N
     customers = CustomerStore(customer_path if customer_path is not None else (catalog_path.with_name(catalog_path.stem + ".customers.sqlite3") if catalog_path is not None else DEFAULT_CUSTOMER_PATH), catalog, env_file, customer_transport, customer_clock)
     register_customer_routes(application, customers)
     register_sales_order_routes(application, catalog, customers, require_admin)
+    register_order_claim_routes(application, catalog, customers, require_admin)
+    register_faq_routes(application, require_admin, (catalog_path if catalog_path is not None else DEFAULT_CATALOG_PATH).with_name("faq.sqlite3"))
+    register_inquiry_routes(application, customers, require_admin, (catalog_path if catalog_path is not None else DEFAULT_CATALOG_PATH).with_name("inquiries.sqlite3"))
     register_factory_routes(application, catalog, require_admin)
     register_brand_library_routes(application, catalog, require_admin, catalog_path.with_name(catalog_path.stem + "-brand-library.sqlite3") if catalog_path is not None else DEFAULT_LIBRARY_PATH)
     from app.shipments import register_shipment_routes

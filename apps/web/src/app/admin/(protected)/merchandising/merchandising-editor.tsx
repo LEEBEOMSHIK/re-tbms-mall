@@ -1,4 +1,5 @@
 'use client';
+import {useFeedbackFocus} from '@/components/ui/use-feedback-focus';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { moveItem, requestStorefront, type Storefront, type Section, type Failure } from '@/lib/storefront';
@@ -12,6 +13,7 @@ const makeNew=():Section=>({id:`section-${crypto.randomUUID()}`,title:'',subtitl
 const matches=(a:Section,b:Section)=>a.id===b.id&&a.title===b.title&&a.subtitle===b.subtitle&&a.kind===b.kind&&a.enabled===b.enabled&&a.product_ids.join('|')===b.product_ids.join('|');
 export default function MerchandisingEditor({sectionId}:{sectionId?:string}){
   const [data,setData]=useState<Storefront|null>(null);const [draft,setDraft]=useState<Section|null>(null);const [position,setPosition]=useState(0);const [busy,setBusy]=useState(false);const [failure,setFailure]=useState<Failure|null>(null);const [error,setError]=useState('');const [saved,setSaved]=useState<Saved|null>(null);const [dirty,setDirty]=useState(false);const [notFound,setNotFound]=useState(false);const [attempt,setAttempt]=useState(0);const saving=useRef(false);
+  const feedbackRef=useFeedbackFocus(error);
   useEffect(()=>{const controller=new AbortController();requestStorefront({admin:true,signal:controller.signal}).then(result=>{if(controller.signal.aborted)return;if(result.ok){setData(result.data);const index=sectionId?result.data.sections.findIndex(s=>s.id===sectionId):-1;if(sectionId&&index<0){setNotFound(true);return;}setDraft(sectionId?structuredClone(result.data.sections[index]):makeNew());setPosition(sectionId?index:result.data.sections.length);}else{setFailure(result.reason);setError('진열 정보를 불러오지 못했습니다. 다시 시도해 주세요.');}});return()=>controller.abort();},[sectionId,attempt]);
   function edit(patch:Partial<Section>){if(!draft)return;setDraft({...draft,...patch});setDirty(true);}
   async function inspectLatest(){
@@ -62,7 +64,7 @@ export default function MerchandisingEditor({sectionId}:{sectionId?:string}){
         <section className="merchandising-panel" aria-labelledby="section-product-order"><h2 id="section-product-order">선택 상품 노출 순서</h2>{draft.product_ids.length===0?<p>상품을 선택하면 이곳에 진열 순서대로 표시됩니다.</p>:<ol className="merchandising-selected">{draft.product_ids.map((id,i)=>{const name=data.products.find(p=>p.id===id)?.name;return <li key={id}><span><b className="merchandising-item-number">{i+1}</b>{name}</span><div className="button-row"><button type="button" aria-label={`${name} 상품 위로`} disabled={i===0} onClick={()=>edit({product_ids:moveItem(draft.product_ids,i,-1)})}>↑ 위로</button><button type="button" aria-label={`${name} 상품 아래로`} disabled={i===draft.product_ids.length-1} onClick={()=>edit({product_ids:moveItem(draft.product_ids,i,1)})}>↓ 아래로</button><button type="button" aria-label={`${name} 선택 해제`} onClick={()=>edit({product_ids:draft.product_ids.filter(p=>p!==id)})}>선택 해제</button></div></li>;})}</ol>}</section></div>
         <div className="button-row merchandising-save-actions admin-save-bar"><button className="button" disabled={blocked||(!sectionId&&data.sections.length>=20&&!data.sections.some(s=>s.id===draft.id))}>{busy?'저장 중…':'진열 저장'}</button>{sectionId&&<button className="danger" type="button" disabled={blocked} onClick={()=>void save(true)}>섹션 삭제</button>}</div>{!sectionId&&data.sections.length>=20&&<p>최대 20개 섹션까지 등록할 수 있습니다.</p>}
       </fieldset></form>
-      {error&&<div className="merchandising-error" role="alert"><p>{error}</p>{failure==='auth'?<Link className="text-link" href="/admin/login">다시 로그인</Link>:failure&&failure!=='validation'?<button disabled={busy} onClick={()=>void inspectLatest()}>최신 진열 확인 · 입력 유지</button>:null}</div>}{dirty&&<p className="small-label">저장하지 않은 변경이 있습니다.</p>}
+      {error&&<div ref={feedbackRef} tabIndex={-1} className="merchandising-error" role="alert"><p>{error}</p>{failure==='auth'?<Link className="text-link" href="/admin/login">다시 로그인</Link>:failure&&failure!=='validation'?<button disabled={busy} onClick={()=>void inspectLatest()}>최신 진열 확인 · 입력 유지</button>:null}</div>}{dirty&&<p className="small-label">저장하지 않은 변경이 있습니다.</p>}
     </>}
   </main>;
 }
