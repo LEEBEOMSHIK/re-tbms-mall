@@ -46,9 +46,9 @@ export function StorefrontView() {
     {data && <nav className={styles.categories} aria-label="상품 카테고리">{data.categories.filter(c => !c.parent_id).map(c =>
       <Link key={c.id} href={`/products?category=${encodeURIComponent(c.id)}`}>{c.name}</Link>
     )}</nav>}
-    {error ? <div className="empty-state" role="alert"><h2>상품을 불러오지 못했어요.</h2><button onClick={() => {setError(false); setAttempt(v => v + 1);}}>다시 보기</button></div>
-      : !data ? <p className="empty-state" role="status">상품을 불러오고 있어요.</p>
-      : sections.length === 0 ? <div className="empty-state"><h2>새로운 옷을 준비하고 있어요.</h2><p>전체 상품에서 다양한 옷을 만나보세요.</p></div>
+    {error ? <div className={`empty-state ${styles.status}`} role="alert"><h2>상품을 불러오지 못했어요.</h2><button onClick={() => {setError(false); setAttempt(v => v + 1);}}>다시 보기</button></div>
+      : !data ? <p className={`empty-state ${styles.status}`} role="status">상품을 불러오고 있어요.</p>
+      : sections.length === 0 ? <div className={`empty-state ${styles.status}`}><h2>새로운 옷을 준비하고 있어요.</h2><p>전체 상품에서 다양한 옷을 만나보세요.</p></div>
       : sections.map((section, index) => <CollectionSection key={section.id} section={section} index={index}/>)}
   </div>;
 }

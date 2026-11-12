@@ -71,3 +71,17 @@
 @media (prefers-reduced-motion: reduce) {
   .more svg { transform: none; }
 }
+
+.status {
+  margin-top: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+}
+.status h2 { margin: 0; }
+.status p { margin: 0; }
+@media (max-width: 639px) {
+  .status { margin-top: var(--space-4); }
+}

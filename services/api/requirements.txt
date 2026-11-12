@@ -1,4 +1,4 @@
-# Runtime closure pinned on Python 3.11.9 (Windows ARM64).
+# Runtime closure validated on Python 3.11.9 (Windows x64).
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1

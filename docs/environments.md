@@ -53,3 +53,20 @@ Pillow 13.0.0을 Python 가상환경에 설치하며 services/api/requirements.t
 ```
 
 Next와 API 실행 후 /factory/login에서 ‘공장 테스트 계정으로 바로 로그인’을 누른다. /admin/login에도 공장 로그인 진입 링크가 있다. 테스트 대상에는 [테스트] 표시가 붙으며 미공유 내부 시안도 준비되어 공유 범위를 확인할 수 있다. 실제 업무 공장 연결을 변경하지 않는다. 운영 빌드에서는 테스트 버튼과 서버 테스트 모드가 비활성이다. seed는 운영 배포/시작 스크립트에서 호출하지 않는다.
+
+## Windows 로컬 Python 표준 (WB236, 2026-11-13)
+
+Python 3.11 x64와 `services/api/.venv`를 사용한다. ARM64 pydantic-core 로딩이 Smart App Control에 차단되어, 보안 정책을 유지한 채 공식 PyPI x64 wheel로 전환했다. 다른 PC에서의 신뢰 판정은 별도 확인이 필요하다.
+
+```powershell
+cd C:\projects\re-tbms-mall
+.\scripts\setup-api.ps1
+.\scripts\dev-api.ps1 -CheckOnly
+.\scripts\dev-api.ps1
+```
+
+전체 설치는 `scripts/setup.ps1`, API만 설치·복구할 때는 `scripts/setup-api.ps1`이다. 기본 설치 경로에서 x64를 못 찾으면 `-Python 'C:\path\to\python.exe'`로 Python 3.11 x64를 지정한다. 기존 ARM64/불완전 가상환경은 자동 삭제하지 않고 중단한다. `.env`와 DB는 재설치 대상이 아니다.
+
+실행은 아키텍처·버전, FastAPI/Pydantic/Pillow 등 네이티브 import, pip 의존성 검사 후 포트 검사와 Uvicorn을 시작한다. `-CheckOnly`는 서버를 띄우거나 포트를 점유하지 않는다. 포트 충돌 시 자동 종료·포트 변경하지 않는다. 직접 실행하려면 `services/api`에서 `.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8100 --reload`를 사용하되 사전 검사는 별도로 실행한다.
+
+검증·정리 근거: [WB236 런타임 검증](reviews/python-x64.md). 운영 환경 및 보안 정책 변경 없음.

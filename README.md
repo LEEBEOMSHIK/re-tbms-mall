@@ -6,7 +6,7 @@
 
 ## 로컬 시작 (Windows / Docker 불필요)
 
-선행 조건: Node.js 24.18 이상 24.x, npm 11.16 이상 11.x, Python 3.11 이상(검증 환경 3.11.9), PowerShell. 이 단계는 DB·캐시·큐가 필요하지 않습니다. 운영 DB를 임의로 SQLite로 대체하지 않습니다.
+선행 조건: Node.js 24.18 이상 24.x, npm 11.16 이상 11.x, Python 3.11 x64(검증 환경 3.11.9, ARM64 사용 안 함), PowerShell. 이 단계는 DB·캐시·큐가 필요하지 않습니다. 운영 DB를 임의로 SQLite로 대체하지 않습니다.
 
 저장소 루트에서 최초 설치 또는 잠금 파일 변경 시:
 
@@ -15,7 +15,7 @@ cd C:\projects\re-tbms-mall
 powershell -ExecutionPolicy Bypass -File .\scripts\setup.ps1
 ```
 
-Python 선택이 필요한 경우 `-Python 'C:\path\to\python.exe'`를 전달합니다. 시스템 실행 정책은 변경하지 않습니다. 이 명령의 Bypass는 해당 프로세스에만 적용됩니다. 설치에는 패키지 다운로드 네트워크 연결이 필요합니다.
+API만 설치할 때는 `.\scripts\setup-api.ps1`, 시작 전 검사만 하려면 `.\scripts\dev-api.ps1 -CheckOnly`를 실행합니다. 가상환경은 `services/api/.venv` 하나를 사용합니다. Python 선택이 필요한 경우 `-Python 'C:\path\to\python.exe'`를 전달합니다. 시스템 실행 정책은 변경하지 않습니다. 이 명령의 Bypass는 해당 프로세스에만 적용됩니다. 설치에는 패키지 다운로드 네트워크 연결이 필요합니다.
 
 서로 다른 터미널 두 개에서 실행합니다.
 

@@ -1,7 +1,8 @@
 # RE: TBMS 작업 보드
 
-- 갱신일: 2026-11-09
-- 검증일: 2026-11-09
+- 갱신일: 2026-11-13
+- 검증일: 2026-11-13
+- 커밋 전 확인(2026-11-13): WB235 홈 안내 간격 진행분·WB236 x64 표준화 포함. next-env.d.ts 자동생성 변경/DB/설정/로컬 출력 제외. 보드 WB236 필수 필드 누락 수정 및 파서 재검증. WB235·232·233·234 모바일 미완료 유지.
 - 커밋 전 확인(2026-11-09): FAQ·문의·반품교환 및 공통 UI 진행분 보존. 웹263·타입·전체 lint·관련 API43 통과(API 제한환경 응답정지 후 합성 임시DB 별도 실행). 독립 파일선별 검토83경로 및 관련 웹22 통과. next-env.d.ts 자동생성 변경·환경변수·DB·.local 검증 출력 제외, 실제 삭제 없음. 모바일 미완료 작업 상태 유지.
 - 커밋 전 통합 확인(2026-11-05): WB159~205 누적 변경194경로 선별·독립 의존성/파일 검토 완료. 웹248/API713·타입·전체lint 통과. API 첫 제한환경 실행은 요청 정지로 중단했고 별도 테스트DB 재실행에서713 통과. 로고/폰트/라이선스/관리자 가이드 캡처 포함, next-env.d.ts 개발경로 자동변경·로컬DB·환경설정·캐시·검증 출력 제외. 사용자 자료 삭제 없음. 외부 폰트 OFL 원문의 공백은 보존하고 해당2파일을 제외한 staged diff 공백검사 통과. 실제 결제·택배사 선정 등 미정 상태 유지.
 - 검증 요약: WB205 주문요약 스크롤추적·낮은화면/모바일·독립 검증 완료. WB204 대표17경로34보기 감사·텍스트 동작 여백 보정·3폭 기능/독립 검증 완료. WB203 안내 버튼 호버 여백 PC·모바일·독립 검증 완료. WB202 모달 배경 이동7.5px→0px·PC모바일/독립 검증 완료. WB201 구매 안내 모달 PC·모바일·다크·상태보존·독립 검증 완료. WB200 부분 작업 잠금 범위 감사·4개 흐름 개선·웹248/PC모바일/독립 검증 완료. WB199 결제 CTA 유지·계산 상태 분리·최신 금액 진입 확인. WB198 수량 저장 중 선택·탐색 유지, 행별 피드백 PC·모바일 확인. WB197 연속 수량 입력 PC·모바일 5/5 확인. WB196 선택 주문·옵션·스테퍼·운임 및 반응형 검증. WB195 장바구니 확대·결제 진입 3폭 검증. WB194 상품이 담긴 장바구니·후속 구매 화면 점검. WB193 PC 담기 모달 확대·반응형 치수 검증. WB192 고객 담기 완료 모달 PC·모바일 확인. WB191 구매 안내 표시 전후 버튼 이동 0px 확인. WB190 고객 쇼핑 공통 전환 및 모바일 터치 구매 진입 확인. WB189 홈 탐색 애니메이션 Chrome 확인. WB188 고객 홈 기본·호버 Chrome 확인. WB187 고객 홈 탐색 호버·키보드 및 터치 이동 검증. WB186 고객 제목·상품 정보 조합 PC·모바일 확인. WB185 관리자 한글 서체 PC·모바일 전후 검증. WB184 홈 진열 관리 두 경로 직접 이동 확인. WB183 광고 설정 재구성 및 실제 연결 컬렉션 확인. WB182 메인 배너 전체 이동·광고별 편집과 자동 구성 복원 검증. WB181 홈 광고·탐색 호버·관리자 표시 설정 검증. WB180 홈 상품 카드 복원·탐색 링크 PC/모바일 확인. WB178 공통 시각 언어 적용·3개 역할 대표 화면 확인. WB177 디자인 시스템 예시와 사용처 색인 PC·모바일 검증 완료. WB176 디자인 시스템 갤러리 3100 PC·모바일 검증 완료. WB175 관리자 메뉴 편집 PC·모바일 및 충돌 복구 검증 완료. WB174 홈 진열 메뉴 통합·진열 내부 PC/모바일 검증 완료. WB173 사이트 관리 업무별 탐색 및 두 진입 경로 검증 완료. WB172 사이트 관리 네 메뉴 PC·모바일 확인. WB171 사이드바 폭 조절·홈 진열 직행 PC/모바일 검증 완료. WB165 미결제 직접 취소·즉시 확보 해제 및 관리자 사유 구분 검증 완료. WB162 주문 생성·10분 확보와 고객 안내, 경합·재시도·만료·모바일 자동 전환 검증 완료. WB160 관리자 로고 등록·교체·게시/공장 최신본 API4·웹11·실제PC모바일·독립 검증 완료. 커밋 전 통합 확인(2026-11-01): 웹221/API71·타입·lint·보드5 통과, 독립 파일선별/보드 검토 완료. 최근 항목 선행조건 누락 및 미지원 review 상태를 수정했고 WB150은 미완료 유지. WB145 관리자 상세검색·실제3100·독립·가이드 검증 완료. WB144 현재3100 주문/메뉴 복구·현재계정 합성6건 고객/관리자 확인·독립/보존검증 완료. WB143 주문 조회 API/고객·관리자 화면·합성 PC/모바일·독립·가이드 캡처 완료. WB140 모바일 아이콘·실로그인 상품복귀/취소응답 재현25 통과, WB141 주문설계 초안 독립검토 완료(구현 전). WB134 PC/모바일 입력복원·주문서/계정분리·로그아웃 초기화·독립9 통과. WB122 마이페이지·주소록·주문서 재사용 검증 완료(API637+추가경계4/웹204/독립/PC·모바일). WB121 실상품 주문서 연결 API47/웹23/독립검토/PC·모바일 통과(PG 제외). WB119 관리자 PG준비메뉴·기존메뉴보존·가이드캡처 API31/웹13/독립10/타입/lint·PC/모바일 확인. WB101 Google 실로그인/카트2개저장/재로그인유지/복구 확인, Kakao 실로그인/카트저장/재로그인유지/Google계정분리/복구 확인; 복귀/계정전환2건수정 웹20/API41/타입/lint/독립통과. WB117 PC전체캡처·기본화면맞춤/원본전환·통합검증완료. WB116 캡처비율/표식보정·독립/PC/모바일검증통과. WB115 실제캡처18장·9테스트/타입/lint/독립·모바일확대/인증통과. WB114 사용가이드10항목·자동10/타입/lint/독립/브라우저통과·동기화규칙반영. WB112 메뉴그룹·표시관리 웹192/API48/타입/lint/독립·통합통과. WB111 관리자 사이드바·화면밀도 타입/lint/웹7/독립/브라우저3폭 통과. WB110 의류 중심 소개 문구·웹10/독립검토/공개반영 확인. WB109 AI 예시 추가·웹/보드10/API21/타입/독립검증·공개반영 확인. WB108 브랜드소개 관리/생성이미지3장 웹188/API90·실제모바일/저장게시·독립검증 통과(docs/reviews/brand-about.md). WB107 프로필사진 코드/합성 API41·웹17·독립검토 통과, 실사진 확인 WB101. WB105 계정 프로필·빈카트 웹181/API34·타입/lint·독립웹16/API34·모바일/PC 검증 통과(docs/reviews/customer-account-cart.md). WB103 고객 모바일 헤더/nav/하단설정·폰트/여백 정비 웹180·타입/lint·독립22/캡처 통과(docs/reviews/customer-mobile.md). WB100 코드/모의통합 웹180·API563·후속고객29·독립검증 통과, 실설정 반영·공급자조회200, 실제 로그인은 WB101 진행 중(docs/reviews/customer-shopping.md). WB83 안정성 수정·웹165/API48·독립 브라우저/성능 검증 완료(docs/reviews/designer-stability.md). WB88 상세 정보 서버534/웹163·타입/lint·독립API28/브라우저 통과(docs/reviews/product-details.md). WB93 통합·워크트리/백업 현황 독립 대조 완료(docs/reviews/workboard-reconcile.md). WB99 헤더 구분·공통/관리자 디자인 문서 동기화 및 독립검증 완료(docs/reviews/management-table-header.md). WB98 관리 목록 짝수행 공통 적용/독립검증 완료(docs/reviews/management-row-stripes.md). WB97 탭 시각·키보드 독립 검증 통과(docs/reviews/product-detail-tabs-polish.md). WB96 선택 탭·패널 통합/독립 검증 통과(docs/reviews/product-detail-tabs.md). WB95 상품 상세 편집 통합 완료(웹160/타입/lint/브라우저/독립검증, docs/reviews/product-detail-edit.md). WB92 판매가격·할인관리 서버459/웹98·독립/실제관리저장/고객표시 통과(docs/reviews/sale-price.md). WB91 가격·리뷰 관리 및 구매인증 차단 경계 API435/웹95/독립검증 통과(docs/reviews/price-reviews.md). WB90 실제 샘플 홈/목록/상세·옵션·PC/모바일 독립 검증 통과(docs/reviews/sample-storefront.md). WB89 고객 필터토글·디자인분리 웹13/독립8·타입/lint·8보기/관리자격리 통과(docs/reviews/customer-design.md). WB87 공개상품 API256/최종67·독립56·웹92/type/lint·20보기 통과(docs/reviews/public-catalog.md). WB13 실제 재고 API61/독립22·웹20·독립4보기 통과(docs/reviews/dashboard-inventory.md). WB86 샘플/완제품 발송·수령·검수·합격입고 API207/독립17·웹업무흐름 통과(docs/reviews/shipments.md). WB85 본인 프로필 수정 API54/독립18·브라우저4보기 통과(docs/reviews/factory-profile.md). WB84 왼쪽 메뉴·프로필 독립4보기 및 공장 대시보드·독립12보기 통과(docs/reviews/factory-dashboard.md). WB82 공장 테스트 로그인·권한·저장·3100통합 검증 통과(docs/reviews/factory-test-login.md). WB81 관리자 목록 간소화·독립 웹80/112보기 검증 통과(docs/reviews/admin-lists.md). WB79 카테고리 > 표기·상품6열 정리 검증 통과. WB80 원본 HEAD/index 보존·417개 blob 일치·웹80/보드5·독립 검증 통과. docs/reviews/catalog-list.md / docs/reviews/worktree-isolation.md
@@ -2469,3 +2470,34 @@
 
 
 
+
+### WB235 | 홈 상태 안내 간격과 로컬 API 시작 확인
+- 상태: in-progress
+- 담당: root / 독립 검증
+- 우선순위: P1
+- 내용: 카테고리가 없는 조회 실패·로딩·빈목록에서 제목과 안내 패널 간격 유지. 로컬 API 기동 실패 진단.
+- 완료 기준: 실제3100 안내 여백 확인·독립 검토, API8100 정상 응답.
+- 선행 조건: 현재 보안 정책에서 허용되는 공식 Python/패키지 런타임.
+- 검증: 2026-11-13 실제3100 PC 오류 화면 간격 확인(.local/home-error-spacing.jpg). API import 재현 및 CodeIntegrity3077 이벤트에서 _pydantic_core.cp311-win_arm64.pyd 차단 확인. 정책변경·우회 없이 공식 x64 대체 환경으로 복구, health/storefront/BFF HTTP200. 모바일 실제 검증 미실행.
+- 변경 파일: apps/web/src/components/storefront-view.tsx, storefront-view.module.css, docs/design-system.md. API/데이터 계약 불변. 복구는 해당 status 클래스와 규칙 제거.
+- 가이드 영향 없음: 고객 홈 조회 실패 표시 여백만 변경, 관리자 가이드 업무·버튼·캡처 표식 변경 없음.
+- 다음: 모바일 상태 안내 간격 실제 검증. API 복구 완료, 실행 경로 docs/environments.md 참조.
+- 독립 검토: commit_review 소스 검토 통과. 정상 CollectionSection·ProductCarousel·상품 카드 영향 없음.
+
+2026-11-13 WB235 API 복구 당시 기록(현재 WB236의 표준 .venv로 대체, 임시환경 및 PythonPath 옵션 제거): Smart App Control의 ARM64 pydantic-core 차단 확인. 보안 정책을 유지한 채 공식 PyPI 동일 고정 버전 x64 패키지와 설치된 Python3.11.9 x64로 별도 .local/api-venv-x64 구성. 기존 .venv/환경설정/DB 보존. import/pip check, API health/storefront 및3100 BFF HTTP200, SAC상태1 확인. scripts/dev-api.ps1에 명시적 PythonPath 옵션 추가(기본 경로 불변). 실행/복구 안내 docs/environments.md. 운영 변경·PG·외부 전송 없음. 가이드 영향 없음: 개발 실행 경로만 추가. 모바일 UI 확인은 기존 미완료 유지.
+
+### WB236 | 로컬 Python x64 표준화 및 시작 전 검사
+- 상태: done
+- 담당: root / commit_review 독립 검증
+- 우선순위: P1
+- 내용: ARM64 확장 차단과 실패한 reloader 포트 점유 재발 방지.
+- 범위: setup/API 실행 스크립트, README, 환경 정책, 런타임 정리.
+- 선행 조건: 설치된 Python 3.11 x64, 패키지 다운로드 연결.
+- 계약: Python 3.11 x64, services/api/.venv; 기존 DB·환경설정 유지; 운영 변경 없음.
+- 완료 기준: 설치 재실행, import/pip 사전검사, 재시작 및 8100/3100 응답, ARM64 거부 검증.
+- 가이드 영향 없음: 관리자 업무 UI가 아닌 개발 실행 절차만 변경.
+
+
+- 검증: 2026-11-13 x64 설치·재설치, PS5.1/7 CheckOnly, ARM64 거부, 포트 충돌 시 기존 서버 유지, 8100/3100 HTTP200, API46테스트 통과. commit_review 독립 검사 통과.
+- 보존·정리: DB/설정20개 SHA256동일, 폐기 ARM64·중복x64·진단wheel 6,373파일/127,726,226바이트 제거. 보안정책 유지.
+- 근거·복구·미실행: docs/reviews/python-x64.md. 다음: WB235 모바일 안내 간격 검증(별도 미완료).

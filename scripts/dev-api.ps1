@@ -1,9 +1,13 @@
-. "$PSScriptRoot/common.ps1"
+param([switch]$CheckOnly)
+. "$PSScriptRoot/python-runtime.ps1"
 $apiPath = Join-Path $script:RepoRoot 'services/api'
 $venvPython = Join-Path $apiPath '.venv/Scripts/python.exe'
 if (-not (Test-Path -LiteralPath $venvPython)) {
     throw 'API environment is missing. Run scripts/setup.ps1 first.'
 }
+$venvPython = (Resolve-Path -LiteralPath $venvPython).Path
+Assert-ApiRuntime $venvPython
+if ($CheckOnly) { return }
 Assert-PortAvailable 8100
 Push-Location $apiPath
 try {
