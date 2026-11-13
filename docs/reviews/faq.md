@@ -35,3 +35,10 @@ R112. 고객 /faq 검색·5분류·질문 펼침. 관리자 /admin/faq 목록 �
 - 가이드 영향 없음: 색상만 변경, 기존 faq/inquiries 입력 절차·버튼 위치·표식 좌표 동일. 모바일 실검증은 기존 미완료 유지. 전체 사이트 모든 화면의 명암 검증 완료를 의미하지 않음.
 - 복구: form-controls.css 마지막 선택/hover caption 규칙만 제거. 기존 미커밋 변경과 데이터 보존.
 - 후속 회귀: node --test tests/faq.test.ts tests/admin-guide.test.ts tests/admin-guide-captures.test.ts 6/6 통과.
+
+2026-11-13 재검증 착수: WB233 고객 FAQ 긴 무공백 질문의 flex 최소 너비로 펼침 아이콘이 밀릴 수 있는 경계 확인. 질문 본문 min-width:0/overflow-wrap:anywhere, Q 표식 flex:none으로 보완. API/문구/관리자 절차 변경 없음. 실제 모바일390px 배송 분류/답변 펼침 확인. 최종 검증 기록 후 상태 갱신.
+
+2026-11-13 후속 검증: 모바일390 목록·분류 줄바꿈/가로 넘침 없음. 숨김 합성 FAQ 질문 필수 입력 실패→질문 포커스/답변 유지→원문 복구 저장→완료 제목 포커스 및 숨김 유지 확인. 서버 오류/충돌의 모바일 재현과 완료 캡처는 미완료. 상세 증거 docs/reviews/customer-responsive-followup.md.
+
+
+2026-11-13 최종: 사용자 캡처 면제 후 잔여 PC·모바일 동작/좌표 검증 완료. 이전 미완료 표기는 당시 기록이며 최종 결과·구체적인 미실행 범위·테스트 자료 복구는 docs/reviews/customer-responsive-followup.md 참조. 관련29/29 및 독립29/29·소스 검토 통과.

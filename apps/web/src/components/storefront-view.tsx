@@ -38,12 +38,13 @@ export function StorefrontView() {
     return () => controller.abort();
   }, [attempt]);
   const sections = data ? visibleSections(data, 'all') : [];
+  const categories = data?.categories.filter(category => !category.parent_id) ?? [];
   return <div className="shop-home">
     {data?.hero_enabled && <HomePromotion sections={sections} configured={data.hero_slides}/>}
     <header className="shop-intro"><div><p className="eyebrow">THE EVERYDAY EDIT</p><h1>오늘의 옷장</h1></div>
       <Link className={styles.more} href="/products">전체 상품 보기 <Arrow/></Link>
     </header>
-    {data && <nav className={styles.categories} aria-label="상품 카테고리">{data.categories.filter(c => !c.parent_id).map(c =>
+    {categories.length > 0 && <nav className={styles.categories} aria-label="상품 카테고리">{categories.map(c =>
       <Link key={c.id} href={`/products?category=${encodeURIComponent(c.id)}`}>{c.name}</Link>
     )}</nav>}
     {error ? <div className={`empty-state ${styles.status}`} role="alert"><h2>상품을 불러오지 못했어요.</h2><button onClick={() => {setError(false); setAttempt(v => v + 1);}}>다시 보기</button></div>

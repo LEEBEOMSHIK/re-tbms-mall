@@ -1,0 +1,28 @@
+/* Compact card copy follows each product's own content, without shared tracks. */
+.product-carousel .product-card > .product-info,
+.shop-product-grid .product-card > .product-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.product-card .product-info > h2,
+.product-card .product-info > h3 { margin: 0; }
+.product-card .product-info > .shop-selling-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  margin: -2px 0 0;
+}
+.product-card .shop-final-price { order: 0; }
+.product-card .shop-original-price { order: 1; gap: 6px; }
+.product-card .shop-final-price > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.product-card .product-info > .product-option-preview { margin: 0; }

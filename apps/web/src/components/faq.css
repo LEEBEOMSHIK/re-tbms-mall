@@ -5,3 +5,6 @@
 
 /* Admin content inherits the shell spacing, not customer page padding. */
 .admin-page > .faq-page:has(.faq-search,.inquiry-filters){max-width:none;margin:0;padding:0}.admin-page > .faq-page:has(.faq-search,.inquiry-filters) .faq-heading{margin-bottom:24px}.admin-page > .faq-page:has(.faq-search,.inquiry-filters) .faq-heading h1{font-size:var(--text-2xl,1.75rem);line-height:1.3}.faq-admin-row .faq-meta{margin:0 0 8px}.faq-admin-row h2{margin:0 0 8px;line-height:1.5}.faq-admin-row .faq-excerpt{margin:0}.faq-admin-row .faq-button{white-space:nowrap}
+
+/* Keep long question text inside the accordion without pushing its toggle out. */
+.faq-list summary>span:nth-child(2){min-width:0;overflow-wrap:anywhere}.faq-q{flex:none}
